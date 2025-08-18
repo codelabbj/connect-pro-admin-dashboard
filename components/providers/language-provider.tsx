@@ -217,6 +217,8 @@ const translations = {
     "users.confirmDeactivateTitle": "Deactivate User",
     "users.confirmActivateText": "Are you sure that you want to activate user?",
     "users.confirmDeactivateText": "Are you sure that you want to deactivate user?",
+    "users.disablePartner": "Disable Partner",
+    "users.confirmDisablePartner": "Are you sure you want to disable this user's partner status?",
 
     // Transactions
     "transactions.title": "Transactions",
@@ -862,6 +864,8 @@ const translations = {
     "users.confirmDeactivateTitle": "Désactiver l'utilisateur",
     "users.confirmActivateText": "Êtes-vous sûr de vouloir activer l'utilisateur ?",
     "users.confirmDeactivateText": "Êtes-vous sûr de vouloir désactiver l'utilisateur ?",
+    "users.disablePartner": "Désactiver le partenaire",
+    "users.confirmDisablePartner": "Êtes-vous sûr de vouloir désactiver le statut de partenaire de cet utilisateur ?",
 
     // Transactions
     "transactions.title": "Transactions",
