@@ -27,7 +27,8 @@ const translations = {
     "auth.welcome": "Welcome back",
     "auth.subtitle": "Enter your credentials to access your account",
     "auth.loggingIn": "Logging in...",
-     "auth.loginFailed": "Login failed.",
+    "auth.loginFailed": "Login failed.",
+    "auth.notAllowed": "You are not allowed to access this page.",
 
     // Navigation
     "nav.dashboard": "Dashboard",
@@ -672,6 +673,7 @@ const translations = {
     "auth.subtitle": "Entrez vos identifiants pour accéder à votre compte",
     "auth.loggingIn": "Connexion...",
     "auth.loginFailed": "Échec de la connexion.",
+    "auth.notAllowed": "Vous n'êtes pas autorisé à accéder à cette page.",
 
     // Navigation
     "nav.dashboard": "Tableau de bord",
