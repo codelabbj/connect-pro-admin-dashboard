@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -10,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useLanguage } from "@/components/providers/language-provider"
 import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose, DialogFooter } from "@/components/ui/dialog"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { useApi } from "@/lib/useApi"
 
@@ -44,6 +43,8 @@ export default function TopupPage() {
 	const [confirmModalOpen, setConfirmModalOpen] = useState(false);
 	const [pendingAction, setPendingAction] = useState(false);
 	const [disabledTopups, setDisabledTopups] = useState<{[uid:string]:"approved"|"rejected"|undefined}>({});
+	const [proofImageModalOpen, setProofImageModalOpen] = useState(false);
+	const [proofImageUrl, setProofImageUrl] = useState<string | null>(null);
 
 	// Fetch topups from API
 	useEffect(() => {
@@ -209,40 +210,42 @@ export default function TopupPage() {
 											<TableCell>{topup.reference}</TableCell>
 											<TableCell>{topup.created_at ? topup.created_at.split("T")[0] : "-"}</TableCell>
 											<TableCell>
+											   <div className="flex gap-2 items-center">
 												<Button size="sm" variant="secondary" onClick={() => handleOpenDetail(topup.uid)}>
-													{t("topup.details") || "Details"}
-													{/* Approve Button */}
-													<Button
-														size="sm"
-														variant="default"
-														className="ml-2"
-														disabled={!!disabledTopups[topup.uid] || topup.status !== "pending"}
-														onClick={() => {
-															setActionType("approve");
-															setActionTopup(topup);
-															setAdminNotes("");
-															setActionModalOpen(true);
-														}}
-													>
-														{disabledTopups[topup.uid] === "approved" ? t("topup.approved") || "Approved" : t("topup.approve") || "Approve"}
-													</Button>
-													{/* Reject Button */}
-													<Button
-														size="sm"
-														variant="destructive"
-														className="ml-2"
-														disabled={!!disabledTopups[topup.uid] || topup.status !== "pending"}
-														onClick={() => {
-															setActionType("reject");
-															setActionTopup(topup);
-															setAdminNotes("");
-															setRejectionReason("");
-															setActionModalOpen(true);
-														}}
-													>
-														{disabledTopups[topup.uid] === "rejected" ? t("topup.rejected") || "Rejected" : t("topup.reject") || "Reject"}
-													</Button>
+													{t("topup.details") || "Details"}	
 												</Button>
+												{/* Approve Button */}
+												<Button
+													size="sm"
+													variant="default"
+													className="ml-2"
+													disabled={!!disabledTopups[topup.uid] || topup.status !== "pending"}
+													onClick={() => {
+														setActionType("approve");
+														setActionTopup(topup);
+														setAdminNotes("");
+														setActionModalOpen(true);
+													}}
+												>
+													{disabledTopups[topup.uid] === "approved" ? t("topup.approved") || "Approved" : t("topup.approve") || "Approve"}
+												</Button>
+												{/* Reject Button */}
+												<Button
+													size="sm"
+													variant="destructive"
+													className="ml-2"
+													disabled={!!disabledTopups[topup.uid] || topup.status !== "pending"}
+													onClick={() => {
+														setActionType("reject");
+														setActionTopup(topup);
+														setAdminNotes("");
+														setRejectionReason("");
+														setActionModalOpen(true);
+													}}
+												>
+													{disabledTopups[topup.uid] === "rejected" ? t("topup.rejected") || "Rejected" : t("topup.reject") || "Reject"}
+												</Button>
+												</div>
 											</TableCell>
 										</TableRow>
 									))}
@@ -315,7 +318,7 @@ export default function TopupPage() {
 									<Copy className="h-4 w-4" />
 								</Button>
 							</div>
-							<div><b>{t("topup.amount") || "Amount"}:</b> {detailTopup.amount}</div>
+							{/* <div><b>{t("topup.amount") || "Amount"}:</b> {detailTopup.amount}</div> */}
 							<div><b>{t("topup.formattedAmount") || "Formatted Amount"}:</b> {detailTopup.formatted_amount}</div>
 							<div><b>{t("topup.status") || "Status"}:</b> {detailTopup.status_display || detailTopup.status}</div>
 							<div><b>{t("topup.userName") || "User Name"}:</b> {detailTopup.user_name}</div>
@@ -323,7 +326,35 @@ export default function TopupPage() {
 							<div><b>{t("topup.reference") || "Reference"}:</b> {detailTopup.reference}</div>
 							<div><b>{t("topup.createdAt") || "Created At"}:</b> {detailTopup.created_at ? detailTopup.created_at.split("T")[0] : "-"}</div>
 							<div><b>{t("topup.expiresAt") || "Expires At"}:</b> {detailTopup.expires_at ? detailTopup.expires_at.split("T")[0] : "-"}</div>
+							{/* <div><b>{t("topup.transactionDate") || "Transaction Date"}:</b> {detailTopup.transaction_date ? detailTopup.transaction_date.split("T")[0] : "-"}</div> */}
+							<div className="flex items-center gap-2">
+								<b>{t("topup.proofImage") || "Proof Image"}:</b>
+								{detailTopup.proof_image ? (
+									<>
+										<Button
+											size="sm"
+											variant="outline"
+											onClick={() => {
+												setProofImageUrl(detailTopup.proof_image);
+												setProofImageModalOpen(true);
+											}}
+										>
+											{t("topup.viewProof") || "Voir l'image"}
+										</Button>
+									</>
+								) : (
+									<span className="text-muted-foreground">{t("topup.noProofImage") || "Aucune image"}</span>
+								)}
+							</div>
 							<div><b>{t("topup.proofDescription") || "Proof Description"}:</b> {detailTopup.proof_description}</div>
+							{/* <div><b>{t("topup.accountTransactionReference") || "Transaction Référence"}:</b> {detailTopup.account_transaction_reference}</div> */}
+							{/* <div><b>{t("topup.canSubmitProof") || "Peut soumettre preuve"}:</b> {detailTopup.can_submit_proof ? "Oui" : "Non"}</div>
+							<div><b>{t("topup.canBeReviewed") || "Peut être vérifié"}:</b> {detailTopup.can_be_reviewed ? "Oui" : "Non"}</div> */}
+							<div><b>{t("topup.isExpired") || "Expiré"}:</b> {detailTopup.is_expired ? "Oui" : "Non"}</div>
+							<div><b>{t("topup.timeRemaining") || "Temps restant"}:</b> {detailTopup.time_remaining ? `${detailTopup.time_remaining} secondes` : "-"}</div>
+							<div><b>{t("topup.reviewedBy") || "Vérifié par"}:</b> {detailTopup.reviewed_by_name}</div>
+							<div><b>{t("topup.reviewedAt") || "Vérifié le"}:</b> {detailTopup.reviewed_at ? detailTopup.reviewed_at.split("T")[0] : "-"}</div>
+							<div><b>{t("topup.processedAt") || "Traité le"}:</b> {detailTopup.processed_at ? detailTopup.processed_at.split("T")[0] : "-"}</div>
 							<div><b>{t("topup.adminNotes") || "Admin Notes"}:</b> {detailTopup.admin_notes}</div>
 							<div><b>{t("topup.rejectionReason") || "Rejection Reason"}:</b> {detailTopup.rejection_reason}</div>
 						</div>
@@ -333,6 +364,108 @@ export default function TopupPage() {
 					</DialogClose>
 				</DialogContent>
 			</Dialog>
+
+			{/* Proof Image Modal */}
+			<Dialog open={proofImageModalOpen} onOpenChange={setProofImageModalOpen}>
+				<DialogContent className="flex flex-col items-center justify-center">
+					<DialogHeader>
+						<DialogTitle>{t("topup.proofImage") || "Proof Image"}</DialogTitle>
+					</DialogHeader>
+					{proofImageUrl && (
+						<img
+							src={proofImageUrl}
+							alt={t("topup.proofImageAlt") || "Preuve"}
+							className="max-w-full max-h-[70vh] rounded border"
+							style={{ objectFit: "contain" }}
+						/>
+					)}
+					<DialogClose asChild>
+						<Button className="mt-4 w-full">{t("common.close") || "Fermer"}</Button>
+					</DialogClose>
+				</DialogContent>
+			</Dialog>
+
+			{/* Approve/Reject Modal */}
+			<Dialog open={actionModalOpen} onOpenChange={setActionModalOpen}>
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>
+        {actionType === "approve"
+          ? t("topup.approveTitle") || "Approuver la demande"
+          : t("topup.rejectTitle") || "Rejeter la demande"}
+      </DialogTitle>
+    </DialogHeader>
+    {actionType === "approve" ? (
+      <div className="space-y-4">
+        <Input
+          placeholder={t("topup.adminNotes") || "Notes administrateur"}
+          value={adminNotes}
+          onChange={e => setAdminNotes(e.target.value)}
+        />
+      </div>
+    ) : (
+      <div className="space-y-4">
+        <Input
+          placeholder={t("topup.rejectionReason") || "Raison du rejet"}
+          value={rejectionReason}
+          onChange={e => setRejectionReason(e.target.value)}
+        />
+      </div>
+    )}
+    <DialogFooter className="flex gap-2">
+      <Button
+        variant="outline"
+        onClick={() => setActionModalOpen(false)}
+      >
+        {t("common.cancel") || "Annuler"}
+      </Button>
+      <Button
+        onClick={async () => {
+          setPendingAction(true);
+          try {
+            const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/recharge-requests/${actionTopup.uid}/${actionType}/`;
+            const payload =
+              actionType === "approve"
+                ? { admin_notes: adminNotes }
+                : { rejection_reason: rejectionReason };
+            await apiFetch(endpoint, {
+              method: "POST",
+              body: JSON.stringify(payload),
+              headers: { "Content-Type": "application/json" },
+            });
+            setDisabledTopups(prev => ({
+              ...prev,
+              [actionTopup.uid]: actionType === "approve" ? "approved" : "rejected",
+            }));
+            setActionModalOpen(false);
+            setAdminNotes("");
+            setRejectionReason("");
+            toast({
+              title: t("topup.success"),
+              description:
+                actionType === "approve"
+                  ? t("topup.approvedSuccessfully") || "Demande approuvée"
+                  : t("topup.rejectedSuccessfully") || "Demande rejetée",
+            });
+          } catch (err: any) {
+            toast({
+              title: t("topup.failed"),
+              description: extractErrorMessages(err),
+              variant: "destructive",
+            });
+          } finally {
+            setPendingAction(false);
+          }
+        }}
+        disabled={pendingAction || (actionType === "approve" && !adminNotes) || (actionType === "reject" && !rejectionReason)}
+      >
+        {actionType === "approve"
+          ? t("topup.confirmApprove") || "Confirmer l'approbation"
+          : t("topup.confirmReject") || "Confirmer le rejet"}
+      </Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
 		</>
 	)
 }
