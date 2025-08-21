@@ -538,10 +538,10 @@ export default function TransactionsPage() {
     <div className="space-y-6">
       {/* Create Transaction Button */}
       <div className="flex justify-end">
-        <Button onClick={() => setCreateModalOpen(true)} className="mb-4" variant="default">
+        {/* <Button onClick={() => setCreateModalOpen(true)} className="mb-4" variant="default">
           <Plus className="w-4 h-4 mr-2" />
           {t("transactions.createTransaction") || "Create Transaction"}
-        </Button>
+        </Button> */}
       </div>
       {/* Create Transaction Modal */}
       <Dialog open={createModalOpen} onOpenChange={setCreateModalOpen}>
@@ -672,7 +672,7 @@ export default function TransactionsPage() {
                     paginatedTransactions.map((transaction) => (
                       <TableRow key={transaction.uid}>
                         <TableCell>{transaction.reference || "-"}</TableCell> {/* NEW COLUMN */}
-                        <TableCell className="font-medium">${parseFloat(transaction.amount).toLocaleString()}</TableCell>
+                        <TableCell className="font-medium">{parseFloat(transaction.amount).toLocaleString()} FCFA</TableCell>
                         <TableCell>{transaction.display_recipient_name || "-"}</TableCell> {/* NEW CELL */}
                         <TableCell>{transaction.recipient_phone || "-"}</TableCell> {/* NEW CELL */}
                         <TableCell>{transaction.created_at ? new Date(transaction.created_at).toLocaleDateString() : "-"}</TableCell>
@@ -692,31 +692,38 @@ export default function TransactionsPage() {
                             <Button
                               variant="secondary"
                               size="sm"
+                              className="bg-blue-100 hover:bg-blue-200 text-blue-800 border-blue-300 dark:bg-blue-900 dark:hover:bg-blue-800 dark:text-blue-200 dark:border-blue-700"
                               title={t("transactions.retry") || "Retry"}
                               onClick={() => openRetryModal(transaction)}
                             >
                               {t("transactions.retry") || "Retry"}
                             </Button>
+
                             <Button
                               variant="secondary"
                               size="sm"
+                              className="bg-red-100 hover:bg-red-200 text-red-800 border-red-300 dark:bg-red-900 dark:hover:bg-red-800 dark:text-red-200 dark:border-red-700"
                               title={t("transactions.cancelAction") || "Cancel Transaction"}
                               onClick={() => openCancelModal(transaction)}
                             >
                               {t("transactions.cancelAction") || "Cancel Transaction"}
                             </Button>
+
                             <Button
                               variant="secondary"
                               size="sm"
+                              className="bg-green-100 hover:bg-green-200 text-green-800 border-green-300 dark:bg-green-900 dark:hover:bg-green-800 dark:text-green-200 dark:border-green-700"
                               title={t("transactions.markSuccess") || "Mark as Success"}
                               onClick={() => openSuccessModal(transaction)}
                             >
                               {t("transactions.markSuccess") || "Mark as Success"}
                             </Button>
+
                             <Button
                               variant="ghost"
                               size="icon"
                               asChild
+                              className="text-gray-600 hover:text-gray-800 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800"
                               title={t("transactions.edit")}
                             >
                               <a href={`/dashboard/transactions/${transaction.uid}/edit`}>

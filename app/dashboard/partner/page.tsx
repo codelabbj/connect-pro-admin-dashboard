@@ -178,7 +178,7 @@ export default function PartnerPage() {
 										<TableHead>{t("partners.status")}</TableHead>
 										<TableHead>{t("partners.createdAt")}</TableHead>
 										{/* <TableHead>{t("partners.details")}</TableHead> */}
-								<TableHead>Commission Stat</TableHead>
+								<TableHead>Statistiques des commissions</TableHead>
 									</TableRow>
 								</TableHeader>
 								<TableBody>

@@ -188,7 +188,7 @@ export default function PhoneNumberListPage() {
               {filteredNumbers.map((num: any) => (
                 <TableRow key={num.uid}>
                   <TableCell>{num.phone_number}</TableCell>
-                  <TableCell>{num.network}</TableCell>
+                  <TableCell>{num.network_name}</TableCell>
                   <TableCell>{num.full_name || '-'}</TableCell>
                 </TableRow>
               ))}
