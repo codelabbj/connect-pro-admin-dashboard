@@ -1108,7 +1108,7 @@ export default function DashboardPage() {
                   </div>
                   <div>
                     <span className="font-medium">{t("dashboard.todaySuccessRate") || "Today's Success Rate"}:</span>
-                    <span className="ml-2">{summary.today_success_rate}%</span>
+                    <span className="ml-2">{summary.today_success_rate.toFixed(2)}%</span>
                   </div>
                   <div>
                     <span className="font-medium">{t("dashboard.onlineDevices") || "Online Devices"}:</span>

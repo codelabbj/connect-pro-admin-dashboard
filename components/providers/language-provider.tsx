@@ -158,6 +158,7 @@ const translations = {
     // "dashboard.totalRefunds": "Total Refunds",
     "dashboard.generatedAt": "Generated at",
     "dashboard.adminActivity": "Admin Activity",
+    "dashboard.totalCredits": "Total Credits",
     // (Optional, currently commented in UI)
     // "dashboard.userTaskActivity": "User & Task Activity",
     // "dashboard.users": "Users",
@@ -758,6 +759,7 @@ const translations = {
     "dashboard.showOnlyActiveUsers": "Afficher uniquement les utilisateurs actifs",
     "dashboard.success": "Succès",
     "dashboard.statsLoadedSuccessfully": "Statistiques chargées avec succès",
+    "dashboard.totalCredits": "Crédits totaux",
     // "dashboard.failedToLoadStats": "Échec du chargement des statistiques",
     // "dashboard.authError": "Erreur d'authentification",
     // "dashboard.adminDashboard": "Tableau de bord Admin",
