@@ -219,7 +219,7 @@ export default function TopupPage() {
 													size="sm"
 													variant="default"
 													className="ml-2"
-													disabled={!!disabledTopups[topup.uid] || topup.status !== "pending"}
+													disabled={!!disabledTopups[topup.uid] || topup.status !== "pending" && topup.status !== "proof_submitted" }
 													onClick={() => {
 														setActionType("approve");
 														setActionTopup(topup);
@@ -234,7 +234,7 @@ export default function TopupPage() {
 													size="sm"
 													variant="destructive"
 													className="ml-2"
-													disabled={!!disabledTopups[topup.uid] || topup.status !== "pending"}
+														disabled={!!disabledTopups[topup.uid] || topup.status !== "pending" && topup.status !== "proof_submitted" }
 													onClick={() => {
 														setActionType("reject");
 														setActionTopup(topup);

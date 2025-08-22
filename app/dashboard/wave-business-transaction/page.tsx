@@ -218,6 +218,7 @@ export default function WaveBusinessPage() {
                   <SelectItem value="all">Tous les statuts</SelectItem>
                   <SelectItem value="pending">En attente</SelectItem>
                   <SelectItem value="confirmed">Confirmé</SelectItem>
+                  <SelectItem value="expired">Expiré</SelectItem>
                   <SelectItem value="cancelled">Annulé</SelectItem>
                 </SelectContent>
               </Select>
