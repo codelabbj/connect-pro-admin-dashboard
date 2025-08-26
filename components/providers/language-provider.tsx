@@ -354,6 +354,8 @@ const translations = {
     "transactions.confirmDepositTitle": "Confirm Deposit",
     "transactions.confirmWithdrawalTitle": "Confirm Withdrawal",
     "transactionLogs.empty": "No transaction logs found.",
+    "transactions.cancelled": "Cancelled",
+    
 
     // Partner List
     "partners.title": "Partners",
@@ -429,6 +431,7 @@ const translations = {
     // "topup.rejectionReason": "Rejection Reason",
     "topup.confirmReject": "Reject Top Up",
     "topup.confirmApprove": "Approve Top Up",
+    "topup.expireAt": "Expire At",
 
     "topup.noTopupsFound": "No top ups found.",
     "topup.pageOf": "Page current and total",
@@ -1033,6 +1036,8 @@ const translations = {
     "transactions.confirmDepositTitle": "Confirmer le dépôt",
     "transactions.confirmWithdrawalTitle": "Confirmer le retrait",
     "transactionLogs.empty": "Aucun journal de transaction trouvé.",
+    "transactions.cancelled": "Annulé",
+
 
     // Partner List
     "partners.title": "Partenaires",
@@ -1083,6 +1088,7 @@ const translations = {
     "topup.adminNotes": "Notes administrateur",
     "topup.rejectTitle": "Rejeter la recharge",
     "topup.approveTitle": "Approuver la recharge",
+    "topup.expireAt": "Expirer le",
 
 
     "topup.uid": "UID",
