@@ -212,6 +212,8 @@ export default function NetworkListPage() {
                 </TableHead>
                 <TableHead>{t("network.country")}</TableHead>
                 <TableHead>{t("network.status")}</TableHead>
+                <TableHead>{t("network.sentDepositToModule") || "Sent deposit to module"}</TableHead>
+                <TableHead>{t("network.sentWithdrawalToModule") || "Sent withdrawal to module"}</TableHead>
                 <TableHead>{t("network.actions")}</TableHead>
               </TableRow>
             </TableHeader>
@@ -222,6 +224,20 @@ export default function NetworkListPage() {
                   <TableCell>{network.code}</TableCell>
                   <TableCell>{network.country_name || network.country}</TableCell>
                   <TableCell>{network.is_active ? t("network.active") : t("network.inactive")}</TableCell>
+                  <TableCell>
+                    {network.sent_deposit_to_module ? (
+                      <img src="/icon-yes.svg" alt="Yes" className="h-4 w-4" />
+                    ) : (
+                      <img src="/icon-no.svg" alt="No" className="h-4 w-4" />
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {network.sent_withdrawal_to_module ? (
+                      <img src="/icon-yes.svg" alt="Yes" className="h-4 w-4" />
+                    ) : (
+                      <img src="/icon-no.svg" alt="No" className="h-4 w-4" />
+                    )}
+                  </TableCell>
                   <TableCell>
                     <Link href={`/dashboard/network/edit/${network.uid}`}><Button size="sm">{t("network.editButton")}</Button></Link>
                   </TableCell>
