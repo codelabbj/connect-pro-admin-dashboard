@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
 import { useApi } from "@/lib/useApi"
 import { useLanguage } from "@/components/providers/language-provider"
 import { useToast } from "@/hooks/use-toast"
@@ -18,6 +20,8 @@ export default function NetworkCreatePage() {
   const [country, setCountry] = useState("")
   const [ussdBaseCode, setUssdBaseCode] = useState("")
   const [isActive, setIsActive] = useState(true)
+  const [sentDepositToModule, setSentDepositToModule] = useState(false)
+  const [sentWithdrawalToModule, setSentWithdrawalToModule] = useState(false)
   const [countries, setCountries] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -56,7 +60,15 @@ export default function NetworkCreatePage() {
       await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/networks/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nom, code, country, ussd_base_code: ussdBaseCode, is_active: isActive })
+        body: JSON.stringify({ 
+          nom, 
+          code, 
+          country, 
+          ussd_base_code: ussdBaseCode, 
+          is_active: isActive,
+          sent_deposit_to_module: sentDepositToModule,
+          sent_withdrawal_to_module: sentWithdrawalToModule
+        })
       })
       toast({
         title: t("network.created"),
@@ -141,6 +153,22 @@ export default function NetworkCreatePage() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
             </div>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="sent-deposit-to-module"
+              checked={sentDepositToModule}
+              onCheckedChange={setSentDepositToModule}
+            />
+            <Label htmlFor="sent-deposit-to-module">{t("network.sentDepositToModule") || "Sent deposit to module"}</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="sent-withdrawal-to-module"
+              checked={sentWithdrawalToModule}
+              onCheckedChange={setSentWithdrawalToModule}
+            />
+            <Label htmlFor="sent-withdrawal-to-module">{t("network.sentWithdrawalToModule") || "Sent withdrawal to module"}</Label>
           </div>
           {error && (
             <ErrorDisplay

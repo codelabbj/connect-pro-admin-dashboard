@@ -594,6 +594,8 @@ const translations = {
     "network.failedToLoadCountries": "Failed to load countries",
     "network.loading": "Loading...",
     "network.errorLoading": "Error Loading Networks",
+    "network.sentDepositToModule": "Sent deposit to module",
+    "network.sentWithdrawalToModule": "Sent withdrawal to module",
 
     // Devices
     "devices.title": "Devices",
@@ -1263,6 +1265,8 @@ const translations = {
     "network.failedToLoadCountries": "Échec du chargement des pays",
     "network.loading": "Chargement...",
     "network.errorLoading": "Erreur lors du chargement des réseaux",
+    "network.sentDepositToModule": "Envoyé dépôt au module",
+    "network.sentWithdrawalToModule": "Envoyé retrait au module",
 
     // Devices
     "devices.title": "Appareils",

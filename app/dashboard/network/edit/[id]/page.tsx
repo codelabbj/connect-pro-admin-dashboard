@@ -3,6 +3,8 @@ import { useEffect, useState } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { useApi } from "@/lib/useApi"
 import { useLanguage } from "@/components/providers/language-provider"
@@ -21,6 +23,8 @@ export default function NetworkEditPage() {
   const [country, setCountry] = useState("")
   const [ussdBaseCode, setUssdBaseCode] = useState("")
   const [isActive, setIsActive] = useState(true)
+  const [sentDepositToModule, setSentDepositToModule] = useState(false)
+  const [sentWithdrawalToModule, setSentWithdrawalToModule] = useState(false)
   const [countries, setCountries] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -64,6 +68,8 @@ export default function NetworkEditPage() {
         setCountry(data.country || "")
         setUssdBaseCode(data.ussd_base_code || "")
         setIsActive(data.is_active)
+        setSentDepositToModule(!!data.sent_deposit_to_module)
+        setSentWithdrawalToModule(!!data.sent_withdrawal_to_module)
         toast({
           title: t("network.loaded"),
           description: t("network.loadedSuccessfully"),
@@ -92,7 +98,15 @@ export default function NetworkEditPage() {
       await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/networks/${id}/`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nom, code, country, ussd_base_code: ussdBaseCode, is_active: isActive })
+        body: JSON.stringify({ 
+          nom, 
+          code, 
+          country, 
+          ussd_base_code: ussdBaseCode, 
+          is_active: isActive,
+          sent_deposit_to_module: sentDepositToModule,
+          sent_withdrawal_to_module: sentWithdrawalToModule
+        })
       })
       toast({
         title: t("network.updated"),
@@ -177,6 +191,22 @@ export default function NetworkEditPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                 </svg>
               </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="sent-deposit-to-module"
+                checked={sentDepositToModule}
+                onCheckedChange={setSentDepositToModule}
+              />
+              <Label htmlFor="sent-deposit-to-module">{t("network.sentDepositToModule") || "Sent deposit to module"}</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="sent-withdrawal-to-module"
+                checked={sentWithdrawalToModule}
+                onCheckedChange={setSentWithdrawalToModule}
+              />
+              <Label htmlFor="sent-withdrawal-to-module">{t("network.sentWithdrawalToModule") || "Sent withdrawal to module"}</Label>
             </div>
             {error && (
               <ErrorDisplay
