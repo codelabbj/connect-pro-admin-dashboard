@@ -219,7 +219,12 @@ export default function TopupPage() {
 													size="sm"
 													variant="default"
 													className="ml-2"
-													disabled={!!disabledTopups[topup.uid] || topup.status !== "pending" && topup.status !== "proof_submitted" }
+													disabled={
+														!!disabledTopups[topup.uid]
+														|| (topup.status !== "pending" && topup.status !== "proof_submitted")
+														|| !!topup.is_expired
+														|| (topup.expires_at && new Date(topup.expires_at) < new Date())
+													}
 													onClick={() => {
 														setActionType("approve");
 														setActionTopup(topup);
@@ -234,7 +239,12 @@ export default function TopupPage() {
 													size="sm"
 													variant="destructive"
 													className="ml-2"
-														disabled={!!disabledTopups[topup.uid] || topup.status !== "pending" && topup.status !== "proof_submitted" }
+													disabled={
+														!!disabledTopups[topup.uid]
+														|| (topup.status !== "pending" && topup.status !== "proof_submitted")
+														|| !!topup.is_expired
+														|| (topup.expires_at && new Date(topup.expires_at) < new Date())
+													}
 													onClick={() => {
 														setActionType("reject");
 														setActionTopup(topup);
@@ -457,7 +467,13 @@ export default function TopupPage() {
             setPendingAction(false);
           }
         }}
-        disabled={pendingAction || (actionType === "approve" && !adminNotes) || (actionType === "reject" && !rejectionReason)}
+        disabled={
+          pendingAction
+          || (actionType === "approve" && !adminNotes)
+          || (actionType === "reject" && !rejectionReason)
+          || !!actionTopup?.is_expired
+          || (actionTopup?.expires_at && new Date(actionTopup.expires_at) < new Date())
+        }
       >
         {actionType === "approve"
           ? t("topup.confirmApprove") || "Confirmer l'approbation"

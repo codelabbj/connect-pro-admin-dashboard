@@ -545,6 +545,11 @@ export default function DashboardPage() {
   const [balanceOpsLoading, setBalanceOpsLoading] = useState(false);
   const [balanceOpsError, setBalanceOpsError] = useState("");
 
+  // Recharge requests stats state
+  const [rechargeStats, setRechargeStats] = useState<any>(null);
+  const [rechargeLoading, setRechargeLoading] = useState(false);
+  const [rechargeError, setRechargeError] = useState("");
+
   const apiFetch = useApi();
   const { t } = useLanguage();
   const router = useRouter();
@@ -652,6 +657,23 @@ export default function DashboardPage() {
       }
     };
     fetchBalanceOps();
+  }, [apiFetch, baseUrl]);
+
+  // Fetch recharge requests stats
+  useEffect(() => {
+    const fetchRechargeStats = async () => {
+      setRechargeLoading(true);
+      setRechargeError("");
+      try {
+        const res = await apiFetch(`${baseUrl}api/payments/user/recharge_requests/stats/`);
+        setRechargeStats(res);
+      } catch (err: any) {
+        setRechargeError("Failed to load recharge stats");
+      } finally {
+        setRechargeLoading(false);
+      }
+    };
+    fetchRechargeStats();
   }, [apiFetch, baseUrl]);
 
   useEffect(() => {
@@ -781,6 +803,98 @@ export default function DashboardPage() {
         <h1 className="text-3xl font-bold tracking-tight mb-1">{t("dashboard.adminDashboard")}</h1>
         <p className="text-muted-foreground text-lg">{t("dashboard.liveOverview")}</p>
       </div>
+
+      {/* Recharge Requests Stats Card */}
+        <div className="mb-8">
+          <Card className="flex flex-col items-center hover:shadow-lg transition-shadow border-sky-100 dark:border-sky-900">
+            <CardHeader className="flex flex-row items-center gap-3 w-full">
+              <div className="bg-sky-100 dark:bg-sky-900 p-2 rounded-full">
+                <RefreshCw className="text-sky-700 dark:text-sky-200 w-6 h-6" />
+              </div>
+              <CardTitle className="text-sky-700 dark:text-sky-200 text-lg">
+                {t("dashboard.rechargeRequestsStats") || "Recharge Requests Stats"}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-2 w-full">
+              {rechargeLoading ? (
+                <div className="flex items-center justify-center py-4">
+                  <Loader className="animate-spin mr-2" /> {t("common.loading")}
+                </div>
+              ) : rechargeError ? (
+                <div className="text-red-600 text-center py-2">{rechargeError}</div>
+              ) : rechargeStats ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="bg-sky-50 dark:bg-sky-950 p-3 rounded-lg">
+                    <span className="font-medium text-sky-700 dark:text-sky-300">
+                      {t("dashboard.totalRequests") || "Total Requests"}:
+                    </span>
+                    <div className="text-lg font-bold text-sky-800 dark:text-sky-200">
+                      {rechargeStats.total_requests}
+                    </div>
+                  </div>
+                  <div className="bg-amber-50 dark:bg-amber-950 p-3 rounded-lg">
+                    <span className="font-medium text-amber-700 dark:text-amber-300">
+                      {t("dashboard.pendingReview") || "Pending Review"}:
+                    </span>
+                    <div className="text-lg font-bold text-amber-800 dark:text-amber-200">
+                      {rechargeStats.pending_review}
+                    </div>
+                  </div>
+                  <div className="bg-emerald-50 dark:bg-emerald-950 p-3 rounded-lg">
+                    <span className="font-medium text-emerald-700 dark:text-emerald-300">
+                      {t("dashboard.totalApprovedAmount") || "Total Approved Amount"}:
+                    </span>
+                    <div className="text-lg font-bold text-emerald-800 dark:text-emerald-200">
+                      {rechargeStats.total_approved_amount}
+                    </div>
+                  </div>
+
+                  {/* By Status */}
+                  <div className="col-span-1 md:col-span-2 lg:col-span-3 bg-white dark:bg-gray-800 p-3 rounded-lg">
+                    <span className="font-medium text-gray-700 dark:text-gray-300 block mb-2">
+                      {t("dashboard.byStatus") || "By Status"}
+                    </span>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+                      {Object.entries(rechargeStats.by_status || {}).map(([key, val]: any) => (
+                        <div key={key} className="bg-gray-50 dark:bg-gray-900 p-2 rounded">
+                          <div className="text-sm font-medium">{val.name}</div>
+                          <div className="text-lg font-bold">{val.count}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Month Stats */}
+                  <div className="col-span-1 md:col-span-2 lg:col-span-3 bg-indigo-50 dark:bg-indigo-950 p-3 rounded-lg">
+                    <span className="font-medium text-indigo-700 dark:text-indigo-300 block mb-2">
+                      {t("dashboard.currentMonth") || "Current Month"}
+                    </span>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div>
+                        <div className="text-xs text-indigo-600 dark:text-indigo-300">{t("dashboard.totalRequests") || "Total Requests"}</div>
+                        <div className="text-lg font-bold text-indigo-800 dark:text-indigo-200">{rechargeStats.month_stats?.total_requests}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-indigo-600 dark:text-indigo-300">{t("dashboard.approvedCount") || "Approved Count"}</div>
+                        <div className="text-lg font-bold text-indigo-800 dark:text-indigo-200">{rechargeStats.month_stats?.approved_count}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-indigo-600 dark:text-indigo-300">{t("dashboard.approvedAmount") || "Approved Amount"}</div>
+                        <div className="text-lg font-bold text-indigo-800 dark:text-indigo-200">{rechargeStats.month_stats?.approved_amount}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-indigo-600 dark:text-indigo-300">{t("dashboard.approvalRate") || "Approval Rate"}</div>
+                        <div className="text-lg font-bold text-indigo-800 dark:text-indigo-200">{(rechargeStats.month_stats?.approval_rate ?? 0).toFixed(2)}%</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-gray-500 text-center py-2">{t("dashboard.noData") || "No data"}</div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
 
       {/* Balance Operations Stats Card */}
         <div className="mb-8">
