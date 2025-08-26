@@ -254,6 +254,8 @@ export default function TransactionsPage() {
         error_message: "",
       })
       setCurrentPage(1)
+      router.refresh()
+      await fetchTransactions()
     } catch (err: any) {
       const backendError = extractErrorMessages(err) || t("transactions.failedToEdit")
       setEditError(backendError)
@@ -389,6 +391,8 @@ export default function TransactionsPage() {
       })
       // Refresh list
       setCurrentPage(1)
+      router.refresh()
+      await fetchTransactions()
     } catch (err: any) {
       const errorMessage = extractErrorMessages(err) || t("transactions.assignFailed") || "Failed to assign transaction"
       toast({ title: t("transactions.assignFailed") || "Assign failed", description: errorMessage, variant: "destructive" })
@@ -428,6 +432,8 @@ export default function TransactionsPage() {
       setRetryReason("")
       // Refresh list
       setCurrentPage(1)
+      router.refresh()
+      await fetchTransactions()
     } catch (err: any) {
       const errorMessage = extractErrorMessages(err) || t("transactions.retryFailed") || "Failed to retry transaction"
       setRetryError(errorMessage)
@@ -467,6 +473,8 @@ export default function TransactionsPage() {
       setCancelTransaction(null)
       setCancelReason("")
       setCurrentPage(1)
+      router.refresh()
+      await fetchTransactions()
     } catch (err: any) {
       const errorMessage = extractErrorMessages(err) || t("transactions.cancelFailed") || "Failed to cancel transaction"
       setCancelError(errorMessage)
@@ -506,6 +514,8 @@ export default function TransactionsPage() {
       setSuccessTransaction(null)
       setSuccessReason("")
       setCurrentPage(1)
+      router.refresh()
+      await fetchTransactions()
     } catch (err: any) {
       const errorMessage = extractErrorMessages(err) || t("transactions.successFailed") || "Failed to mark transaction as success"
       setSuccessError(errorMessage)
