@@ -62,7 +62,7 @@ export default function EditTransactionPage() {
     setLogsLoading(true)
     setLogsError("")
     try {
-      const data = await apiFetch(`${baseUrl}api/payments/transaction-logs/transaction=${uid}`)
+      const data = await apiFetch(`${baseUrl}api/payments/transaction-logs/?transaction=${uid}`)
       const items = Array.isArray(data?.results) ? data.results : Array.isArray(data) ? data : []
       setLogs(items)
     } catch (err: any) {
