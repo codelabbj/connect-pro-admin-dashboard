@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useLanguage } from "@/components/providers/language-provider"
@@ -181,7 +182,7 @@ export default function EditTransactionPage() {
               <label className="block text-sm font-medium">{t("transactions.recipientName") || "Recipient Name"}</label>
               <Input name="recipient_name" value={form.recipient_name} onChange={handleChange} />
             </div>
-            <div className="col-span-2">
+            <div>
               <label className="block text-sm font-medium">Objet</label>
               <Input name="objet" value={form.objet} onChange={handleChange} />
             </div>
@@ -189,9 +190,9 @@ export default function EditTransactionPage() {
               <label className="block text-sm font-medium">{t("transactions.externalTransactionId")}</label>
               <Input name="external_transaction_id" value={form.external_transaction_id} onChange={handleChange} />
             </div>
-            <div>
+            <div className="col-span-2">
               <label className="block text-sm font-medium">{t("transactions.rawSms")}</label>
-              <Input name="raw_sms" value={form.raw_sms} onChange={handleChange} />
+              <Textarea name="raw_sms" value={form.raw_sms} onChange={handleChange} rows={4} placeholder="Enter raw SMS content..." />
             </div>
             <div className="col-span-2">
               <label className="block text-sm font-medium">Processed By Phone</label>
