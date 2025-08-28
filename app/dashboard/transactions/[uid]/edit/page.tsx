@@ -120,7 +120,7 @@ export default function EditTransactionPage() {
   if (error) return <ErrorDisplay error={error} />
 
   return (
-    <Card className="max-w-2xl mx-auto mt-8">
+    <Card className=" mx-auto mt-8">
       <CardHeader>
         <CardTitle>{t("transactions.editTransaction")}</CardTitle>
       </CardHeader>
