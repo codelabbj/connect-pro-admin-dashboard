@@ -7,9 +7,10 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useLanguage } from "@/components/providers/language-provider"
 import { useApi } from "@/lib/useApi"
-import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Pencil, Trash } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Pencil, Trash, MoreHorizontal } from "lucide-react"
 import {
   Dialog,
   DialogTrigger,
@@ -362,6 +363,13 @@ export default function TransactionsPage() {
   const [successError, setSuccessError] = useState("")
   const [successTransaction, setSuccessTransaction] = useState<any | null>(null)
 
+  // Mark as failed modal state
+  const [failedModalOpen, setFailedModalOpen] = useState(false)
+  const [failedReason, setFailedReason] = useState("")
+  const [failedLoading, setFailedLoading] = useState(false)
+  const [failedError, setFailedError] = useState("")
+  const [failedTransaction, setFailedTransaction] = useState<any | null>(null)
+
   // Extract a user uid from transaction, trying several likely fields
   const extractUserUid = (tx: any): string | null => {
     return tx?.user_uid || tx?.user_id || tx?.user?.uid || tx?.owner_uid || null
@@ -525,6 +533,47 @@ export default function TransactionsPage() {
     }
   }
 
+  // Open/submit failed
+  const openFailedModal = (tx: any) => {
+    setFailedTransaction(tx)
+    setFailedReason("")
+    setFailedError("")
+    setFailedModalOpen(true)
+  }
+  const handleFailedSubmit = async () => {
+    if (!failedTransaction) return
+    if (!failedReason.trim()) {
+      setFailedError(t("transactions.failedReasonRequired") || "Reason is required")
+      return
+    }
+    setFailedLoading(true)
+    setFailedError("")
+    try {
+      const endpoint = `${baseUrl}api/payments/transactions/${failedTransaction.uid}/mark-failed/`
+      await apiFetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: failedReason.trim() }),
+      })
+      toast({
+        title: t("transactions.failedQueued") || "Failed queued",
+        description: t("transactions.failedRequested") || "Failed update sent successfully.",
+      })
+      setFailedModalOpen(false)
+      setFailedTransaction(null)
+      setFailedReason("")
+      setCurrentPage(1)
+      router.refresh()
+      await fetchTransactions()
+    } catch (err: any) {
+      const errorMessage = extractErrorMessages(err) || t("transactions.failedFailed") || "Failed to mark transaction as failed"
+      setFailedError(errorMessage)
+      toast({ title: t("transactions.failedFailed") || "Mark as failed failed", description: errorMessage, variant: "destructive" })
+    } finally {
+      setFailedLoading(false)
+    }
+  }
+
   if (false && loading) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -651,15 +700,18 @@ export default function TransactionsPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>{t("transactions.reference")}</TableHead> {/* NEW COLUMN */}
+                    <TableHead>{t("transactions.reference")}</TableHead>
                     <TableHead>
                       <Button type="button" variant="ghost" onClick={() => handleSort("amount")} className="h-auto p-0 font-semibold">
                         {t("transactions.amount")}
                         <ArrowUpDown className="ml-2 h-4 w-4" />
                       </Button>
                     </TableHead>
-                    <TableHead>{t("transactions.recipientName")}</TableHead> {/* NEW COLUMN */}
-                    <TableHead>{t("transactions.recipientPhone")}</TableHead> {/* NEW COLUMN */}
+                    <TableHead>{t("transactions.recipientName")}</TableHead>
+                    <TableHead>{t("transactions.recipientPhone")}</TableHead>
+                    <TableHead>{t("transactions.createdByName") || "Created By Name"}</TableHead>
+                    <TableHead>{t("transactions.createdByEmail") || "Created By Email"}</TableHead>
+                    <TableHead>{t("transactions.createdByPhone") || "Created By Phone"}</TableHead>
                     <TableHead>
                       <Button type="button" variant="ghost" onClick={() => handleSort("date")} className="h-auto p-0 font-semibold">
                         {t("transactions.date")}
@@ -667,7 +719,6 @@ export default function TransactionsPage() {
                       </Button>
                     </TableHead>
                     <TableHead>{t("transactions.type")}</TableHead>
-                    {/* <TableHead>{t("transactions.reference")}</TableHead> */}
                     <TableHead>{t("transactions.network")}</TableHead>
                     <TableHead>{t("transactions.status")}</TableHead>
                     <TableHead>{t("transactions.actions")}</TableHead>
@@ -676,90 +727,77 @@ export default function TransactionsPage() {
                 <TableBody>
                   {paginatedTransactions.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={8} className="text-center text-muted-foreground">{t("transactions.noTransactionsFound")}</TableCell>
+                      <TableCell colSpan={11} className="text-center text-muted-foreground">{t("transactions.noTransactionsFound")}</TableCell>
                     </TableRow>
                   ) : (
                     paginatedTransactions.map((transaction) => (
                       <TableRow key={transaction.uid}>
-                        <TableCell>{transaction.reference || "-"}</TableCell> {/* NEW COLUMN */}
+                        <TableCell>{transaction.reference || "-"}</TableCell>
                         <TableCell className="font-medium">{parseFloat(transaction.amount).toLocaleString()} FCFA</TableCell>
-                        <TableCell>{transaction.display_recipient_name || "-"}</TableCell> {/* NEW CELL */}
-                        <TableCell>{transaction.recipient_phone || "-"}</TableCell> {/* NEW CELL */}
+                        <TableCell>{transaction.display_recipient_name || "-"}</TableCell>
+                        <TableCell>{transaction.recipient_phone || "-"}</TableCell>
+                        <TableCell>{transaction.created_by_name || "-"}</TableCell>
+                        <TableCell>{transaction.created_by_email || "-"}</TableCell>
+                        <TableCell>{transaction.created_by_phone || "-"}</TableCell>
                         <TableCell>{transaction.created_at ? new Date(transaction.created_at).toLocaleDateString() : "-"}</TableCell>
                         <TableCell>{getTypeBadge(transaction.type)}</TableCell>
                         <TableCell>{transaction.network_name || "-"}</TableCell>
                         <TableCell>{getStatusBadge(transaction.status)}</TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-1">
-                            {/* <Button
-                              variant="secondary"
-                              size="sm"
-                              title={t("transactions.assign") || "Assign"}
-                              onClick={() => handleAssign(transaction)}
-                            >
-                              {t("transactions.assign") || "Assign"}
-                            </Button> */}
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              className="bg-blue-100 hover:bg-blue-200 text-blue-800 border-blue-300 dark:bg-blue-900 dark:hover:bg-blue-800 dark:text-blue-200 dark:border-blue-700"
-                              title={t("transactions.retry") || "Retry"}
-                              onClick={() => openRetryModal(transaction)}
-                            >
-                              {t("transactions.retry") || "Retry"}
-                            </Button>
-
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              className="bg-red-100 hover:bg-red-200 text-red-800 border-red-300 dark:bg-red-900 dark:hover:bg-red-800 dark:text-red-200 dark:border-red-700"
-                              title={t("transactions.cancelAction") || "Cancel Transaction"}
-                              onClick={() => openCancelModal(transaction)}
-                            >
-                              {t("transactions.cancelAction") || "Cancel Transaction"}
-                            </Button>
-
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              className="bg-green-100 hover:bg-green-200 text-green-800 border-green-300 dark:bg-green-900 dark:hover:bg-green-800 dark:text-green-200 dark:border-green-700"
-                              title={t("transactions.markSuccess") || "Mark as Success"}
-                              onClick={() => openSuccessModal(transaction)}
-                            >
-                              {t("transactions.markSuccess") || "Mark as Success"}
-                            </Button>
-
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              asChild
-                              className="text-gray-600 hover:text-gray-800 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-800"
-                              title={t("transactions.edit")}
-                            >
-                              <a href={`/dashboard/transactions/${transaction.uid}/edit`}>
-                                <Pencil className="w-4 h-4" />
-                              </a>
-                            </Button>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                {/* <Button variant="ghost" size="icon" title={t("transactions.delete")} onClick={() => setDeleteUid(transaction.uid)}>
-                                  <Trash className="w-4 h-4 text-red-500" />
-                                </Button> */}
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                                                <AlertDialogTitle>{t("transactions.deleteTransaction")}</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  {t("transactions.deleteConfirmation")}
-                                </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel onClick={() => setDeleteUid(null)}>{t("transactions.cancel")}</AlertDialogCancel>
-                                  <AlertDialogAction onClick={handleDelete}>{t("transactions.delete")}</AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </div>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <MoreHorizontal className="h-4 w-4" />
+                                <span className="sr-only">Open menu</span>
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem
+                                onClick={() => openRetryModal(transaction)}
+                                className="text-blue-600 hover:text-blue-700"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                  {t("transactions.retry") || "Retry"}
+                                </div>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => openCancelModal(transaction)}
+                                className="text-red-600 hover:text-red-700"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                                  {t("transactions.cancelAction") || "Cancel Transaction"}
+                                </div>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => openSuccessModal(transaction)}
+                                className="text-green-600 hover:text-green-700"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                  {t("transactions.markSuccess") || "Mark as Success"}
+                                </div>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => openFailedModal(transaction)}
+                                className="text-red-600 hover:text-red-700"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                                  {t("transactions.markFailed") || "Mark as Failed"}
+                                </div>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem asChild>
+                                <a href={`/dashboard/transactions/${transaction.uid}/edit`} className="text-gray-600 hover:text-gray-700">
+                                  <div className="flex items-center gap-2">
+                                    <Pencil className="w-4 h-4" />
+                                    {t("transactions.edit") || "Edit"}
+                                  </div>
+                                </a>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </TableCell>
                       </TableRow>
                     ))
@@ -981,6 +1019,37 @@ export default function TransactionsPage() {
           <DialogFooter>
             <Button onClick={handleSuccessSubmit} disabled={successLoading}>
               {successLoading ? (t("transactions.sending") || "Sending...") : (t("transactions.submit") || "Submit")}
+            </Button>
+            <DialogClose asChild>
+              <Button type="button" variant="outline">{t("transactions.cancel")}</Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Mark as Failed Modal */}
+      <Dialog open={failedModalOpen} onOpenChange={setFailedModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("transactions.failedTransaction") || "Mark Transaction as Failed"}</DialogTitle>
+            <DialogDescription>{t("transactions.enterFailedReason") || "Provide a reason for marking this transaction as failed."}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <label className="block text-sm font-medium">
+              {t("transactions.reason") || "Reason"}
+            </label>
+            <Input
+              placeholder={t("transactions.reasonPlaceholder") || "Tentative de relance après timeout"}
+              value={failedReason}
+              onChange={(e) => setFailedReason(e.target.value)}
+            />
+            {failedError && (
+              <ErrorDisplay error={failedError} variant="inline" showRetry={false} className="mb-2" />
+            )}
+          </div>
+          <DialogFooter>
+            <Button onClick={handleFailedSubmit} disabled={failedLoading}>
+              {failedLoading ? (t("transactions.sending") || "Sending...") : (t("transactions.submit") || "Submit")}
             </Button>
             <DialogClose asChild>
               <Button type="button" variant="outline">{t("transactions.cancel")}</Button>

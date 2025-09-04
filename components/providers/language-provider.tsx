@@ -355,6 +355,12 @@ const translations = {
     "transactions.confirmWithdrawalTitle": "Confirm Withdrawal",
     "transactionLogs.empty": "No transaction logs found.",
     "transactions.cancelled": "Cancelled",
+    "transactions.createdByName": "Created By Name",
+    "transactions.createdByEmail": "Created By Email", 
+    "transactions.createdByPhone": "Created By Phone",
+    "transactions.markFailed": "Mark as Failed",
+    "transactions.enterFailedReason": "Provide a reason for marking this transaction as failed.",
+    "transactions.failedTransaction": "Mark Transaction as Failed",
     
 
     // Partner List
@@ -1037,6 +1043,12 @@ const translations = {
     "transactions.confirmWithdrawalTitle": "Confirmer le retrait",
     "transactionLogs.empty": "Aucun journal de transaction trouvé.",
     "transactions.cancelled": "Annulé",
+    "transactions.createdByName": "Créé par Nom",
+    "transactions.createdByEmail": "Créé par Email",
+    "transactions.createdByPhone": "Créé par Téléphone",
+    "transactions.markFailed": "Marquer comme échoué",
+    "transactions.enterFailedReason": "Fournissez une raison pour marquer cette transaction comme échoué.",
+    "transactions.failedTransaction": "Marquer la transaction comme échoué",
 
 
     // Partner List
