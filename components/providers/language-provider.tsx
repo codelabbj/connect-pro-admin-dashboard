@@ -242,6 +242,8 @@ const translations = {
     "users.confirmDeactivateText": "Are you sure that you want to deactivate user?",
     "users.disablePartner": "Disable Partner",
     "users.confirmDisablePartner": "Are you sure you want to disable this user's partner status?",
+    "users.enablePartner": "Enable Partner",
+    "users.confirmEnablePartner": "Are you sure you want to enable this user's partner status?",
 
     // Transactions
     "transactions.title": "Transactions",
@@ -902,6 +904,7 @@ const translations = {
     "users.enterPhone": "Entrez le numéro de téléphone",
     "users.sending": "Envoi...",
     "users.verifying": "Vérification...",
+
     
 
     // Activation/Deactivation
@@ -930,6 +933,8 @@ const translations = {
     "users.confirmDeactivateText": "Êtes-vous sûr de vouloir désactiver l'utilisateur ?",
     "users.disablePartner": "Désactiver le partenaire",
     "users.confirmDisablePartner": "Êtes-vous sûr de vouloir désactiver le statut de partenaire de cet utilisateur ?",
+    "users.enablePartner": "Activer le partenaire",
+    "users.confirmEnablePartner": "Êtes-vous sûr de vouloir activer le statut de partenaire de cet utilisateur ?",
 
     // Transactions
     "transactions.title": "Transactions",
