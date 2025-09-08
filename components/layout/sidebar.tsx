@@ -316,6 +316,19 @@ export function Sidebar() {
               {t("earning.title")}
             </Link>
             <Link
+              href="/dashboard/momo-pay-transactions"
+              className={cn(
+                "group flex items-center px-2 py-2 text-sm font-medium rounded-md",
+                pathname === "/dashboard/momo-pay-transactions"
+                  ? "bg-blue-100 text-blue-900 dark:bg-blue-900 dark:text-blue-100"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white",
+              )}
+              onClick={() => setSidebarOpen(false)}
+            >
+              <CreditCard className="mr-3 h-6 w-6 flex-shrink-0" />
+              {t("MoMo Pay Transactions")}
+            </Link>
+            <Link
               href="/dashboard/wave-business-transaction"
               className={cn(
                 "group flex items-center px-2 py-2 text-sm font-medium rounded-md",
@@ -635,6 +648,19 @@ export function Sidebar() {
             )}>
               <BarChart3 className="mr-3 h-6 w-6 flex-shrink-0" />
               {t("earning.title")}
+            </Link>
+            <Link
+              href="/dashboard/momo-pay-transactions"
+              className={cn(
+                "group flex items-center px-2 py-2 text-sm font-medium rounded-md",
+                pathname === "/dashboard/momo-pay-transactions"
+                  ? "bg-blue-100 text-blue-900 dark:bg-blue-900 dark:text-blue-100"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white",
+              )}
+              onClick={() => setSidebarOpen(false)}
+            >
+              <CreditCard className="mr-3 h-6 w-6 flex-shrink-0" />
+              {t("MoMo Pay Transactions")}
             </Link>
             <Link
               href="/dashboard/wave-business-transaction"

@@ -550,6 +550,15 @@ export default function DashboardPage() {
   const [rechargeLoading, setRechargeLoading] = useState(false);
   const [rechargeError, setRechargeError] = useState("");
 
+  // Payment transaction stats state
+  const [momoPayStats, setMomoPayStats] = useState<any>(null);
+  const [momoPayLoading, setMomoPayLoading] = useState(false);
+  const [momoPayError, setMomoPayError] = useState("");
+  
+  const [waveBusinessStats, setWaveBusinessStats] = useState<any>(null);
+  const [waveBusinessLoading, setWaveBusinessLoading] = useState(false);
+  const [waveBusinessError, setWaveBusinessError] = useState("");
+
   const apiFetch = useApi();
   const { t } = useLanguage();
   const router = useRouter();
@@ -674,6 +683,40 @@ export default function DashboardPage() {
       }
     };
     fetchRechargeStats();
+  }, [apiFetch, baseUrl]);
+
+  // Fetch MoMo Pay transaction stats
+  useEffect(() => {
+    const fetchMomoPayStats = async () => {
+      setMomoPayLoading(true);
+      setMomoPayError("");
+      try {
+        const res = await apiFetch(`${baseUrl}api/payments/momo-pay-transactions/stats/`);
+        setMomoPayStats(res);
+      } catch (err: any) {
+        setMomoPayError("Failed to load MoMo Pay stats");
+      } finally {
+        setMomoPayLoading(false);
+      }
+    };
+    fetchMomoPayStats();
+  }, [apiFetch, baseUrl]);
+
+  // Fetch Wave Business transaction stats
+  useEffect(() => {
+    const fetchWaveBusinessStats = async () => {
+      setWaveBusinessLoading(true);
+      setWaveBusinessError("");
+      try {
+        const res = await apiFetch(`${baseUrl}api/payments/wave-business-transactions/stats/`);
+        setWaveBusinessStats(res);
+      } catch (err: any) {
+        setWaveBusinessError("Failed to load Wave Business stats");
+      } finally {
+        setWaveBusinessLoading(false);
+      }
+    };
+    fetchWaveBusinessStats();
   }, [apiFetch, baseUrl]);
 
   useEffect(() => {
@@ -895,6 +938,202 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
         </div>
+
+      {/* Payment Transaction Stats Section */}
+      <div className="mb-8">
+        <div className="mb-4">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+            {t("dashboard.paymentTransactionStats") || "Payment Transaction Statistics"}
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400">
+            {t("dashboard.paymentTransactionStatsDescription") || "Real-time statistics for MoMo Pay and Wave Business transactions"}
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* MoMo Pay Stats */}
+          <Card className="hover:shadow-lg transition-shadow border-teal-100 dark:border-teal-900">
+            <CardHeader className="flex flex-row items-center gap-3">
+              <div className="bg-teal-100 dark:bg-teal-900 p-3 rounded-full">
+                <DollarSign className="text-teal-700 dark:text-teal-200 w-6 h-6" />
+              </div>
+              <div>
+                <CardTitle className="text-teal-700 dark:text-teal-200 text-xl">
+                  {t("dashboard.momoPayStats") || "MoMo Pay Statistics"}
+                </CardTitle>
+                <p className="text-sm text-teal-600 dark:text-teal-300">
+                  {t("dashboard.mobileMoneyTransactions") || "Mobile Money Transactions"}
+                </p>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {momoPayLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader className="animate-spin mr-2" /> {t("common.loading")}
+                </div>
+              ) : momoPayError ? (
+                <div className="text-red-600 text-center py-4">{momoPayError}</div>
+              ) : momoPayStats ? (
+                <div className="space-y-4">
+                  {/* Key Metrics */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-teal-50 dark:bg-teal-950 p-4 rounded-lg">
+                      <div className="text-sm font-medium text-teal-700 dark:text-teal-300">
+                        {t("dashboard.totalTransactions") || "Total Transactions"}
+                      </div>
+                      <div className="text-2xl font-bold text-teal-800 dark:text-teal-200">
+                        {momoPayStats.total_transactions?.toLocaleString() || 0}
+                      </div>
+                    </div>
+                    <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg">
+                      <div className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                        {t("dashboard.totalAmount") || "Total Amount"}
+                      </div>
+                      <div className="text-2xl font-bold text-blue-800 dark:text-blue-200">
+                        {momoPayStats.total_amount ? `${parseFloat(momoPayStats.total_amount).toLocaleString("fr-FR")} FCFA` : "0 FCFA"}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Status Breakdown */}
+                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border">
+                    <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                      {t("dashboard.statusBreakdown") || "Status Breakdown"}
+                    </h4>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          {t("dashboard.pending") || "Pending"}
+                        </span>
+                        <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                          {momoPayStats.pending_count || 0}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          {t("dashboard.confirmed") || "Confirmed"}
+                        </span>
+                        <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                          {momoPayStats.confirmed_count || 0}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          {t("dashboard.cancelled") || "Cancelled"}
+                        </span>
+                        <Badge variant="outline" className="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+                          {momoPayStats.cancelled_count || 0}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          {t("dashboard.expired") || "Expired"}
+                        </span>
+                        <Badge variant="destructive" className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                          {momoPayStats.expired_count || 0}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-gray-500 text-center py-8">{t("dashboard.noData") || "No data available"}</div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Wave Business Stats */}
+          <Card className="hover:shadow-lg transition-shadow border-purple-100 dark:border-purple-900">
+            <CardHeader className="flex flex-row items-center gap-3">
+              <div className="bg-purple-100 dark:bg-purple-900 p-3 rounded-full">
+                <TrendingUp className="text-purple-700 dark:text-purple-200 w-6 h-6" />
+              </div>
+              <div>
+                <CardTitle className="text-purple-700 dark:text-purple-200 text-xl">
+                  {t("dashboard.waveBusinessStats") || "Wave Business Statistics"}
+                </CardTitle>
+                <p className="text-sm text-purple-600 dark:text-purple-300">
+                  {t("dashboard.waveBusinessTransactions") || "Wave Business Transactions"}
+                </p>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {waveBusinessLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader className="animate-spin mr-2" /> {t("common.loading")}
+                </div>
+              ) : waveBusinessError ? (
+                <div className="text-red-600 text-center py-4">{waveBusinessError}</div>
+              ) : waveBusinessStats ? (
+                <div className="space-y-4">
+                  {/* Key Metrics */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-purple-50 dark:bg-purple-950 p-4 rounded-lg">
+                      <div className="text-sm font-medium text-purple-700 dark:text-purple-300">
+                        {t("dashboard.totalTransactions") || "Total Transactions"}
+                      </div>
+                      <div className="text-2xl font-bold text-purple-800 dark:text-purple-200">
+                        {waveBusinessStats.total_transactions?.toLocaleString() || 0}
+                      </div>
+                    </div>
+                    <div className="bg-indigo-50 dark:bg-indigo-950 p-4 rounded-lg">
+                      <div className="text-sm font-medium text-indigo-700 dark:text-indigo-300">
+                        {t("dashboard.totalAmount") || "Total Amount"}
+                      </div>
+                      <div className="text-2xl font-bold text-indigo-800 dark:text-indigo-200">
+                        {waveBusinessStats.total_amount ? `${parseFloat(waveBusinessStats.total_amount).toLocaleString("fr-FR")} FCFA` : "0 FCFA"}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Status Breakdown */}
+                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border">
+                    <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                      {t("dashboard.statusBreakdown") || "Status Breakdown"}
+                    </h4>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          {t("dashboard.pending") || "Pending"}
+                        </span>
+                        <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                          {waveBusinessStats.pending_count || 0}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          {t("dashboard.confirmed") || "Confirmed"}
+                        </span>
+                        <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                          {waveBusinessStats.confirmed_count || 0}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          {t("dashboard.cancelled") || "Cancelled"}
+                        </span>
+                        <Badge variant="outline" className="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+                          {waveBusinessStats.cancelled_count || 0}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          {t("dashboard.expired") || "Expired"}
+                        </span>
+                        <Badge variant="destructive" className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                          {waveBusinessStats.expired_count || 0}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-gray-500 text-center py-8">{t("dashboard.noData") || "No data available"}</div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
 
       {/* Balance Operations Stats Card */}
         <div className="mb-8">

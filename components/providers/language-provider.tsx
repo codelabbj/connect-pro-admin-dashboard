@@ -170,6 +170,19 @@ const translations = {
     "dashboard.approvalRate": "Approval Rate",
     "dashboard.byStatus": "By Status",
     
+    // Payment Transaction Stats
+    "dashboard.paymentTransactionStats": "Payment Transaction Statistics",
+    "dashboard.paymentTransactionStatsDescription": "Real-time statistics for MoMo Pay and Wave Business transactions",
+    "dashboard.momoPayStats": "MoMo Pay Statistics",
+    "dashboard.mobileMoneyTransactions": "Mobile Money Transactions",
+    "dashboard.waveBusinessStats": "Wave Business Statistics",
+    "dashboard.waveBusinessTransactions": "Wave Business Transactions",
+    "dashboard.statusBreakdown": "Status Breakdown",
+    "dashboard.pending": "Pending",
+    "dashboard.confirmed": "Confirmed",
+    "dashboard.cancelled": "Cancelled",
+    "dashboard.expired": "Expired",
+    
     // (Optional, currently commented in UI)
     // "dashboard.userTaskActivity": "User & Task Activity",
     // "dashboard.users": "Users",
@@ -856,6 +869,20 @@ const translations = {
     "dashboard.totalApprovedAmount": "Montant total approuvé",
     "dashboard.pendingReview": "En attente de révision",
     "dashboard.byStatus": "Par statut",
+    
+    // Payment Transaction Stats
+    "dashboard.paymentTransactionStats": "Statistiques des Transactions de Paiement",
+    "dashboard.paymentTransactionStatsDescription": "Statistiques en temps réel pour les transactions MoMo Pay et Wave Business",
+    "dashboard.momoPayStats": "Statistiques MoMo Pay",
+    "dashboard.mobileMoneyTransactions": "Transactions Mobile Money",
+    "dashboard.waveBusinessStats": "Statistiques Wave Business",
+    "dashboard.waveBusinessTransactions": "Transactions Wave Business",
+    "dashboard.statusBreakdown": "Répartition par Statut",
+    "dashboard.pending": "En attente",
+    "dashboard.confirmed": "Confirmé",
+    "dashboard.cancelled": "Annulé",
+    "dashboard.expired": "Expiré",
+    
     // "dashboard.totalRequests": "Total des demandes",
     // "dashboard.totalRechargeRequests": "Demandes de recharge totales",
     // "dashboard.rechargeRequestsStats": "Statistiques des demandes de recharge",
