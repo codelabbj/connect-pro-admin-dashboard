@@ -34,6 +34,8 @@ export default function SmsLogsListPage() {
   const [copied, setCopied] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [typeFilter, setTypeFilter] = useState("all")
+  const [startDate, setStartDate] = useState("")
+  const [endDate, setEndDate] = useState("")
   const [sortField, setSortField] = useState<"received_at" | "sender" | null>(null)
   const [sortDirection, setSortDirection] = useState<"+" | "-">("-")
   const [currentPage, setCurrentPage] = useState(1)
@@ -63,6 +65,15 @@ export default function SmsLogsListPage() {
         }
         if (typeFilter !== "all") {
           params.append("sms_type", typeFilter)
+        }
+        if (startDate) {
+          params.append("received_at__gte", startDate)
+        }
+        if (endDate) {
+          // Add one day to end date to include the entire end date
+          const endDateObj = new Date(endDate)
+          endDateObj.setDate(endDateObj.getDate() + 1)
+          params.append("received_at__lt", endDateObj.toISOString().split('T')[0])
         }
         if (sortField) {
           params.append("ordering", `${sortDirection}${sortField}`)
@@ -111,14 +122,14 @@ export default function SmsLogsListPage() {
     }
     
     fetchSmsLogs()
-  }, [searchTerm, typeFilter, sortField, sortDirection, currentPage, pageSize])
+  }, [searchTerm, typeFilter, startDate, endDate, sortField, sortDirection, currentPage, pageSize])
 
   // Reset to first page when filters change
   useEffect(() => {
     if (currentPage !== 1) {
       setCurrentPage(1)
     }
-  }, [searchTerm, typeFilter, sortField, sortDirection])
+  }, [searchTerm, typeFilter, startDate, endDate, sortField, sortDirection])
 
   const handleSort = (field: "received_at" | "sender") => {
     if (sortField === field) {
@@ -204,6 +215,53 @@ export default function SmsLogsListPage() {
               <SelectItem value="200">200</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+        
+        {/* Date Filters */}
+        <div className="flex flex-col lg:flex-row gap-4 mb-6">
+          <div className="flex flex-col lg:flex-row gap-4 flex-1">
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                {t("smsLogs.startDate") || "Start Date"}
+              </label>
+              <Input
+                type="date"
+                value={startDate}
+                onChange={(e) => {
+                  setStartDate(e.target.value)
+                  setCurrentPage(1)
+                }}
+                className="w-full lg:w-48"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                {t("smsLogs.endDate") || "End Date"}
+              </label>
+              <Input
+                type="date"
+                value={endDate}
+                onChange={(e) => {
+                  setEndDate(e.target.value)
+                  setCurrentPage(1)
+                }}
+                className="w-full lg:w-48"
+              />
+            </div>
+          </div>
+          <div className="flex items-end">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setStartDate("")
+                setEndDate("")
+                setCurrentPage(1)
+              }}
+              className="h-10"
+            >
+              {t("smsLogs.clearDates") || "Clear Dates"}
+            </Button>
+          </div>
         </div>
 
         {/* Results Info */}

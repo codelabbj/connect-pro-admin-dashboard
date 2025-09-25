@@ -48,6 +48,8 @@ export default function MomoPayTransactionsPage() {
   const [statusFilter, setStatusFilter] = useState("all")
   const [phoneFilter, setPhoneFilter] = useState("")
   const [paymentTypeFilter, setPaymentTypeFilter] = useState("all")
+  const [startDate, setStartDate] = useState("")
+  const [endDate, setEndDate] = useState("")
   const [includeExpired, setIncludeExpired] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [transactions, setTransactions] = useState<MomoPayTransaction[]>([])
@@ -105,6 +107,15 @@ export default function MomoPayTransactionsPage() {
         if (includeExpired) {
           params.append("include_expired", "true")
         }
+        if (startDate) {
+          params.append("created_at__gte", startDate)
+        }
+        if (endDate) {
+          // Add one day to end date to include the entire end date
+          const endDateObj = new Date(endDate)
+          endDateObj.setDate(endDateObj.getDate() + 1)
+          params.append("created_at__lt", endDateObj.toISOString().split('T')[0])
+        }
 
         const orderingParam = sortField
           ? `&ordering=${(sortDirection === "asc" ? "" : "-")}${sortField}`
@@ -137,7 +148,7 @@ export default function MomoPayTransactionsPage() {
       }
     }
     fetchTransactions()
-  }, [searchTerm, currentPage, itemsPerPage, baseUrl, statusFilter, phoneFilter, paymentTypeFilter, includeExpired, sortField, sortDirection, toast, apiFetch])
+  }, [searchTerm, currentPage, itemsPerPage, baseUrl, statusFilter, phoneFilter, paymentTypeFilter, startDate, endDate, includeExpired, sortField, sortDirection, toast, apiFetch])
 
   const startIndex = (currentPage - 1) * itemsPerPage
 
@@ -360,6 +371,53 @@ export default function MomoPayTransactionsPage() {
                 <label htmlFor="include-expired" className="text-sm font-medium">
                   Inclure les expirés
                 </label>
+              </div>
+            </div>
+            
+            {/* Date Filters */}
+            <div className="flex flex-col lg:flex-row gap-4">
+              <div className="flex flex-col lg:flex-row gap-4 flex-1">
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Date de début
+                  </label>
+                  <Input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => {
+                      setStartDate(e.target.value)
+                      setCurrentPage(1)
+                    }}
+                    className="w-full lg:w-48"
+                  />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Date de fin
+                  </label>
+                  <Input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => {
+                      setEndDate(e.target.value)
+                      setCurrentPage(1)
+                    }}
+                    className="w-full lg:w-48"
+                  />
+                </div>
+              </div>
+              <div className="flex items-end">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setStartDate("")
+                    setEndDate("")
+                    setCurrentPage(1)
+                  }}
+                  className="h-10"
+                >
+                  Effacer les dates
+                </Button>
               </div>
             </div>
           </div>

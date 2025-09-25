@@ -715,6 +715,71 @@ const translations = {
     "common.failedToCreate": "Failed to create",
     "common.failedToUpdate": "Failed to update",
     "common.failedToDelete": "Failed to delete",
+
+    // Date filtering common
+    "transactions.startDate": "Start Date",
+    "transactions.endDate": "End Date",
+    "transactions.clearDates": "Clear Dates",
+
+    // Phone Numbers Date filtering
+    "phoneNumbers.startDate": "Start Date",
+    "phoneNumbers.endDate": "End Date",
+    "phoneNumbers.clearDates": "Clear Dates",
+
+    // Devices Date filtering
+    "devices.startDate": "Start Date",
+    "devices.endDate": "End Date",
+    "devices.clearDates": "Clear Dates",
+
+    // Users Date filtering
+    "users.startDate": "Start Date",
+    "users.endDate": "End Date",
+    "users.clearDates": "Clear Dates",
+
+    // FCM Logs Date filtering
+    "fcmLogs.startDate": "Start Date",
+    "fcmLogs.endDate": "End Date",
+    "fcmLogs.clearDates": "Clear Dates",
+
+    // SMS Logs Date filtering
+    "smsLogs.startDate": "Start Date",
+    "smsLogs.endDate": "End Date",
+    "smsLogs.clearDates": "Clear Dates",
+
+    // Network Date filtering
+    "network.startDate": "Start Date",
+    "network.endDate": "End Date",
+    "network.clearDates": "Clear Dates",
+
+    // Network Config Date filtering
+    "networkConfig.startDate": "Start Date",
+    "networkConfig.endDate": "End Date",
+    "networkConfig.clearDates": "Clear Dates",
+
+    // Country Date filtering
+    "country.startDate": "Start Date",
+    "country.endDate": "End Date",
+    "country.clearDates": "Clear Dates",
+
+    // Transaction Logs Date filtering
+    "transactionLogs.startDate": "Start Date",
+    "transactionLogs.endDate": "End Date",
+    "transactionLogs.clearDates": "Clear Dates",
+
+    // Partners Date filtering
+    "partners.startDate": "Start Date",
+    "partners.endDate": "End Date",
+    "partners.clearDates": "Clear Dates",
+
+    // Topup Date filtering
+    "topup.startDate": "Start Date",
+    "topup.endDate": "End Date",
+    "topup.clearDates": "Clear Dates",
+
+    // Earning Management Date filtering
+    "earning.startDate": "Start Date",
+    "earning.endDate": "End Date",
+    "earning.clearDates": "Clear Dates",
   },
   fr: {
     // Auth
@@ -1425,6 +1490,71 @@ const translations = {
     "common.failedToCreate": "Échec de la création",
     "common.failedToUpdate": "Échec de la mise à jour",
     "common.failedToDelete": "Échec de la suppression",
+
+    // Date filtering common
+    "transactions.startDate": "Date de début",
+    "transactions.endDate": "Date de fin",
+    "transactions.clearDates": "Effacer les dates",
+
+    // Phone Numbers Date filtering
+    "phoneNumbers.startDate": "Date de début",
+    "phoneNumbers.endDate": "Date de fin",
+    "phoneNumbers.clearDates": "Effacer les dates",
+
+    // Devices Date filtering
+    "devices.startDate": "Date de début",
+    "devices.endDate": "Date de fin",
+    "devices.clearDates": "Effacer les dates",
+
+    // Users Date filtering
+    "users.startDate": "Date de début",
+    "users.endDate": "Date de fin",
+    "users.clearDates": "Effacer les dates",
+
+    // FCM Logs Date filtering
+    "fcmLogs.startDate": "Date de début",
+    "fcmLogs.endDate": "Date de fin",
+    "fcmLogs.clearDates": "Effacer les dates",
+
+    // SMS Logs Date filtering
+    "smsLogs.startDate": "Date de début",
+    "smsLogs.endDate": "Date de fin",
+    "smsLogs.clearDates": "Effacer les dates",
+
+    // Network Date filtering
+    "network.startDate": "Date de début",
+    "network.endDate": "Date de fin",
+    "network.clearDates": "Effacer les dates",
+
+    // Network Config Date filtering
+    "networkConfig.startDate": "Date de début",
+    "networkConfig.endDate": "Date de fin",
+    "networkConfig.clearDates": "Effacer les dates",
+
+    // Country Date filtering
+    "country.startDate": "Date de début",
+    "country.endDate": "Date de fin",
+    "country.clearDates": "Effacer les dates",
+
+    // Transaction Logs Date filtering
+    "transactionLogs.startDate": "Date de début",
+    "transactionLogs.endDate": "Date de fin",
+    "transactionLogs.clearDates": "Effacer les dates",
+
+    // Partners Date filtering
+    "partners.startDate": "Date de début",
+    "partners.endDate": "Date de fin",
+    "partners.clearDates": "Effacer les dates",
+
+    // Topup Date filtering
+    "topup.startDate": "Date de début",
+    "topup.endDate": "Date de fin",
+    "topup.clearDates": "Effacer les dates",
+
+    // Earning Management Date filtering
+    "earning.startDate": "Date de début",
+    "earning.endDate": "Date de fin",
+    "earning.clearDates": "Effacer les dates",
   },
 }
 

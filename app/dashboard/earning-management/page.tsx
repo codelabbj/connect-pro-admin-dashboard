@@ -17,6 +17,8 @@ import { useApi } from "@/lib/useApi"
 export default function EarningManagementPage() {
 	const [searchTerm, setSearchTerm] = useState("")
 	const [statusFilter, setStatusFilter] = useState("all")
+	const [startDate, setStartDate] = useState("")
+	const [endDate, setEndDate] = useState("")
 	const [currentPage, setCurrentPage] = useState(1)
 	const [earnings, setEarnings] = useState<any[]>([])
 	const [totalCount, setTotalCount] = useState(0)
@@ -48,12 +50,21 @@ export default function EarningManagementPage() {
 				if (searchTerm.trim() !== "") {
 					params.append("search", searchTerm)
 				}
-				if (statusFilter !== "all") {
-					params.append("status", statusFilter)
-				}
-				const orderingParam = sortField
-					? `&ordering=${(sortDirection === "asc" ? "+" : "-")}${sortField}`
-					: ""
+			if (statusFilter !== "all") {
+				params.append("status", statusFilter)
+			}
+			if (startDate) {
+				params.append("created_at__gte", startDate)
+			}
+			if (endDate) {
+				// Add one day to end date to include the entire end date
+				const endDateObj = new Date(endDate)
+				endDateObj.setDate(endDateObj.getDate() + 1)
+				params.append("created_at__lt", endDateObj.toISOString().split('T')[0])
+			}
+			const orderingParam = sortField
+				? `&ordering=${(sortDirection === "asc" ? "+" : "-")}${sortField}`
+				: ""
 				const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/admin/commission-payments/?${params.toString()}${orderingParam}`
 				const data = await apiFetch(endpoint)
 				setEarnings(data.results || [])
@@ -72,7 +83,7 @@ export default function EarningManagementPage() {
 			}
 		}
 		fetchEarnings()
-	}, [searchTerm, currentPage, itemsPerPage, baseUrl, statusFilter, sortField, sortDirection, t, toast, apiFetch])
+	}, [searchTerm, currentPage, itemsPerPage, baseUrl, statusFilter, startDate, endDate, sortField, sortDirection, t, toast, apiFetch])
 
 	const startIndex = (currentPage - 1) * itemsPerPage
 
@@ -128,10 +139,57 @@ export default function EarningManagementPage() {
 									className="pl-10"
 								/>
 							</div>
-							{/* No status in new API, so remove filter or keep for future */}
-						</div>
+					{/* No status in new API, so remove filter or keep for future */}
+			</div>
+			
+			{/* Date Filters */}
+			<div className="flex flex-col lg:flex-row gap-4 mb-6">
+				<div className="flex flex-col lg:flex-row gap-4 flex-1">
+					<div className="flex flex-col gap-2">
+						<label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+							{t("earning.startDate") || "Start Date"}
+						</label>
+						<Input
+							type="date"
+							value={startDate}
+							onChange={(e) => {
+								setStartDate(e.target.value)
+								setCurrentPage(1)
+							}}
+							className="w-full lg:w-48"
+						/>
+					</div>
+					<div className="flex flex-col gap-2">
+						<label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+							{t("earning.endDate") || "End Date"}
+						</label>
+						<Input
+							type="date"
+							value={endDate}
+							onChange={(e) => {
+								setEndDate(e.target.value)
+								setCurrentPage(1)
+							}}
+							className="w-full lg:w-48"
+						/>
+					</div>
+				</div>
+				<div className="flex items-end">
+					<Button
+						variant="outline"
+						onClick={() => {
+							setStartDate("")
+							setEndDate("")
+							setCurrentPage(1)
+						}}
+						className="h-10"
+					>
+						{t("earning.clearDates") || "Clear Dates"}
+					</Button>
+				</div>
+			</div>
 
-						{/* Table */}
+			{/* Table */}
 						<div className="rounded-md border">
 							{loading ? (
 								<div className="p-8 text-center text-muted-foreground">{t("common.loading")}</div>

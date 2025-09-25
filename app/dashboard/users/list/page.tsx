@@ -22,6 +22,8 @@ import { Copy } from "lucide-react"
 export default function UsersPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
+  const [startDate, setStartDate] = useState("")
+  const [endDate, setEndDate] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const [users, setUsers] = useState<any[]>([])
   const [totalCount, setTotalCount] = useState(0)
@@ -69,7 +71,7 @@ export default function UsersPage() {
       setError("");
       try {
         let endpoint = "";
-        if (searchTerm.trim() !== "" || statusFilter !== "all" || sortField) {
+        if (searchTerm.trim() !== "" || statusFilter !== "all" || sortField || startDate || endDate) {
           const params = new URLSearchParams({
             page: currentPage.toString(),
             page_size: itemsPerPage.toString(),
@@ -79,6 +81,15 @@ export default function UsersPage() {
           }
           if (statusFilter !== "all") {
             params.append("status", statusFilter);
+          }
+          if (startDate) {
+            params.append("created_at__gte", startDate);
+          }
+          if (endDate) {
+            // Add one day to end date to include the entire end date
+            const endDateObj = new Date(endDate);
+            endDateObj.setDate(endDateObj.getDate() + 1);
+            params.append("created_at__lt", endDateObj.toISOString().split('T')[0]);
           }
           const orderingParam = sortField
             ? `&ordering=${(sortDirection === "asc" ? "+" : "-")}${(sortField === "display_name" ? "display_name" : sortField)}`
@@ -122,7 +133,7 @@ export default function UsersPage() {
       }
     };
     fetchUsers();
-  }, [searchTerm, currentPage, itemsPerPage, baseUrl, viewType, statusFilter, sortField, sortDirection]);
+  }, [searchTerm, currentPage, itemsPerPage, baseUrl, viewType, statusFilter, startDate, endDate, sortField, sortDirection]);
 
   const filteredUsers = users // Filtering is now handled by the API
   const startIndex = (currentPage - 1) * itemsPerPage
@@ -370,6 +381,53 @@ export default function UsersPage() {
                 <SelectItem value="pending">{t("users.pending")}</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+          
+          {/* Date Filters */}
+          <div className="flex flex-col lg:flex-row gap-4 mb-6">
+            <div className="flex flex-col lg:flex-row gap-4 flex-1">
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {t("users.startDate") || "Start Date"}
+                </label>
+                <Input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => {
+                    setStartDate(e.target.value)
+                    setCurrentPage(1)
+                  }}
+                  className="w-full lg:w-48"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {t("users.endDate") || "End Date"}
+                </label>
+                <Input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => {
+                    setEndDate(e.target.value)
+                    setCurrentPage(1)
+                  }}
+                  className="w-full lg:w-48"
+                />
+              </div>
+            </div>
+            <div className="flex items-end">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setStartDate("")
+                  setEndDate("")
+                  setCurrentPage(1)
+                }}
+                className="h-10"
+              >
+                {t("users.clearDates") || "Clear Dates"}
+              </Button>
+            </div>
           </div>
 
           {/* Bulk Actions */}

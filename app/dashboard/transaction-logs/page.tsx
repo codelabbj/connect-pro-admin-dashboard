@@ -22,6 +22,8 @@ export default function TransactionLogsListPage() {
   const [error, setError] = useState("")
   const [searchInput, setSearchInput] = useState("")
   const [searchTerm, setSearchTerm] = useState("")
+  const [startDate, setStartDate] = useState("")
+  const [endDate, setEndDate] = useState("")
   const [sortField, setSortField] = useState<string | null>(null)
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc")
   const [currentPage, setCurrentPage] = useState(1)
@@ -56,6 +58,13 @@ export default function TransactionLogsListPage() {
           page_size: pageSize.toString(),
         })
         if (searchTerm) params.append("search", searchTerm)
+        if (startDate) params.append("created_at__gte", startDate)
+        if (endDate) {
+          // Add one day to end date to include the entire end date
+          const endDateObj = new Date(endDate)
+          endDateObj.setDate(endDateObj.getDate() + 1)
+          params.append("created_at__lt", endDateObj.toISOString().split('T')[0])
+        }
         if (sortField) params.append("ordering", `${sortDirection === "asc" ? "+" : "-"}${sortField}`)
 
         const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/transaction-logs/?${params.toString()}`
@@ -86,7 +95,7 @@ export default function TransactionLogsListPage() {
     }
 
     fetchLogs()
-  }, [apiFetch, currentPage, pageSize, searchTerm, sortField, sortDirection, t])
+  }, [apiFetch, currentPage, pageSize, searchTerm, startDate, endDate, sortField, sortDirection, t])
 
   if (loading) {
     return (
@@ -123,6 +132,53 @@ export default function TransactionLogsListPage() {
               onClick={handleSearchSubmit}
             >
               {t("common.search")}
+            </Button>
+          </div>
+        </div>
+        
+        {/* Date Filters */}
+        <div className="flex flex-col lg:flex-row gap-4 mb-6">
+          <div className="flex flex-col lg:flex-row gap-4 flex-1">
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                {t("transactionLogs.startDate") || "Start Date"}
+              </label>
+              <Input
+                type="date"
+                value={startDate}
+                onChange={(e) => {
+                  setStartDate(e.target.value)
+                  setCurrentPage(1)
+                }}
+                className="w-full lg:w-48"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                {t("transactionLogs.endDate") || "End Date"}
+              </label>
+              <Input
+                type="date"
+                value={endDate}
+                onChange={(e) => {
+                  setEndDate(e.target.value)
+                  setCurrentPage(1)
+                }}
+                className="w-full lg:w-48"
+              />
+            </div>
+          </div>
+          <div className="flex items-end">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setStartDate("")
+                setEndDate("")
+                setCurrentPage(1)
+              }}
+              className="h-10"
+            >
+              {t("transactionLogs.clearDates") || "Clear Dates"}
             </Button>
           </div>
         </div>

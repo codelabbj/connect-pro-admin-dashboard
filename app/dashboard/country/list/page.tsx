@@ -21,6 +21,8 @@ export default function CountryListPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
+  const [startDate, setStartDate] = useState("")
+  const [endDate, setEndDate] = useState("")
   const [sortField, setSortField] = useState<"nom" | "code" | null>(null)
   const [sortDirection, setSortDirection] = useState<"+" | "-">("-")
   const apiFetch = useApi()
@@ -33,7 +35,7 @@ export default function CountryListPage() {
       setError("")
       try {
         let endpoint = "";
-        if (searchTerm.trim() !== "" || statusFilter !== "all" || sortField) {
+        if (searchTerm.trim() !== "" || statusFilter !== "all" || sortField || startDate || endDate) {
           const params = new URLSearchParams({
             page: "1",
             page_size: "100",
@@ -43,6 +45,15 @@ export default function CountryListPage() {
           }
           if (statusFilter !== "all") {
             params.append("is_active", statusFilter === "active" ? "true" : "false");
+          }
+          if (startDate) {
+            params.append("created_at__gte", startDate);
+          }
+          if (endDate) {
+            // Add one day to end date to include the entire end date
+            const endDateObj = new Date(endDate);
+            endDateObj.setDate(endDateObj.getDate() + 1);
+            params.append("created_at__lt", endDateObj.toISOString().split('T')[0]);
           }
           if (sortField) {
             params.append("ordering", `${sortDirection === "+" ? "+" : "-"}${sortField}`);
@@ -78,7 +89,7 @@ export default function CountryListPage() {
       }
     }
     fetchCountries()
-  }, [searchTerm, statusFilter, sortField, sortDirection])
+  }, [searchTerm, statusFilter, startDate, endDate, sortField, sortDirection])
 
   // Remove client-side filtering since it's now handled by the API
   const filteredCountries = countries
@@ -124,6 +135,53 @@ export default function CountryListPage() {
               <SelectItem value="inactive">{t("country.inactive")}</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+        
+        {/* Date Filters */}
+        <div className="flex flex-col lg:flex-row gap-4 mb-6">
+          <div className="flex flex-col lg:flex-row gap-4 flex-1">
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                {t("country.startDate") || "Start Date"}
+              </label>
+              <Input
+                type="date"
+                value={startDate}
+                onChange={(e) => {
+                  setStartDate(e.target.value)
+                  setCurrentPage(1)
+                }}
+                className="w-full lg:w-48"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                {t("country.endDate") || "End Date"}
+              </label>
+              <Input
+                type="date"
+                value={endDate}
+                onChange={(e) => {
+                  setEndDate(e.target.value)
+                  setCurrentPage(1)
+                }}
+                className="w-full lg:w-48"
+              />
+            </div>
+          </div>
+          <div className="flex items-end">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setStartDate("")
+                setEndDate("")
+                setCurrentPage(1)
+              }}
+              className="h-10"
+            >
+              {t("country.clearDates") || "Clear Dates"}
+            </Button>
+          </div>
         </div>
 
         {loading ? (

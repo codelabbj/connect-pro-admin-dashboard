@@ -46,6 +46,8 @@ export default function TransactionsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [typeFilter, setTypeFilter] = useState("all")
+  const [startDate, setStartDate] = useState("")
+  const [endDate, setEndDate] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const [sortField, setSortField] = useState<"amount" | "date" | null>(null)
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc")
@@ -86,7 +88,7 @@ export default function TransactionsPage() {
     setError("")
     try {
       let endpoint = "";
-      if (searchTerm.trim() !== "" || statusFilter !== "all" || typeFilter !== "all" || sortField) {
+      if (searchTerm.trim() !== "" || statusFilter !== "all" || typeFilter !== "all" || sortField || startDate || endDate) {
         const params = new URLSearchParams({
           page: currentPage.toString(),
           page_size: itemsPerPage.toString(),
@@ -99,6 +101,15 @@ export default function TransactionsPage() {
         }
         if (typeFilter !== "all") {
           params.append("trans_type", typeFilter);
+        }
+        if (startDate) {
+          params.append("created_at__gte", startDate);
+        }
+        if (endDate) {
+          // Add one day to end date to include the entire end date
+          const endDateObj = new Date(endDate);
+          endDateObj.setDate(endDateObj.getDate() + 1);
+          params.append("created_at__lt", endDateObj.toISOString().split('T')[0]);
         }
         if (sortField) {
           const orderBy = sortField === "date" ? "created_at" : "amount";
@@ -139,7 +150,7 @@ export default function TransactionsPage() {
 
   useEffect(() => {
     fetchTransactions()
-  }, [currentPage, itemsPerPage, baseUrl, searchTerm, statusFilter, typeFilter, sortField, sortDirection])
+  }, [currentPage, itemsPerPage, baseUrl, searchTerm, statusFilter, typeFilter, startDate, endDate, sortField, sortDirection])
 
   // Remove client-side filtering and sorting since it's now handled by the API
   const filteredAndSortedTransactions = transactions
@@ -679,6 +690,53 @@ export default function TransactionsPage() {
                 <SelectItem value="transfer">{t("transactions.transfer")}</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+          
+          {/* Date Filters */}
+          <div className="flex flex-col lg:flex-row gap-4 mb-6">
+            <div className="flex flex-col lg:flex-row gap-4 flex-1">
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {t("transactions.startDate") || "Start Date"}
+                </label>
+                <Input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => {
+                    setStartDate(e.target.value)
+                    setCurrentPage(1)
+                  }}
+                  className="w-full lg:w-48"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {t("transactions.endDate") || "End Date"}
+                </label>
+                <Input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => {
+                    setEndDate(e.target.value)
+                    setCurrentPage(1)
+                  }}
+                  className="w-full lg:w-48"
+                />
+              </div>
+            </div>
+            <div className="flex items-end">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setStartDate("")
+                  setEndDate("")
+                  setCurrentPage(1)
+                }}
+                className="h-10"
+              >
+                {t("transactions.clearDates") || "Clear Dates"}
+              </Button>
+            </div>
           </div>
 
           {/* Inline error display to avoid unmounting the page */}
