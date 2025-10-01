@@ -257,6 +257,15 @@ const translations = {
     "users.confirmDisablePartner": "Are you sure you want to disable this user's partner status?",
     "users.enablePartner": "Enable Partner",
     "users.confirmEnablePartner": "Are you sure you want to enable this user's partner status?",
+    "users.canProcessUssdTransaction": "Can Process USSD Transaction",
+    "users.enableUssdTransaction": "Enable USSD Transaction",
+    "users.disableUssdTransaction": "Disable USSD Transaction",
+    "users.confirmEnableUssdTransaction": "Are you sure you want to enable USSD transaction processing for this user?",
+    "users.confirmDisableUssdTransaction": "Are you sure you want to disable USSD transaction processing for this user?",
+    "users.ussdToggled": "USSD Transaction Status Updated",
+    "users.ussdEnabledSuccessfully": "USSD transaction processing enabled successfully",
+    "users.ussdDisabledSuccessfully": "USSD transaction processing disabled successfully",
+    "users.ussdToggleFailed": "Failed to update USSD transaction status",
 
     // Transactions
     "transactions.title": "Transactions",
@@ -500,6 +509,7 @@ const translations = {
     "users.togglePartnerFailed": "Failed to update partner status.",
     // Registration Form - is_partner
     "register.isPartner": "Is Partner",
+    "register.allowTransaction": "Allow Transaction",
 
     // Common
     "common.previous": "Previous",
@@ -770,6 +780,16 @@ const translations = {
     "partners.startDate": "Start Date",
     "partners.endDate": "End Date",
     "partners.clearDates": "Clear Dates",
+    "partners.canProcessUssdTransaction": "Can Process USSD Transaction",
+    "partners.enableUssdTransaction": "Enable USSD Transaction",
+    "partners.disableUssdTransaction": "Disable USSD Transaction",
+    "partners.confirmEnableUssdTransaction": "Are you sure you want to enable USSD transaction processing for this partner?",
+    "partners.confirmDisableUssdTransaction": "Are you sure you want to disable USSD transaction processing for this partner?",
+    "partners.ussdToggled": "USSD Transaction Status Updated",
+    "partners.ussdEnabledSuccessfully": "USSD transaction processing enabled successfully",
+    "partners.ussdDisabledSuccessfully": "USSD transaction processing disabled successfully",
+    "partners.ussdToggleFailed": "Failed to update USSD transaction status",
+    "partners.verifying": "Verifying...",
 
     // Topup Date filtering
     "topup.startDate": "Start Date",
@@ -1027,6 +1047,15 @@ const translations = {
     "users.confirmDisablePartner": "Êtes-vous sûr de vouloir désactiver le statut de partenaire de cet utilisateur ?",
     "users.enablePartner": "Activer le partenaire",
     "users.confirmEnablePartner": "Êtes-vous sûr de vouloir activer le statut de partenaire de cet utilisateur ?",
+    "users.canProcessUssdTransaction": "Peut traiter les transactions USSD",
+    "users.enableUssdTransaction": "Activer les transactions USSD",
+    "users.disableUssdTransaction": "Désactiver les transactions USSD",
+    "users.confirmEnableUssdTransaction": "Êtes-vous sûr de vouloir activer le traitement des transactions USSD pour cet utilisateur ?",
+    "users.confirmDisableUssdTransaction": "Êtes-vous sûr de vouloir désactiver le traitement des transactions USSD pour cet utilisateur ?",
+    "users.ussdToggled": "Statut des transactions USSD mis à jour",
+    "users.ussdEnabledSuccessfully": "Traitement des transactions USSD activé avec succès",
+    "users.ussdDisabledSuccessfully": "Traitement des transactions USSD désactivé avec succès",
+    "users.ussdToggleFailed": "Échec de la mise à jour du statut des transactions USSD",
 
     // Transactions
     "transactions.title": "Transactions",
@@ -1275,6 +1304,7 @@ const translations = {
     "users.togglePartnerFailed": "Échec de la mise à jour du statut du partenaire.",
     // Registration Form - is_partner
     "register.isPartner": "Est partenaire",
+    "register.allowTransaction": "Autoriser les transactions",
 
     // Common
     "common.previous": "Précédent",
@@ -1545,6 +1575,16 @@ const translations = {
     "partners.startDate": "Date de début",
     "partners.endDate": "Date de fin",
     "partners.clearDates": "Effacer les dates",
+    "partners.canProcessUssdTransaction": "Peut traiter les transactions USSD",
+    "partners.enableUssdTransaction": "Activer les transactions USSD",
+    "partners.disableUssdTransaction": "Désactiver les transactions USSD",
+    "partners.confirmEnableUssdTransaction": "Êtes-vous sûr de vouloir activer le traitement des transactions USSD pour ce partenaire ?",
+    "partners.confirmDisableUssdTransaction": "Êtes-vous sûr de vouloir désactiver le traitement des transactions USSD pour ce partenaire ?",
+    "partners.ussdToggled": "Statut des transactions USSD mis à jour",
+    "partners.ussdEnabledSuccessfully": "Traitement des transactions USSD activé avec succès",
+    "partners.ussdDisabledSuccessfully": "Traitement des transactions USSD désactivé avec succès",
+    "partners.ussdToggleFailed": "Échec de la mise à jour du statut des transactions USSD",
+    "partners.verifying": "Vérification...",
 
     // Topup Date filtering
     "topup.startDate": "Date de début",

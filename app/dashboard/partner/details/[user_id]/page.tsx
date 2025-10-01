@@ -59,6 +59,7 @@ export default function PartnerDetailsPage({ params }: { params: { user_id: stri
               <div><b>Transactions complétées :</b> {partner.completed_transactions}</div>
               <div><b>Montant total des transactions :</b> {partner.total_transaction_amount ?? "-"}</div>
               <div><b>Total commissions reçues :</b> {partner.total_commissions_received ?? "-"}</div>
+              <div><b>Peut traiter les transactions USSD :</b> {partner.can_process_ussd_transaction ? "Oui" : "Non"}</div>
             </div>
           ) : null}
         </CardContent>

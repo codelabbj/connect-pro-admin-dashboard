@@ -17,6 +17,7 @@ export default function RegisterUserForm() {
     password: "",
     password_confirm: "",
       is_partner: false,
+      can_process_ussd_transaction: false,
     })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -69,6 +70,7 @@ export default function RegisterUserForm() {
           password: form.password,
           password_confirm: form.password_confirm,
           is_partner: form.is_partner,
+          can_process_ussd_transaction: form.can_process_ussd_transaction,
         }
       const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/register/`, {
         method: "POST",
@@ -96,6 +98,7 @@ export default function RegisterUserForm() {
           password: "",
           password_confirm: "",
           is_partner: false,
+          can_process_ussd_transaction: false,
         })
       }
     } catch (err: any) {
@@ -178,6 +181,17 @@ export default function RegisterUserForm() {
               className="mr-2"
             />
             <label htmlFor="is_partner">{t("register.isPartner") || "Is Partner"}</label>
+          </div>
+          <div className="flex items-center mb-2">
+            <input
+              type="checkbox"
+              name="can_process_ussd_transaction"
+              checked={form.can_process_ussd_transaction}
+              onChange={handleChange}
+              id="can_process_ussd_transaction"
+              className="mr-2"
+            />
+            <label htmlFor="can_process_ussd_transaction">{t("register.allowTransaction") || "Allow Transaction"}</label>
           </div>
           {error && (
             <ErrorDisplay

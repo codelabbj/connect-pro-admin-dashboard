@@ -53,11 +53,13 @@ export default function UsersPage() {
   const [verifyingEmail, setVerifyingEmail] = useState(false);
   const [verifyingPhone, setVerifyingPhone] = useState(false);
   const [verifyingPartner, setVerifyingPartner] = useState(false);
+  const [verifyingUssd, setVerifyingUssd] = useState(false);
 
   // Add state for confirmation modals
   const [confirmEmailToggle, setConfirmEmailToggle] = useState<null | boolean>(null);
   const [confirmPhoneToggle, setConfirmPhoneToggle] = useState<null | boolean>(null);
   const [confirmPartnerToggle, setConfirmPartnerToggle] = useState<null | boolean>(null);
+  const [confirmUssdToggle, setConfirmUssdToggle] = useState<null | boolean>(null);
 
   const [confirmActionUser, setConfirmActionUser] = useState<any | null>(null);
   const [confirmActionType, setConfirmActionType] = useState<"activate" | "deactivate" | null>(null);
@@ -340,6 +342,25 @@ export default function UsersPage() {
       toast({ title: t("users.partnerToggleFailed"), description: extractErrorMessages(err), variant: "destructive" });
     } finally {
       setVerifyingPartner(false);
+    }
+  };
+
+  // Add handler for toggling can_process_ussd_transaction
+  const handleToggleUssdTransaction = async (canProcess: boolean) => {
+    if (!detailUser?.uid) return;
+    setVerifyingUssd(true);
+    try {
+      const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/${detailUser.uid}/update/`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ can_process_ussd_transaction: canProcess }),
+      });
+      setDetailUser((prev: any) => prev ? { ...prev, can_process_ussd_transaction: canProcess } : prev);
+      toast({ title: t("users.ussdToggled"), description: canProcess ? t("users.ussdEnabledSuccessfully") : t("users.ussdDisabledSuccessfully") });
+    } catch (err: any) {
+      toast({ title: t("users.ussdToggleFailed"), description: extractErrorMessages(err), variant: "destructive" });
+    } finally {
+      setVerifyingUssd(false);
     }
   };
 
@@ -698,6 +719,14 @@ export default function UsersPage() {
                     className="ml-2"
                   />
                 </div>
+                <div><b>{t("users.canProcessUssdTransaction") || "Can Process USSD Transaction"}:</b> {detailUser.can_process_ussd_transaction ? t("common.yes") : t("common.no")}
+                  <Switch
+                    checked={detailUser.can_process_ussd_transaction}
+                    disabled={detailLoading || verifyingUssd}
+                    onCheckedChange={() => setConfirmUssdToggle(!detailUser.can_process_ussd_transaction)}
+                    className="ml-2"
+                  />
+                </div>
                 <div><b>{t("users.createdAt")}:</b> {detailUser.created_at ? detailUser.created_at.split("T")[0] : "-"}</div>
                 <div><b>{t("users.lastLogin")}:</b> {detailUser.last_login_at ? detailUser.last_login_at.split("T")[0] : "-"}</div>
             </div>
@@ -854,8 +883,42 @@ export default function UsersPage() {
             {t("common.cancel")}
           </Button>
         </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+
+      {/* USSD Transaction Toggle Confirmation Modal */}
+      <Dialog open={confirmUssdToggle !== null} onOpenChange={(open) => { if (!open) setConfirmUssdToggle(null) }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{confirmUssdToggle ? t("users.enableUssdTransaction") || "Enable USSD Transaction" : t("users.disableUssdTransaction") || "Disable USSD Transaction"}</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 text-center">
+            {confirmUssdToggle
+              ? t("users.confirmEnableUssdTransaction") || "Are you sure you want to enable USSD transaction processing for this user?"
+              : t("users.confirmDisableUssdTransaction") || "Are you sure you want to disable USSD transaction processing for this user?"}
+          </div>
+          <DialogFooter>
+            <Button
+              className="w-full"
+              onClick={async () => {
+                await handleToggleUssdTransaction(!!confirmUssdToggle);
+                setConfirmUssdToggle(null);
+              }}
+              disabled={verifyingUssd}
+            >
+              {verifyingUssd ? t("users.verifying") : t("common.ok")}
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full mt-2"
+              onClick={() => setConfirmUssdToggle(null)}
+              disabled={verifyingUssd}
+            >
+              {t("common.cancel")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }
