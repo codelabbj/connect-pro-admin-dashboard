@@ -10,11 +10,13 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useLanguage } from "@/components/providers/language-provider"
-import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy, MoreHorizontal } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose, DialogFooter } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import Link from "next/link"
 
 
 export default function PartnerPage() {
@@ -39,8 +41,6 @@ export default function PartnerPage() {
 	const [detailPartner, setDetailPartner] = useState<any | null>(null)
 	const [detailLoading, setDetailLoading] = useState(false)
 	const [detailError, setDetailError] = useState("")
-	const [verifyingUssd, setVerifyingUssd] = useState(false)
-	const [confirmUssdToggle, setConfirmUssdToggle] = useState<null | boolean>(null)
 
 	// Fetch partners from API (authenticated)
 	useEffect(() => {
@@ -125,25 +125,6 @@ export default function PartnerPage() {
 		setDetailPartner(null)
 		setDetailError("")
 	}
-
-	// Add handler for toggling can_process_ussd_transaction
-	const handleToggleUssdTransaction = async (canProcess: boolean) => {
-		if (!detailPartner?.uid) return;
-		setVerifyingUssd(true);
-		try {
-			const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/${detailPartner.uid}/update/`, {
-				method: "PATCH",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ can_process_ussd_transaction: canProcess }),
-			});
-			setDetailPartner((prev: any) => prev ? { ...prev, can_process_ussd_transaction: canProcess } : prev);
-			toast({ title: t("partners.ussdToggled"), description: canProcess ? t("partners.ussdEnabledSuccessfully") : t("partners.ussdDisabledSuccessfully") });
-		} catch (err: any) {
-			toast({ title: t("partners.ussdToggleFailed"), description: extractErrorMessages(err), variant: "destructive" });
-		} finally {
-			setVerifyingUssd(false);
-		}
-	};
 
 	return (
 		<>
@@ -256,8 +237,7 @@ export default function PartnerPage() {
 										<TableHead>{t("partners.phone")}</TableHead>
 										<TableHead>{t("partners.status")}</TableHead>
 										<TableHead>{t("partners.createdAt")}</TableHead>
-										{/* <TableHead>{t("partners.details")}</TableHead> */}
-								<TableHead>Statistiques des commissions</TableHead>
+										<TableHead>{t("commission.actions")}</TableHead>
 									</TableRow>
 								</TableHeader>
 								<TableBody>
@@ -281,9 +261,35 @@ export default function PartnerPage() {
 												</Button>
 											</TableCell> */}
 									<TableCell>
-										<Button size="sm" variant="outline" onClick={() => window.location.assign(`/dashboard/partner/commission/${partner.uid}`)}>
-											Commission Stat
-										</Button>
+										<DropdownMenu>
+											<DropdownMenuTrigger asChild>
+												<Button variant="outline" size="sm">
+													<MoreHorizontal className="h-4 w-4" />
+												</Button>
+											</DropdownMenuTrigger>
+											<DropdownMenuContent align="end">
+												<DropdownMenuItem asChild>
+													<Link href={`/dashboard/permissions/create?partner=${partner.uid}`}>
+														{t("permissions.create")}
+													</Link>
+												</DropdownMenuItem>
+												<DropdownMenuItem asChild>
+													<Link href={`/dashboard/partner/commission/${partner.uid}`}>
+														{t("commissionPayments.title")}
+													</Link>
+												</DropdownMenuItem>
+												<DropdownMenuItem asChild>
+													<Link href={`/dashboard/commission-payments?partner=${partner.uid}`}>
+														{t("commissionPayments.payCommission")}
+													</Link>
+												</DropdownMenuItem>
+												<DropdownMenuItem asChild>
+													<Link href={`/dashboard/commission-config/edit/${partner.uid}`}>
+														{t("commission.edit")}
+													</Link>
+												</DropdownMenuItem>
+											</DropdownMenuContent>
+										</DropdownMenu>
 									</TableCell>
 										</TableRow>
 									))}
@@ -372,53 +378,11 @@ export default function PartnerPage() {
 							<div><b>{t("partners.completedTransactions")}:</b> {detailPartner.completed_transactions}</div>
 							<div><b>{t("partners.totalTransactionAmount")}:</b> {detailPartner.total_transaction_amount ?? "-"}</div>
 							<div><b>{t("partners.totalCommissionsReceived")}:</b> {detailPartner.total_commissions_received ?? "-"}</div>
-							<div><b>{t("partners.canProcessUssdTransaction") || "Can Process USSD Transaction"}:</b> {detailPartner.can_process_ussd_transaction ? t("common.yes") : t("common.no")}
-								<Switch
-									checked={detailPartner.can_process_ussd_transaction}
-									disabled={detailLoading || verifyingUssd}
-									onCheckedChange={() => setConfirmUssdToggle(!detailPartner.can_process_ussd_transaction)}
-									className="ml-2"
-								/>
-							</div>
 						</div>
 					) : null}
 					<DialogClose asChild>
 						<Button className="mt-4 w-full">{t("common.close")}</Button>
 					</DialogClose>
-				</DialogContent>
-			</Dialog>
-
-			{/* USSD Transaction Toggle Confirmation Modal */}
-			<Dialog open={confirmUssdToggle !== null} onOpenChange={(open) => { if (!open) setConfirmUssdToggle(null) }}>
-				<DialogContent>
-					<DialogHeader>
-						<DialogTitle>{confirmUssdToggle ? t("partners.enableUssdTransaction") || "Enable USSD Transaction" : t("partners.disableUssdTransaction") || "Disable USSD Transaction"}</DialogTitle>
-					</DialogHeader>
-					<div className="py-4 text-center">
-						{confirmUssdToggle
-							? t("partners.confirmEnableUssdTransaction") || "Are you sure you want to enable USSD transaction processing for this partner?"
-							: t("partners.confirmDisableUssdTransaction") || "Are you sure you want to disable USSD transaction processing for this partner?"}
-					</div>
-					<DialogFooter>
-						<Button
-							className="w-full"
-							onClick={async () => {
-								await handleToggleUssdTransaction(!!confirmUssdToggle);
-								setConfirmUssdToggle(null);
-							}}
-							disabled={verifyingUssd}
-						>
-							{verifyingUssd ? t("partners.verifying") || "Verifying..." : t("common.ok")}
-						</Button>
-						<Button
-							variant="outline"
-							className="w-full mt-2"
-							onClick={() => setConfirmUssdToggle(null)}
-							disabled={verifyingUssd}
-						>
-							{t("common.cancel")}
-						</Button>
-					</DialogFooter>
 				</DialogContent>
 			</Dialog>
 		</>

@@ -26,8 +26,6 @@ interface UserProfile {
   contact_method: string;
   created_at: string;
   updated_at: string;
-  is_partner?: boolean;
-  can_process_ussd_transaction?: boolean;
 }
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "";
