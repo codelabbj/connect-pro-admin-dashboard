@@ -268,7 +268,7 @@ export default function PartnerPage() {
 												</Button>
 											</DropdownMenuTrigger>
 											<DropdownMenuContent align="end">
-												<DropdownMenuItem asChild>
+												{/* <DropdownMenuItem asChild>
 													<Link href={`/dashboard/permissions/create?partner=${partner.uid}`}>
 														{t("permissions.create")}
 													</Link>
@@ -277,17 +277,17 @@ export default function PartnerPage() {
 													<Link href={`/dashboard/partner/commission/${partner.uid}`}>
 														{t("commissionPayments.title")}
 													</Link>
-												</DropdownMenuItem>
+												</DropdownMenuItem> */}
 												<DropdownMenuItem asChild>
 													<Link href={`/dashboard/commission-payments?partner=${partner.uid}`}>
 														{t("commissionPayments.payCommission")}
 													</Link>
 												</DropdownMenuItem>
-												<DropdownMenuItem asChild>
+												{/* <DropdownMenuItem asChild>
 													<Link href={`/dashboard/commission-config/edit/${partner.uid}`}>
 														{t("commission.edit")}
 													</Link>
-												</DropdownMenuItem>
+												</DropdownMenuItem> */}
 											</DropdownMenuContent>
 										</DropdownMenu>
 									</TableCell>

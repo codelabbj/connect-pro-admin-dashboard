@@ -4,7 +4,7 @@ import type React from "react"
 
 import { Sidebar } from "@/components/layout/sidebar"
 import { Header } from "@/components/layout/header"
-import { WebSocketProvider } from "@/components/providers/websocket-provider"
+// import { WebSocketProvider } from "@/components/providers/websocket-provider"
 
 export default function DashboardLayout({
   children,
@@ -12,12 +12,12 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   // Get token from localStorage (set in sign-in-form.tsx after login)
-  let token = "";
-  if (typeof window !== "undefined") {
-    token = localStorage.getItem("accessToken") || "";
-  }
+  // let token = "";
+  // if (typeof window !== "undefined") {
+  //   token = localStorage.getItem("accessToken") || "";
+  // }
   return (
-    <WebSocketProvider token={token}>
+    // <WebSocketProvider token={token}>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <Sidebar />
         <div className="lg:pl-64">
@@ -29,6 +29,6 @@ export default function DashboardLayout({
           </main>
         </div>
       </div>
-    </WebSocketProvider>
+    // </WebSocketProvider>
   )
 }

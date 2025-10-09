@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
+import dynamic from "next/dynamic"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -15,7 +16,7 @@ import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-displa
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
-export default function PermissionCreatePage() {
+function PermissionCreatePageContent() {
   const [selectedPartner, setSelectedPartner] = useState("")
   const [selectedPlatform, setSelectedPlatform] = useState("")
   const [canDeposit, setCanDeposit] = useState(true)
@@ -302,3 +303,7 @@ export default function PermissionCreatePage() {
     </>
   )
 }
+
+export default dynamic(() => Promise.resolve(PermissionCreatePageContent), {
+  ssr: false
+})

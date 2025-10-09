@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
-import { useWebSocket } from "@/components/providers/websocket-provider"
+// import { useWebSocket } from "@/components/providers/websocket-provider"
 import { Plus } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -304,54 +304,54 @@ export default function TransactionsPage() {
     }
   }
 
-  // Listen for transaction_update WebSocket messages
-  const { lastMessage } = useWebSocket();
-  useEffect(() => {
-    if (!lastMessage) return;
-    try {
-      const data = typeof lastMessage.data === "string" ? JSON.parse(lastMessage.data) : lastMessage.data;
+  // Listen for transaction_update WebSocket messages - COMMENTED OUT
+  // const { lastMessage } = useWebSocket();
+  // useEffect(() => {
+  //   if (!lastMessage) return;
+  //   try {
+  //     const data = typeof lastMessage.data === "string" ? JSON.parse(lastMessage.data) : lastMessage.data;
 
-      // Handle new transaction creation (per backend docs)
-      if (data.type === "new_transaction" && data.event === "transaction_created" && data.transaction_data) {
-        const newTx = data.transaction_data;
-        // If user is on page 1, show it immediately on top; otherwise, just bump count
-        setTransactions(prev => (currentPage === 1 ? [newTx, ...prev].slice(0, itemsPerPage) : prev));
-        setTotalCount(prev => prev + 1);
-        toast({
-          title: t("transactions.created") || "Transaction created",
-          description: data.message || `${t("transactions.transaction")} ${newTx.uid} ${t("transactions.createdSuccessfully") || "was created."}`,
-        });
-        return;
-      }
+  //     // Handle new transaction creation (per backend docs)
+  //     if (data.type === "new_transaction" && data.event === "transaction_created" && data.transaction_data) {
+  //       const newTx = data.transaction_data;
+  //       // If user is on page 1, show it immediately on top; otherwise, just bump count
+  //       setTransactions(prev => (currentPage === 1 ? [newTx, ...prev].slice(0, itemsPerPage) : prev));
+  //       setTotalCount(prev => prev + 1);
+  //       toast({
+  //         title: t("transactions.created") || "Transaction created",
+  //         description: data.message || `${t("transactions.transaction")} ${newTx.uid} ${t("transactions.createdSuccessfully") || "was created."}`,
+  //       });
+  //       return;
+  //     }
 
-      // Handle live transaction updates (existing behavior)
-      if (data.type === "transaction_update" && data.transaction_uid) {
-        setTransactions((prev) =>
-          prev.map((tx) =>
-            tx.uid === data.transaction_uid
-              ? { ...tx, status: data.status, ...data.data }
-              : tx
-          )
-        );
-        toast({
-          title: t("transactions.liveUpdate"),
-          description: `${t("transactions.transaction")} ${data.transaction_uid} ${t("transactions.statusUpdated")}: ${data.status}`,
-        });
-        return;
-      }
+  //     // Handle live transaction updates (existing behavior)
+  //     if (data.type === "transaction_update" && data.transaction_uid) {
+  //       setTransactions((prev) =>
+  //         prev.map((tx) =>
+  //           tx.uid === data.transaction_uid
+  //             ? { ...tx, status: data.status, ...data.data }
+  //             : tx
+  //         )
+  //       );
+  //       toast({
+  //         title: t("transactions.liveUpdate"),
+  //         description: `${t("transactions.transaction")} ${data.transaction_uid} ${t("transactions.statusUpdated")}: ${data.status}`,
+  //       });
+  //       return;
+  //     }
 
-      // Optionally surface system events as informational toasts
-      if (data.type === "system_event" && data.event === "system_event_created") {
-        toast({
-          title: t("transactions.systemEvent") || "System event",
-          description: data.message || data?.event_data?.description || "",
-        });
-        return;
-      }
-    } catch (err) {
-      // Optionally log or handle parse errors
-    }
-  }, [lastMessage, t, toast, currentPage, itemsPerPage]);
+  //     // Optionally surface system events as informational toasts
+  //     if (data.type === "system_event" && data.event === "system_event_created") {
+  //       toast({
+  //         title: t("transactions.systemEvent") || "System event",
+  //         description: data.message || data?.event_data?.description || "",
+  //       });
+  //       return;
+  //     }
+  //   } catch (err) {
+  //     // Optionally log or handle parse errors
+  //   }
+  // }, [lastMessage, t, toast, currentPage, itemsPerPage]);
 
   // Retry modal state
   const [retryModalOpen, setRetryModalOpen] = useState(false)

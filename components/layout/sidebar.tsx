@@ -107,7 +107,7 @@ export function Sidebar() {
               <BarChart3 className="mr-3 h-6 w-6 flex-shrink-0" />
               {t("nav.dashboard")}
             </Link>
-            <Link href="/dashboard/platforms/list" className={cn(
+            {/* <Link href="/dashboard/platforms/list" className={cn(
               "group flex items-center px-2 py-2 text-sm font-medium rounded-md",
               pathname === "/dashboard/platforms/list" || pathname.startsWith("/dashboard/platforms/")
                 ? "bg-blue-100 text-blue-900 dark:bg-blue-900 dark:text-blue-100"
@@ -124,8 +124,8 @@ export function Sidebar() {
             )}>
               <Shield className="mr-3 h-6 w-6 flex-shrink-0" />
               Permissions
-            </Link>
-            <div>
+            </Link> */}
+            {/* <div>
               <button
                 className={cn(
                   "group flex items-center w-full px-2 py-2 text-sm font-medium rounded-md transition-colors",
@@ -235,7 +235,7 @@ export function Sidebar() {
                   Create Config
                 </Link>
               </div>
-            </div>
+            </div> */}
             {/* Users Dropdown */}
             <div>
               <button
@@ -301,7 +301,7 @@ export function Sidebar() {
               <CreditCard className="mr-3 h-6 w-6 flex-shrink-0" />
               {t("nav.transactions")}
             </Link>
-            <Link
+            {/* <Link
               href="/dashboard/transfers"
               className={cn(
                 "group flex items-center px-2 py-2 text-sm font-medium rounded-md",
@@ -313,7 +313,7 @@ export function Sidebar() {
             >
               <ArrowRightLeft className="mr-3 h-6 w-6 flex-shrink-0" />
               Partner Transfers
-            </Link>
+            </Link> */}
             <div>
               <button
                 className={cn(
@@ -586,7 +586,7 @@ export function Sidebar() {
               <BarChart3 className="mr-3 h-6 w-6 flex-shrink-0" />
               {t("nav.dashboard")}
             </Link>
-            <Link href="/dashboard/platforms/list" className={cn(
+            {/* <Link href="/dashboard/platforms/list" className={cn(
               "group flex items-center px-2 py-2 text-sm font-medium rounded-md",
               pathname === "/dashboard/platforms/list" || pathname.startsWith("/dashboard/platforms/")
                 ? "bg-blue-100 text-blue-900 dark:bg-blue-900 dark:text-blue-100"
@@ -603,8 +603,8 @@ export function Sidebar() {
             )}>
               <Shield className="mr-3 h-6 w-6 flex-shrink-0" />
               Permissions
-            </Link>
-            <div>
+            </Link> */}
+            {/* <div>
               <button
                 className={cn(
                   "group flex items-center w-full px-2 py-2 text-sm font-medium rounded-md transition-colors",
@@ -661,7 +661,7 @@ export function Sidebar() {
             )}>
               <Receipt className="mr-3 h-6 w-6 flex-shrink-0" />
               Betting Transactions
-            </Link>
+            </Link> */}
             {/* Users Dropdown */}
             <div>
               <button
@@ -724,7 +724,7 @@ export function Sidebar() {
               <CreditCard className="mr-3 h-6 w-6 flex-shrink-0" />
               {t("nav.transactions")}
             </Link>
-            <Link
+            {/* <Link
               href="/dashboard/transfers"
               className={cn(
                 "group flex items-center px-2 py-2 text-sm font-medium rounded-md",
@@ -735,7 +735,7 @@ export function Sidebar() {
             >
               <ArrowRightLeft className="mr-3 h-6 w-6 flex-shrink-0" />
               Partner Transfers
-            </Link>
+            </Link> */}
             <div>
               <button
                 className={cn(

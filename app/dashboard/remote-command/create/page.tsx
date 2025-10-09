@@ -7,7 +7,7 @@ import { useApi } from "@/lib/useApi"
 import { useLanguage } from "@/components/providers/language-provider"
 import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
-import { WebSocketProvider, useWebSocket } from "@/components/providers/websocket-provider"
+// import { WebSocketProvider, useWebSocket } from "@/components/providers/websocket-provider"
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
@@ -23,7 +23,7 @@ function RemoteCommandCreatePage() {
   const { t } = useLanguage()
   const { toast } = useToast();
   const [devices, setDevices] = useState<any[]>([])
-  const { sendRemoteCommand } = useWebSocket();
+  // const { sendRemoteCommand } = useWebSocket();
 
   useEffect(() => {
     const fetchDevices = async () => {
@@ -56,24 +56,25 @@ function RemoteCommandCreatePage() {
       return
     }
     try {
-      // Send remote command via WebSocket
-      sendRemoteCommand(deviceId, command, paramsObj, priority === 1 ? "normal" : String(priority));
-      setSuccess(t("remoteCommand.commandSentSuccessfully"))
-      toast({
-        title: t("remoteCommand.success"),
-        description: t("remoteCommand.commandSentSuccessfully"),
-      })
-      // Optionally, you can still send via API if needed
-      // const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/remote-command/`, {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({ command, device_id: deviceId, parameters: paramsObj, priority })
-      // })
-      // setSuccess(data.status || t("remoteCommand.commandSentSuccessfully"))
+      // Send remote command via WebSocket - COMMENTED OUT
+      // sendRemoteCommand(deviceId, command, paramsObj, priority === 1 ? "normal" : String(priority));
+      // setSuccess(t("remoteCommand.commandSentSuccessfully"))
       // toast({
       //   title: t("remoteCommand.success"),
-      //   description: data.status || t("remoteCommand.commandSentSuccessfully"),
+      //   description: t("remoteCommand.commandSentSuccessfully"),
       // })
+      
+      // Use API instead of WebSocket
+      const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/remote-command/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ command, device_id: deviceId, parameters: paramsObj, priority })
+      })
+      setSuccess(data.status || t("remoteCommand.commandSentSuccessfully"))
+      toast({
+        title: t("remoteCommand.success"),
+        description: data.status || t("remoteCommand.commandSentSuccessfully"),
+      })
     } catch (err: any) {
       const backendError = extractErrorMessages(err) || t("remoteCommand.failedToCreate")
       setError(backendError)
@@ -152,12 +153,12 @@ function RemoteCommandCreatePage() {
 }
 
 export default function RemoteCommandCreatePageWrapper() {
-  // Replace this with your actual logic to get the token, e.g., from context, props, or environment
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
+  // WebSocket provider commented out
+  // const token = typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
 
   return (
-    <WebSocketProvider token={token}>
+    // <WebSocketProvider token={token}>
       <RemoteCommandCreatePage />
-    </WebSocketProvider>
+    // </WebSocketProvider>
   );
 }
