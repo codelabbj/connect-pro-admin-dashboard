@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useLanguage } from "@/components/providers/language-provider"
-import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy, MoreHorizontal } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy, MoreHorizontal, ShieldCheck, ToggleLeft, ToggleRight, Loader } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose, DialogFooter } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
@@ -41,6 +41,14 @@ export default function PartnerPage() {
 	const [detailPartner, setDetailPartner] = useState<any | null>(null)
 	const [detailLoading, setDetailLoading] = useState(false)
 	const [detailError, setDetailError] = useState("")
+	
+	// Device authorization states
+	const [deviceAuthModalOpen, setDeviceAuthModalOpen] = useState(false)
+	const [deviceAuthPartner, setDeviceAuthPartner] = useState<any | null>(null)
+	const [deviceAuthorizations, setDeviceAuthorizations] = useState<any[]>([])
+	const [deviceAuthLoading, setDeviceAuthLoading] = useState(false)
+	const [deviceAuthError, setDeviceAuthError] = useState("")
+	const [toggleLoading, setToggleLoading] = useState<string | null>(null)
 
 	// Fetch partners from API (authenticated)
 	useEffect(() => {
@@ -124,6 +132,78 @@ export default function PartnerPage() {
 		setDetailModalOpen(false)
 		setDetailPartner(null)
 		setDetailError("")
+	}
+
+	// Device authorization functions
+	const handleOpenDeviceAuth = async (partner: any) => {
+		setDeviceAuthModalOpen(true)
+		setDeviceAuthLoading(true)
+		setDeviceAuthError("")
+		setDeviceAuthPartner(partner)
+		setDeviceAuthorizations([])
+		try {
+			const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/device-authorizations/by_partner/?partner_id=${partner.uid}`
+			const data = await apiFetch(endpoint)
+			setDeviceAuthorizations(Array.isArray(data) ? data : data.results || [])
+			toast({ 
+				title: t("deviceAuthorizations.success"), 
+				description: t("deviceAuthorizations.loadedSuccessfully") 
+			})
+		} catch (err: any) {
+			const errorMessage = extractErrorMessages(err) || t("deviceAuthorizations.failedToLoad")
+			setDeviceAuthError(errorMessage)
+			setDeviceAuthorizations([])
+			toast({ 
+				title: t("deviceAuthorizations.failedToLoad"), 
+				description: errorMessage, 
+				variant: "destructive" 
+			})
+		} finally {
+			setDeviceAuthLoading(false)
+		}
+	}
+
+	const handleCloseDeviceAuth = () => {
+		setDeviceAuthModalOpen(false)
+		setDeviceAuthPartner(null)
+		setDeviceAuthorizations([])
+		setDeviceAuthError("")
+	}
+
+	const handleToggleAuthorization = async (authorization: any) => {
+		try {
+			setToggleLoading(authorization.uid)
+			const response = await apiFetch(`${baseUrl}api/payments/betting/admin/device-authorizations/${authorization.uid}/toggle_active/`, {
+				method: 'POST',
+				body: JSON.stringify({
+					is_active: !authorization.is_active,
+					notes: authorization.notes || ""
+				})
+			})
+			
+			toast({
+				title: t("deviceAuthorizations.success"),
+				description: t("deviceAuthorizations.toggledSuccessfully"),
+			})
+			
+			// Update local state
+			setDeviceAuthorizations(prev => 
+				prev.map(auth => 
+					auth.uid === authorization.uid 
+						? { ...auth, is_active: !auth.is_active }
+						: auth
+				)
+			)
+		} catch (err: any) {
+			const errorMessage = extractErrorMessages(err) || t("deviceAuthorizations.failedToToggle")
+			toast({
+				title: t("deviceAuthorizations.failedToToggle"),
+				description: errorMessage,
+				variant: "destructive",
+			})
+		} finally {
+			setToggleLoading(null)
+		}
 	}
 
 	return (
@@ -268,26 +348,15 @@ export default function PartnerPage() {
 												</Button>
 											</DropdownMenuTrigger>
 											<DropdownMenuContent align="end">
-												{/* <DropdownMenuItem asChild>
-													<Link href={`/dashboard/permissions/create?partner=${partner.uid}`}>
-														{t("permissions.create")}
-													</Link>
+												<DropdownMenuItem onClick={() => handleOpenDeviceAuth(partner)}>
+													<ShieldCheck className="mr-2 h-4 w-4" />
+													{t("deviceAuthorizations.viewAuthorizations") || "View Device Authorizations"}
 												</DropdownMenuItem>
-												<DropdownMenuItem asChild>
-													<Link href={`/dashboard/partner/commission/${partner.uid}`}>
-														{t("commissionPayments.title")}
-													</Link>
-												</DropdownMenuItem> */}
 												<DropdownMenuItem asChild>
 													<Link href={`/dashboard/commission-payments?partner=${partner.uid}`}>
 														{t("commissionPayments.payCommission")}
 													</Link>
 												</DropdownMenuItem>
-												{/* <DropdownMenuItem asChild>
-													<Link href={`/dashboard/commission-config/edit/${partner.uid}`}>
-														{t("commission.edit")}
-													</Link>
-												</DropdownMenuItem> */}
 											</DropdownMenuContent>
 										</DropdownMenu>
 									</TableCell>
@@ -383,6 +452,96 @@ export default function PartnerPage() {
 					<DialogClose asChild>
 						<Button className="mt-4 w-full">{t("common.close")}</Button>
 					</DialogClose>
+				</DialogContent>
+			</Dialog>
+
+			{/* Device Authorization Modal */}
+			<Dialog open={deviceAuthModalOpen} onOpenChange={(open) => { if (!open) handleCloseDeviceAuth() }}>
+				<DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+					<DialogHeader>
+						<DialogTitle>
+							{t("deviceAuthorizations.partnerAuthorizations") || "Device Authorizations"} - {deviceAuthPartner?.display_name || deviceAuthPartner?.email}
+						</DialogTitle>
+					</DialogHeader>
+					{deviceAuthLoading ? (
+						<div className="flex items-center justify-center py-8">
+							<Loader className="animate-spin mr-2 h-6 w-6" />
+							<span>{t("common.loading")}</span>
+						</div>
+					) : deviceAuthError ? (
+						<ErrorDisplay
+							error={deviceAuthError}
+							variant="inline"
+							showRetry={false}
+							className="mb-4"
+						/>
+					) : deviceAuthorizations.length > 0 ? (
+						<div className="space-y-4">
+							<div className="text-sm text-gray-600 dark:text-gray-400">
+								{t("deviceAuthorizations.totalAuthorizations") || "Total Authorizations"}: {deviceAuthorizations.length}
+							</div>
+							<div className="border rounded-lg">
+								<Table>
+									<TableHeader>
+										<TableRow>
+											<TableHead>{t("deviceAuthorizations.uid") || "UID"}</TableHead>
+											<TableHead>{t("deviceAuthorizations.originDevice") || "Origin Device"}</TableHead>
+											<TableHead>{t("deviceAuthorizations.status") || "Status"}</TableHead>
+											<TableHead>{t("deviceAuthorizations.createdAt") || "Created At"}</TableHead>
+											<TableHead>{t("deviceAuthorizations.notes") || "Notes"}</TableHead>
+											<TableHead>{t("deviceAuthorizations.actions") || "Actions"}</TableHead>
+										</TableRow>
+									</TableHeader>
+									<TableBody>
+										{deviceAuthorizations.map((authorization: any) => (
+											<TableRow key={authorization.uid}>
+												<TableCell className="font-mono text-xs">{authorization.uid}</TableCell>
+												<TableCell>
+													<div>
+														<div className="font-medium">{authorization.origin_device_display}</div>
+														<div className="text-sm text-gray-500 font-mono">{authorization.origin_device_uid}</div>
+													</div>
+												</TableCell>
+												<TableCell>
+													<Badge variant={authorization.is_active ? "default" : "secondary"}>
+														{authorization.is_active ? t("common.active") : t("common.inactive")}
+													</Badge>
+												</TableCell>
+												<TableCell>{new Date(authorization.created_at).toLocaleString()}</TableCell>
+												<TableCell className="max-w-xs truncate">{authorization.notes || "-"}</TableCell>
+												<TableCell>
+													<Button
+														variant="outline"
+														size="sm"
+														onClick={() => handleToggleAuthorization(authorization)}
+														disabled={toggleLoading === authorization.uid}
+													>
+														{toggleLoading === authorization.uid ? (
+															<Loader className="h-4 w-4 animate-spin" />
+														) : authorization.is_active ? (
+															<ToggleLeft className="h-4 w-4" />
+														) : (
+															<ToggleRight className="h-4 w-4" />
+														)}
+													</Button>
+												</TableCell>
+											</TableRow>
+										))}
+									</TableBody>
+								</Table>
+							</div>
+						</div>
+					) : (
+						<div className="text-center py-8 text-gray-500">
+							<ShieldCheck className="mx-auto h-12 w-12 mb-4 opacity-50" />
+							<p>{t("deviceAuthorizations.noAuthorizations") || "No device authorizations found for this partner."}</p>
+						</div>
+					)}
+					<DialogFooter>
+						<Button variant="outline" onClick={handleCloseDeviceAuth}>
+							{t("common.close")}
+						</Button>
+					</DialogFooter>
 				</DialogContent>
 			</Dialog>
 		</>

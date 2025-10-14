@@ -738,12 +738,12 @@ export default function DashboardPage() {
       },
       {
         name: "Total Adjustments",
-        value: parseFloat(balanceOps.adjustments.total_credits.total) || 0,
+        value: parseFloat(balanceOps?.adjustments?.total_credits?.total) || 0,
         color: '#00C49F'
       },
       {
         name: "Total Refunds",
-        value: parseFloat(balanceOps.refunds.total_amount) || 0,
+        value: parseFloat(balanceOps?.refunds?.total_amount) || 0,
         color: '#FF8042'
       }
     ];
@@ -753,8 +753,8 @@ export default function DashboardPage() {
   const prepareAdminActivityData = () => {
     if (!balanceOps) return [];
 
-    const adjustmentAdmins = balanceOps.adjustments.by_admin || [];
-    const refundAdmins = balanceOps.refunds.by_admin || [];
+    const adjustmentAdmins = balanceOps?.adjustments?.by_admin || [];
+    const refundAdmins = balanceOps?.refunds?.by_admin || [];
 
     const adminMap = new Map();
 
@@ -1169,7 +1169,7 @@ export default function DashboardPage() {
                       {t("dashboard.totalAdjustments") || "Total Adjustments"}:
                     </span>
                     <div className="text-lg font-bold text-blue-800 dark:text-blue-200">
-                      {balanceOps.adjustments.total_count} operations
+                      {balanceOps?.adjustments?.total_count || 0} operations
                     </div>
                   </div>
 
@@ -1178,10 +1178,10 @@ export default function DashboardPage() {
                       {t("dashboard.totalCredits") || "Total Credits"}:
                     </span>
                     <div className="text-lg font-bold text-green-800 dark:text-green-200">
-                      {balanceOps.adjustments.total_credits.count} operations
+                      {balanceOps?.adjustments?.total_credits?.count || 0} operations
                     </div>
                     <div className="text-sm text-green-600 dark:text-green-400">
-                      Montant: {balanceOps.adjustments.total_credits.total || 0}
+                      Montant: {balanceOps?.adjustments?.total_credits?.total || 0}
                     </div>
                   </div>
 
@@ -1190,10 +1190,10 @@ export default function DashboardPage() {
                       {t("dashboard.totalDebits") || "Total Debits"}:
                     </span>
                     <div className="text-lg font-bold text-orange-800 dark:text-orange-200">
-                      {balanceOps.adjustments.total_debits.count} operations
+                      {balanceOps?.adjustments?.total_debits?.count || 0} operations
                     </div>
                     <div className="text-sm text-orange-600 dark:text-orange-400">
-                      Montant: {balanceOps.adjustments.total_debits.total || 0}
+                      Montant: {balanceOps?.adjustments?.total_debits?.total || 0}
                     </div>
                   </div>
 
@@ -1202,10 +1202,10 @@ export default function DashboardPage() {
                       {t("dashboard.totalRefunds") || "Total Refunds"}:
                     </span>
                     <div className="text-lg font-bold text-red-800 dark:text-red-200">
-                      {balanceOps.refunds.total_count} operations
+                      {balanceOps?.refunds?.total_count || 0} operations
                     </div>
                     <div className="text-sm text-red-600 dark:text-red-400">
-                      Montant: {balanceOps.refunds.total_amount || 0}
+                      Montant: {balanceOps?.refunds?.total_amount || 0}
                     </div>
                   </div>
 
@@ -1214,12 +1214,12 @@ export default function DashboardPage() {
                       {t("dashboard.generatedAt") || "Generated At"}:
                     </span>
                     <div className="text-sm font-mono text-gray-600 dark:text-gray-400">
-                      {new Date(balanceOps.generated_at).toLocaleString()}
+                      {balanceOps?.generated_at ? new Date(balanceOps.generated_at).toLocaleString() : "N/A"}
                     </div>
                   </div>
 
                   {/* Admin Activity Summary */}
-                  {balanceOps.adjustments.by_admin && balanceOps.adjustments.by_admin.length > 0 && (
+                  {balanceOps?.adjustments?.by_admin && balanceOps.adjustments.by_admin.length > 0 && (
                     <div className="col-span-2 lg:col-span-3 bg-purple-50 dark:bg-purple-950 p-3 rounded-lg">
                       <span className="font-medium text-purple-700 dark:text-purple-300 block mb-2">
                         {t("dashboard.adminActivity") || "Admin Activity"}:
@@ -1278,9 +1278,9 @@ export default function DashboardPage() {
               <CardTitle className="text-blue-700 dark:text-blue-200 text-lg">{t("dashboard.taskStats")}</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-2 w-full">
-              <div className="flex justify-between items-center"><span>{t("dashboard.activeTasks")}</span><Badge className="bg-blue-600 text-white">{stats.task_stats.active}</Badge></div>
-              <div className="flex justify-between items-center"><span>{t("dashboard.scheduledTasks")}</span><Badge className="bg-blue-400 text-white">{stats.task_stats.scheduled}</Badge></div>
-              <div className="flex justify-between items-center"><span>{t("dashboard.reservedTasks")}</span><Badge className="bg-blue-300 text-white">{stats.task_stats.reserved}</Badge></div>
+              <div className="flex justify-between items-center"><span>{t("dashboard.activeTasks")}</span><Badge className="bg-blue-600 text-white">{stats?.task_stats?.active || 0}</Badge></div>
+              <div className="flex justify-between items-center"><span>{t("dashboard.scheduledTasks")}</span><Badge className="bg-blue-400 text-white">{stats?.task_stats?.scheduled || 0}</Badge></div>
+              <div className="flex justify-between items-center"><span>{t("dashboard.reservedTasks")}</span><Badge className="bg-blue-300 text-white">{stats?.task_stats?.reserved || 0}</Badge></div>
             </CardContent>
           </Card>
           {/* User Stats */}
@@ -1293,15 +1293,15 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent className="flex flex-col gap-2 w-full">
               {showOnlyActiveUsers ? (
-                <div className="flex justify-between items-center"><span>{t("dashboard.activeUsers")}</span><Badge className="bg-green-500 text-white">{stats.user_stats.active_users}</Badge></div>
+                <div className="flex justify-between items-center"><span>{t("dashboard.activeUsers")}</span><Badge className="bg-green-500 text-white">{stats?.user_stats?.active_users || 0}</Badge></div>
               ) : (
                 <>
-                  <div className="flex justify-between items-center"><span>{t("dashboard.totalUsers")}</span><Badge className="bg-green-600 text-white">{stats.user_stats.total_users}</Badge></div>
-                  <div className="flex justify-between items-center"><span>{t("dashboard.activeUsers")}</span><Badge className="bg-green-500 text-white">{stats.user_stats.active_users}</Badge></div>
-                  <div className="flex justify-between items-center"><span>{t("dashboard.pendingUsers")}</span><Badge className="bg-yellow-500 text-white">{stats.user_stats.pending_users}</Badge></div>
-                  <div className="flex justify-between items-center"><span>{t("dashboard.verifiedUsers")}</span><Badge className="bg-green-400 text-white">{stats.user_stats.verified_users}</Badge></div>
-                  <div className="flex justify-between items-center"><span>{t("dashboard.usersRegisteredToday")}</span><Badge className="bg-blue-500 text-white">{stats.user_stats.users_registered_today}</Badge></div>
-                  <div className="flex justify-between items-center"><span>{t("dashboard.usersRegisteredWeek")}</span><Badge className="bg-blue-400 text-white">{stats.user_stats.users_registered_week}</Badge></div>
+                  <div className="flex justify-between items-center"><span>{t("dashboard.totalUsers")}</span><Badge className="bg-green-600 text-white">{stats?.user_stats?.total_users || 0}</Badge></div>
+                  <div className="flex justify-between items-center"><span>{t("dashboard.activeUsers")}</span><Badge className="bg-green-500 text-white">{stats?.user_stats?.active_users || 0}</Badge></div>
+                  <div className="flex justify-between items-center"><span>{t("dashboard.pendingUsers")}</span><Badge className="bg-yellow-500 text-white">{stats?.user_stats?.pending_users || 0}</Badge></div>
+                  <div className="flex justify-between items-center"><span>{t("dashboard.verifiedUsers")}</span><Badge className="bg-green-400 text-white">{stats?.user_stats?.verified_users || 0}</Badge></div>
+                  <div className="flex justify-between items-center"><span>{t("dashboard.usersRegisteredToday")}</span><Badge className="bg-blue-500 text-white">{stats?.user_stats?.users_registered_today || 0}</Badge></div>
+                  <div className="flex justify-between items-center"><span>{t("dashboard.usersRegisteredWeek")}</span><Badge className="bg-blue-400 text-white">{stats?.user_stats?.users_registered_week || 0}</Badge></div>
                 </>
               )}
             </CardContent>
@@ -1315,9 +1315,9 @@ export default function DashboardPage() {
               <CardTitle className="text-yellow-700 dark:text-yellow-200 text-lg">{t("dashboard.codeStats")}</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-2 w-full">
-              <div className="flex justify-between items-center"><span>{t("dashboard.pendingPasswordReset")}</span><Badge className="bg-yellow-600 text-white">{stats.code_stats.pending_password_reset}</Badge></div>
-              <div className="flex justify-between items-center"><span>{t("dashboard.pendingEmailVerification")}</span><Badge className="bg-yellow-500 text-white">{stats.code_stats.pending_email_verification}</Badge></div>
-              <div className="flex justify-between items-center"><span>{t("dashboard.pendingPhoneVerification")}</span><Badge className="bg-yellow-400 text-white">{stats.code_stats.pending_phone_verification}</Badge></div>
+              <div className="flex justify-between items-center"><span>{t("dashboard.pendingPasswordReset")}</span><Badge className="bg-yellow-600 text-white">{stats?.code_stats?.pending_password_reset || 0}</Badge></div>
+              <div className="flex justify-between items-center"><span>{t("dashboard.pendingEmailVerification")}</span><Badge className="bg-yellow-500 text-white">{stats?.code_stats?.pending_email_verification || 0}</Badge></div>
+              <div className="flex justify-between items-center"><span>{t("dashboard.pendingPhoneVerification")}</span><Badge className="bg-yellow-400 text-white">{stats?.code_stats?.pending_phone_verification || 0}</Badge></div>
             </CardContent>
           </Card>
           {/* Notification Info */}
@@ -1329,10 +1329,10 @@ export default function DashboardPage() {
               <CardTitle className="text-purple-700 dark:text-purple-200 text-lg">{t("dashboard.notificationInfo")}</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-2 w-full">
-              <div className="flex justify-between items-center"><span>{t("dashboard.emailService")}</span><span className="font-bold">{stats.notification_info.email_service}</span></div>
-              <div className="flex justify-between items-center"><span>{t("dashboard.smsService")}</span><span className="font-bold">{stats.notification_info.sms_service}</span></div>
-              <div className="flex justify-between items-center"><span>{t("dashboard.asyncEnabled")}</span><Badge className={stats.notification_info.async_enabled ? "bg-green-600 text-white" : "bg-red-600 text-white"}>{stats.notification_info.async_enabled ? t("dashboard.enabled") : t("dashboard.disabled")}</Badge></div>
-              <div className="flex justify-between items-center"><span>{t("dashboard.loggingEnabled")}</span><Badge className={stats.notification_info.logging_enabled ? "bg-green-600 text-white" : "bg-red-600 text-white"}>{stats.notification_info.logging_enabled ? t("dashboard.enabled") : t("dashboard.disabled")}</Badge></div>
+              <div className="flex justify-between items-center"><span>{t("dashboard.emailService")}</span><span className="font-bold">{stats?.notification_info?.email_service || "N/A"}</span></div>
+              <div className="flex justify-between items-center"><span>{t("dashboard.smsService")}</span><span className="font-bold">{stats?.notification_info?.sms_service || "N/A"}</span></div>
+              <div className="flex justify-between items-center"><span>{t("dashboard.asyncEnabled")}</span><Badge className={stats?.notification_info?.async_enabled ? "bg-green-600 text-white" : "bg-red-600 text-white"}>{stats?.notification_info?.async_enabled ? t("dashboard.enabled") : t("dashboard.disabled")}</Badge></div>
+              <div className="flex justify-between items-center"><span>{t("dashboard.loggingEnabled")}</span><Badge className={stats?.notification_info?.logging_enabled ? "bg-green-600 text-white" : "bg-red-600 text-white"}>{stats?.notification_info?.logging_enabled ? t("dashboard.enabled") : t("dashboard.disabled")}</Badge></div>
             </CardContent>
           </Card>
           {/* Timestamp */}
@@ -1344,7 +1344,7 @@ export default function DashboardPage() {
               <CardTitle className="text-gray-700 dark:text-gray-200 text-lg">{t("dashboard.timestamp")}</CardTitle>
             </CardHeader>
             <CardContent className="w-full text-center font-mono text-sm text-gray-500 dark:text-gray-400">
-              {stats.timestamp}
+              {stats?.timestamp || "N/A"}
             </CardContent>
           </Card>
         </div>
@@ -1449,31 +1449,31 @@ export default function DashboardPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <span className="font-medium">{t("dashboard.todayTransactions") || "Today's Transactions"}:</span>
-                    <span className="ml-2">{summary.today_transactions}</span>
+                    <span className="ml-2">{summary?.today_transactions || 0}</span>
                   </div>
                   <div>
                     <span className="font-medium">{t("dashboard.todayCompleted") || "Today's Completed"}:</span>
-                    <span className="ml-2">{summary.today_completed}</span>
+                    <span className="ml-2">{summary?.today_completed || 0}</span>
                   </div>
                   <div>
                     <span className="font-medium">{t("dashboard.todayRevenue") || "Today's Revenue"}:</span>
-                    <span className="ml-2">{summary.today_revenue}</span>
+                    <span className="ml-2">{summary?.today_revenue || 0}</span>
                   </div>
                   <div>
                     <span className="font-medium">{t("dashboard.todaySuccessRate") || "Today's Success Rate"}:</span>
-                    <span className="ml-2">{summary.today_success_rate.toFixed(2)}%</span>
+                    <span className="ml-2">{summary?.today_success_rate ? summary.today_success_rate.toFixed(2) : "0.00"}%</span>
                   </div>
                   <div>
                     <span className="font-medium">{t("dashboard.onlineDevices") || "Online Devices"}:</span>
-                    <span className="ml-2">{summary.online_devices}</span>
+                    <span className="ml-2">{summary?.online_devices || 0}</span>
                   </div>
                   <div>
                     <span className="font-medium">{t("dashboard.pendingTransactions") || "Pending Transactions"}:</span>
-                    <span className="ml-2">{summary.pending_transactions}</span>
+                    <span className="ml-2">{summary?.pending_transactions || 0}</span>
                   </div>
                   <div className="col-span-2 text-right text-xs text-gray-500 mt-2">
                     {t("dashboard.lastUpdated") || "Last Updated"}:{" "}
-                    {summary.last_updated ? new Date(summary.last_updated).toLocaleString() : "-"}
+                    {summary?.last_updated ? new Date(summary.last_updated).toLocaleString() : "-"}
                   </div>
                 </div>
               ) : (

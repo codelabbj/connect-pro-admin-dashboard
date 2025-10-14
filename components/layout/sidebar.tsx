@@ -6,7 +6,7 @@ import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/components/providers/language-provider"
-import { BarChart3, Users, CreditCard, LogOut, Menu, X, Zap, ChevronDown, ChevronUp, Globe, Share2, Phone, Monitor, MessageCircle, Bell, Settings, Terminal, User, ArrowRightLeft, Gamepad2, Shield, DollarSign, Receipt } from "lucide-react"
+import { BarChart3, Users, CreditCard, LogOut, Menu, X, Zap, ChevronDown, ChevronUp, Globe, Share2, Phone, Monitor, MessageCircle, Bell, Settings, Terminal, User, ArrowRightLeft, Gamepad2, Shield, DollarSign, Receipt, ShieldCheck } from "lucide-react"
 import { clearTokens } from "@/lib/api"
 
 // const navigation = [
@@ -26,6 +26,7 @@ export function Sidebar() {
   const [permissionsDropdownOpen, setPermissionsDropdownOpen] = useState(false)
   const [commissionDropdownOpen, setCommissionDropdownOpen] = useState(false)
   const [apiConfigDropdownOpen, setApiConfigDropdownOpen] = useState(false)
+  const [deviceAuthDropdownOpen, setDeviceAuthDropdownOpen] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
   const { t } = useLanguage()
@@ -68,6 +69,8 @@ export function Sidebar() {
 
   const isApiConfigActive = pathname.startsWith("/dashboard/api-config")
   const isApiConfigListActive = pathname === "/dashboard/api-config/list"
+
+  const isDeviceAuthActive = pathname.startsWith("/dashboard/device-authorizations")
 
   const handleLogout = () => {
     clearTokens();
@@ -400,6 +403,15 @@ export function Sidebar() {
             )}>
               <Phone className="mr-3 h-6 w-6 flex-shrink-0" />
               {t("nav.phoneNumbers")}
+            </Link>
+            <Link href="/dashboard/device-authorizations" className={cn(
+              "group flex items-center px-2 py-2 text-sm font-medium rounded-md",
+              pathname.startsWith("/dashboard/device-authorizations")
+                ? "bg-blue-100 text-blue-900 dark:bg-blue-900 dark:text-blue-100"
+                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white",
+            )}>
+              <ShieldCheck className="mr-3 h-6 w-6 flex-shrink-0" />
+              {t("nav.deviceAuthorizations") || "Device Authorizations"}
             </Link>
             <div>
               <button
@@ -822,6 +834,15 @@ export function Sidebar() {
             )}>
               <Phone className="mr-3 h-6 w-6 flex-shrink-0" />
               {t("nav.phoneNumbers")}
+            </Link>
+            <Link href="/dashboard/device-authorizations" className={cn(
+              "group flex items-center px-2 py-2 text-sm font-medium rounded-md",
+              pathname.startsWith("/dashboard/device-authorizations")
+                ? "bg-blue-100 text-blue-900 dark:bg-blue-900 dark:text-blue-100"
+                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white",
+            )}>
+              <ShieldCheck className="mr-3 h-6 w-6 flex-shrink-0" />
+              {t("nav.deviceAuthorizations") || "Device Authorizations"}
             </Link>
             <div>
               <button
