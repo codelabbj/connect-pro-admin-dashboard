@@ -411,7 +411,7 @@ export function Sidebar() {
                 : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white",
             )}>
               <ShieldCheck className="mr-3 h-6 w-6 flex-shrink-0" />
-              {t("nav.deviceAuthorizations") || "Device Authorizations"}
+              {t("nav.deviceAuthorizations") || "YapsonPress Device Authorizations"}
             </Link>
             <div>
               <button
@@ -842,7 +842,7 @@ export function Sidebar() {
                 : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white",
             )}>
               <ShieldCheck className="mr-3 h-6 w-6 flex-shrink-0" />
-              {t("nav.deviceAuthorizations") || "Device Authorizations"}
+              {t("nav.deviceAuthorizations") || "YapsonPress Device Authorizations"}
             </Link>
             <div>
               <button

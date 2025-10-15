@@ -10,12 +10,14 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useLanguage } from "@/components/providers/language-provider"
-import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy, MoreHorizontal, ShieldCheck, ToggleLeft, ToggleRight, Loader } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy, MoreHorizontal, ShieldCheck, ToggleLeft, ToggleRight, Loader, Plus } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose, DialogFooter } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import Link from "next/link"
 
 
@@ -49,6 +51,15 @@ export default function PartnerPage() {
 	const [deviceAuthLoading, setDeviceAuthLoading] = useState(false)
 	const [deviceAuthError, setDeviceAuthError] = useState("")
 	const [toggleLoading, setToggleLoading] = useState<string | null>(null)
+	
+	// Create authorization form states
+	const [isCreateAuthDialogOpen, setIsCreateAuthDialogOpen] = useState(false)
+	const [createAuthLoading, setCreateAuthLoading] = useState(false)
+	const [createAuthFormData, setCreateAuthFormData] = useState({
+		origin_device: "",
+		is_active: true,
+		notes: ""
+	})
 
 	// Fetch partners from API (authenticated)
 	useEffect(() => {
@@ -206,6 +217,55 @@ export default function PartnerPage() {
 		}
 	}
 
+	const handleCreateAuthorization = async () => {
+		if (!deviceAuthPartner || !createAuthFormData.origin_device.trim()) {
+			toast({
+				title: t("common.error"),
+				description: t("deviceAuthorizations.originDevicePlaceholder"),
+				variant: "destructive"
+			})
+			return
+		}
+
+		try {
+			setCreateAuthLoading(true)
+			const response = await apiFetch(`${baseUrl}api/payments/betting/admin/device-authorizations/`, {
+				method: 'POST',
+				body: JSON.stringify({
+					partner: deviceAuthPartner.uid,
+					origin_device: createAuthFormData.origin_device.trim(),
+					is_active: createAuthFormData.is_active,
+					notes: createAuthFormData.notes.trim()
+				})
+			})
+
+			// Add the new authorization to the list
+			setDeviceAuthorizations(prev => [response, ...prev])
+			
+			// Reset form
+			setCreateAuthFormData({
+				origin_device: "",
+				is_active: true,
+				notes: ""
+			})
+			setIsCreateAuthDialogOpen(false)
+
+			toast({
+				title: t("deviceAuthorizations.success"),
+				description: t("deviceAuthorizations.createdSuccessfully")
+			})
+		} catch (err: any) {
+			const errorMessage = extractErrorMessages(err)
+			toast({
+				title: t("deviceAuthorizations.failedToCreate"),
+				description: errorMessage,
+				variant: "destructive"
+			})
+		} finally {
+			setCreateAuthLoading(false)
+		}
+	}
+
 	return (
 		<>
 			<Card>
@@ -350,7 +410,7 @@ export default function PartnerPage() {
 											<DropdownMenuContent align="end">
 												<DropdownMenuItem onClick={() => handleOpenDeviceAuth(partner)}>
 													<ShieldCheck className="mr-2 h-4 w-4" />
-													{t("deviceAuthorizations.viewAuthorizations") || "View Device Authorizations"}
+													{t("deviceAuthorizations.viewAuthorizations") || "View YapsonPress Device Authorizations"}
 												</DropdownMenuItem>
 												<DropdownMenuItem asChild>
 													<Link href={`/dashboard/commission-payments?partner=${partner.uid}`}>
@@ -459,9 +519,19 @@ export default function PartnerPage() {
 			<Dialog open={deviceAuthModalOpen} onOpenChange={(open) => { if (!open) handleCloseDeviceAuth() }}>
 				<DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
 					<DialogHeader>
-						<DialogTitle>
-							{t("deviceAuthorizations.partnerAuthorizations") || "Device Authorizations"} - {deviceAuthPartner?.display_name || deviceAuthPartner?.email}
-						</DialogTitle>
+						<div className="flex justify-between items-center">
+							<DialogTitle>
+								{t("deviceAuthorizations.partnerAuthorizations") || "YapsonPress Device Authorizations"} - {deviceAuthPartner?.display_name || deviceAuthPartner?.email}
+							</DialogTitle>
+							<Dialog open={isCreateAuthDialogOpen} onOpenChange={setIsCreateAuthDialogOpen}>
+								<DialogTrigger asChild>
+									<Button size="sm">
+										<Plus className="mr-2 h-4 w-4" />
+										{t("deviceAuthorizations.create") || "Create Authorization"}
+									</Button>
+								</DialogTrigger>
+							</Dialog>
+						</div>
 					</DialogHeader>
 					{deviceAuthLoading ? (
 						<div className="flex items-center justify-center py-8">
@@ -540,6 +610,72 @@ export default function PartnerPage() {
 					<DialogFooter>
 						<Button variant="outline" onClick={handleCloseDeviceAuth}>
 							{t("common.close")}
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+
+			{/* Create Authorization Form Dialog */}
+			<Dialog open={isCreateAuthDialogOpen} onOpenChange={setIsCreateAuthDialogOpen}>
+				<DialogContent className="max-w-md">
+					<DialogHeader>
+						<DialogTitle>
+							{t("deviceAuthorizations.create") || "Create YapsonPress Authorization"}
+						</DialogTitle>
+					</DialogHeader>
+					<div className="space-y-4">
+						<div>
+							<Label htmlFor="origin_device">
+								{t("deviceAuthorizations.originDevice") || "Origin Device"} *
+							</Label>
+							<Input
+								id="origin_device"
+								value={createAuthFormData.origin_device}
+								onChange={(e) => setCreateAuthFormData(prev => ({ ...prev, origin_device: e.target.value }))}
+								placeholder={t("deviceAuthorizations.originDevicePlaceholder") || "Enter device ID"}
+								className="mt-1"
+							/>
+						</div>
+						<div>
+							<Label htmlFor="notes">
+								{t("deviceAuthorizations.notes") || "Notes"}
+							</Label>
+							<Textarea
+								id="notes"
+								value={createAuthFormData.notes}
+								onChange={(e) => setCreateAuthFormData(prev => ({ ...prev, notes: e.target.value }))}
+								placeholder={t("deviceAuthorizations.notesPlaceholder") || "Enter notes"}
+								className="mt-1"
+								rows={3}
+							/>
+						</div>
+						<div className="flex items-center space-x-2">
+							<Switch
+								id="is_active"
+								checked={createAuthFormData.is_active}
+								onCheckedChange={(checked) => setCreateAuthFormData(prev => ({ ...prev, is_active: checked }))}
+							/>
+							<Label htmlFor="is_active">
+								{t("deviceAuthorizations.isActive") || "Is Active"}
+							</Label>
+						</div>
+					</div>
+					<DialogFooter>
+						<Button variant="outline" onClick={() => setIsCreateAuthDialogOpen(false)}>
+							{t("common.cancel")}
+						</Button>
+						<Button 
+							onClick={handleCreateAuthorization}
+							disabled={createAuthLoading || !createAuthFormData.origin_device.trim()}
+						>
+							{createAuthLoading ? (
+								<>
+									<Loader className="mr-2 h-4 w-4 animate-spin" />
+									{t("common.creating") || "Creating..."}
+								</>
+							) : (
+								t("deviceAuthorizations.create") || "Create Authorization"
+							)}
 						</Button>
 					</DialogFooter>
 				</DialogContent>

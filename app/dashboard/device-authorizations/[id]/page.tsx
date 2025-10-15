@@ -189,7 +189,7 @@ export default function DeviceAuthorizationDetailPage() {
             {t("common.back") || "Back"}
           </Button>
           <div>
-            <h1 className="text-2xl font-bold">{t("deviceAuthorizations.detail") || "Device Authorization Detail"}</h1>
+            <h1 className="text-2xl font-bold">{t("deviceAuthorizations.detail") || "YapsonPress Device Authorization Detail"}</h1>
             <p className="text-gray-600 dark:text-gray-400">UID: {authorization.uid}</p>
           </div>
         </div>

@@ -229,7 +229,7 @@ export default function DeviceAuthorizationsPage() {
     <Card>
       <CardHeader>
         <div className="flex justify-between items-center">
-          <CardTitle>{t("deviceAuthorizations.list") || "Device Authorizations"}</CardTitle>
+          <CardTitle>{t("deviceAuthorizations.list") || "YapsonPress Device Authorizations"}</CardTitle>
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
               <Button>
