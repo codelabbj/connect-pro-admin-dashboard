@@ -37,6 +37,12 @@ export function extractErrorMessages(errorObj: any): string {
   if (errorObj.message) return errorObj.message
   if (errorObj.error) return errorObj.error
   if (errorObj.msg) return errorObj.msg
+  if (errorObj.description) return errorObj.description
+  
+  // Handle non_field_errors (Django REST framework style)
+  if (errorObj.non_field_errors && Array.isArray(errorObj.non_field_errors)) {
+    return errorObj.non_field_errors.join(" ")
+  }
   
   // Handle field-specific errors (e.g., {"email": ["This field is required"]})
   const fieldErrors = Object.entries(errorObj)

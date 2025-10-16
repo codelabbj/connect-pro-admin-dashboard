@@ -55,6 +55,7 @@ export default function PartnerPage() {
 	// Create authorization form states
 	const [isCreateAuthDialogOpen, setIsCreateAuthDialogOpen] = useState(false)
 	const [createAuthLoading, setCreateAuthLoading] = useState(false)
+	const [createAuthError, setCreateAuthError] = useState("")
 	const [createAuthFormData, setCreateAuthFormData] = useState({
 		origin_device: "",
 		is_active: true,
@@ -206,11 +207,18 @@ export default function PartnerPage() {
 				)
 			)
 		} catch (err: any) {
+			console.error('Toggle authorization error:', err)
+			// Show the full error object to user in error display
 			const errorMessage = extractErrorMessages(err) || t("deviceAuthorizations.failedToToggle")
+			const fullErrorDetails = JSON.stringify(err, null, 2)
+			
+			// Set error state to show in UI
+			setDeviceAuthError(`${errorMessage}\n\nFull Error Details:\n${fullErrorDetails}`)
+			
 			toast({
 				title: t("deviceAuthorizations.failedToToggle"),
 				description: errorMessage,
-				variant: "destructive",
+				variant: "destructive"
 			})
 		} finally {
 			setToggleLoading(null)
@@ -219,16 +227,14 @@ export default function PartnerPage() {
 
 	const handleCreateAuthorization = async () => {
 		if (!deviceAuthPartner || !createAuthFormData.origin_device.trim()) {
-			toast({
-				title: t("common.error"),
-				description: t("deviceAuthorizations.originDevicePlaceholder"),
-				variant: "destructive"
-			})
+			setCreateAuthError(t("deviceAuthorizations.originDevicePlaceholder") || "Origin device is required")
 			return
 		}
 
 		try {
 			setCreateAuthLoading(true)
+			setCreateAuthError("") // Clear any previous errors
+			
 			const response = await apiFetch(`${baseUrl}api/payments/betting/admin/device-authorizations/`, {
 				method: 'POST',
 				body: JSON.stringify({
@@ -255,7 +261,14 @@ export default function PartnerPage() {
 				description: t("deviceAuthorizations.createdSuccessfully")
 			})
 		} catch (err: any) {
+			console.error('Create authorization error:', err)
+			// Show the full error object to user in modal error display
 			const errorMessage = extractErrorMessages(err)
+			const fullErrorDetails = JSON.stringify(err, null, 2)
+			
+			// Set error state to show in modal
+			setCreateAuthError(`${errorMessage}\n\nFull Error Details:\n${fullErrorDetails}`)
+			
 			toast({
 				title: t("deviceAuthorizations.failedToCreate"),
 				description: errorMessage,
@@ -616,7 +629,12 @@ export default function PartnerPage() {
 			</Dialog>
 
 			{/* Create Authorization Form Dialog */}
-			<Dialog open={isCreateAuthDialogOpen} onOpenChange={setIsCreateAuthDialogOpen}>
+			<Dialog open={isCreateAuthDialogOpen} onOpenChange={(open) => {
+				setIsCreateAuthDialogOpen(open)
+				if (!open) {
+					setCreateAuthError("") // Clear error when modal is closed
+				}
+			}}>
 				<DialogContent className="max-w-md">
 					<DialogHeader>
 						<DialogTitle>
@@ -624,6 +642,16 @@ export default function PartnerPage() {
 						</DialogTitle>
 					</DialogHeader>
 					<div className="space-y-4">
+						{createAuthError && (
+							<ErrorDisplay
+								error={createAuthError}
+								variant="inline"
+								showRetry={false}
+								showDismiss={true}
+								onDismiss={() => setCreateAuthError("")}
+								className="mb-4"
+							/>
+						)}
 						<div>
 							<Label htmlFor="origin_device">
 								{t("deviceAuthorizations.originDevice") || "Origin Device"} *

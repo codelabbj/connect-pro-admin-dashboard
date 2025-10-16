@@ -52,13 +52,16 @@ export default function DeviceAuthorizationDetailPage() {
         notes: data.notes || ""
       })
     } catch (err: any) {
-      console.log('Device Authorization fetch error caught:', err)
+      console.error('Device Authorization fetch error:', err)
+      // Show the full error object to user in error display
       const errorMessage = extractErrorMessages(err) || t("deviceAuthorizations.failedToLoad")
-      setError(errorMessage)
+      const fullErrorDetails = JSON.stringify(err, null, 2)
+      
+      setError(`${errorMessage}\n\nFull Error Details:\n${fullErrorDetails}`)
       toast({
         title: t("deviceAuthorizations.failedToLoad"),
         description: errorMessage,
-        variant: "destructive",
+        variant: "destructive"
       })
     } finally {
       setLoading(false)
@@ -90,11 +93,17 @@ export default function DeviceAuthorizationDetailPage() {
         notes: formData.notes
       })
     } catch (err: any) {
+      console.error('Update authorization error:', err)
+      // Show the full error object to user in error display
       const errorMessage = extractErrorMessages(err) || t("deviceAuthorizations.failedToUpdate")
+      const fullErrorDetails = JSON.stringify(err, null, 2)
+      
+      setError(`${errorMessage}\n\nFull Error Details:\n${fullErrorDetails}`)
+      
       toast({
         title: t("deviceAuthorizations.failedToUpdate"),
         description: errorMessage,
-        variant: "destructive",
+        variant: "destructive"
       })
     } finally {
       setSaving(false)
@@ -130,11 +139,17 @@ export default function DeviceAuthorizationDetailPage() {
         is_active: newActiveState
       })
     } catch (err: any) {
+      console.error('Toggle authorization error:', err)
+      // Show the full error object to user in error display
       const errorMessage = extractErrorMessages(err) || t("deviceAuthorizations.failedToToggle")
+      const fullErrorDetails = JSON.stringify(err, null, 2)
+      
+      setError(`${errorMessage}\n\nFull Error Details:\n${fullErrorDetails}`)
+      
       toast({
         title: t("deviceAuthorizations.failedToToggle"),
         description: errorMessage,
-        variant: "destructive",
+        variant: "destructive"
       })
     } finally {
       setToggleLoading(false)

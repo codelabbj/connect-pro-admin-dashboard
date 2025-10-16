@@ -34,6 +34,7 @@ export default function DeviceAuthorizationsPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [selectedAuthorization, setSelectedAuthorization] = useState<any>(null)
   const [toggleLoading, setToggleLoading] = useState<string | null>(null)
+  const [createError, setCreateError] = useState("")
 
   // Form states
   const [formData, setFormData] = useState({
@@ -97,14 +98,17 @@ export default function DeviceAuthorizationsPage() {
         description: t("deviceAuthorizations.loadedSuccessfully"),
       })
     } catch (err: any) {
-      console.log('Device Authorizations fetch error caught:', err)
+      console.error('Device Authorizations fetch error:', err)
+      // Show the full error object to user in error display
       const errorMessage = extractErrorMessages(err) || t("deviceAuthorizations.failedToLoad")
-      setError(errorMessage)
+      const fullErrorDetails = JSON.stringify(err, null, 2)
+      
+      setError(`${errorMessage}\n\nFull Error Details:\n${fullErrorDetails}`)
       setAuthorizations([])
       toast({
         title: t("deviceAuthorizations.failedToLoad"),
         description: errorMessage,
-        variant: "destructive",
+        variant: "destructive"
       })
     } finally {
       setLoading(false)
@@ -124,6 +128,8 @@ export default function DeviceAuthorizationsPage() {
   const handleCreate = async () => {
     try {
       setLoading(true)
+      setCreateError("") // Clear any previous errors
+      
       const response = await apiFetch(`${baseUrl}api/payments/betting/admin/device-authorizations/`, {
         method: 'POST',
         body: JSON.stringify(formData)
@@ -138,11 +144,18 @@ export default function DeviceAuthorizationsPage() {
       setFormData({ partner: "", origin_device: "", is_active: true, notes: "" })
       fetchAuthorizations()
     } catch (err: any) {
+      console.error('Create authorization error:', err)
+      // Show the full error object to user in modal error display
       const errorMessage = extractErrorMessages(err) || t("deviceAuthorizations.failedToCreate")
+      const fullErrorDetails = JSON.stringify(err, null, 2)
+      
+      // Set error state to show in modal
+      setCreateError(`${errorMessage}\n\nFull Error Details:\n${fullErrorDetails}`)
+      
       toast({
         title: t("deviceAuthorizations.failedToCreate"),
         description: errorMessage,
-        variant: "destructive",
+        variant: "destructive"
       })
     } finally {
       setLoading(false)
@@ -172,11 +185,17 @@ export default function DeviceAuthorizationsPage() {
       setFormData({ partner: "", origin_device: "", is_active: true, notes: "" })
       fetchAuthorizations()
     } catch (err: any) {
+      console.error('Update authorization error:', err)
+      // Show the full error object to user in error display
       const errorMessage = extractErrorMessages(err) || t("deviceAuthorizations.failedToUpdate")
+      const fullErrorDetails = JSON.stringify(err, null, 2)
+      
+      setError(`${errorMessage}\n\nFull Error Details:\n${fullErrorDetails}`)
+      
       toast({
         title: t("deviceAuthorizations.failedToUpdate"),
         description: errorMessage,
-        variant: "destructive",
+        variant: "destructive"
       })
     } finally {
       setLoading(false)
@@ -201,11 +220,17 @@ export default function DeviceAuthorizationsPage() {
       
       fetchAuthorizations()
     } catch (err: any) {
+      console.error('Toggle authorization error:', err)
+      // Show the full error object to user in error display
       const errorMessage = extractErrorMessages(err) || t("deviceAuthorizations.failedToToggle")
+      const fullErrorDetails = JSON.stringify(err, null, 2)
+      
+      setError(`${errorMessage}\n\nFull Error Details:\n${fullErrorDetails}`)
+      
       toast({
         title: t("deviceAuthorizations.failedToToggle"),
         description: errorMessage,
-        variant: "destructive",
+        variant: "destructive"
       })
     } finally {
       setToggleLoading(null)
@@ -230,7 +255,12 @@ export default function DeviceAuthorizationsPage() {
       <CardHeader>
         <div className="flex justify-between items-center">
           <CardTitle>{t("deviceAuthorizations.list") || "YapsonPress Device Authorizations"}</CardTitle>
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <Dialog open={isCreateDialogOpen} onOpenChange={(open) => {
+            setIsCreateDialogOpen(open)
+            if (!open) {
+              setCreateError("") // Clear error when modal is closed
+            }
+          }}>
             <DialogTrigger asChild>
               <Button>
                 <Plus className="mr-2 h-4 w-4" />
@@ -242,6 +272,16 @@ export default function DeviceAuthorizationsPage() {
                 <DialogTitle>{t("deviceAuthorizations.create") || "Create Device Authorization"}</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
+                {createError && (
+                  <ErrorDisplay
+                    error={createError}
+                    variant="inline"
+                    showRetry={false}
+                    showDismiss={true}
+                    onDismiss={() => setCreateError("")}
+                    className="mb-4"
+                  />
+                )}
                 <div>
                   <Label htmlFor="partner">{t("deviceAuthorizations.partner") || "Partner"}</Label>
                   <Input

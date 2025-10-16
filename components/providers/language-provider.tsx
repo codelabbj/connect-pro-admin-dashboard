@@ -726,6 +726,7 @@ const translations = {
     "common.failedToCreate": "Failed to create",
     "common.failedToUpdate": "Failed to update",
     "common.failedToDelete": "Failed to delete",
+    "common.create": "Create",
 
     // Date filtering common
     "transactions.startDate": "Start Date",
@@ -1615,6 +1616,7 @@ const translations = {
     "common.dismiss": "Fermer",
     "common.submitting": "Envoi...",
     "common.refresh": "Rafraîchir",
+    "common.create": "Create",
 
     // Registration Form
     "register.title": "Enregistrer un nouvel utilisateur",

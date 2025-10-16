@@ -58,6 +58,11 @@ export function useApi() {
     const headers = new Headers(init.headers || {});
     if (accessToken) headers.set('Authorization', `Bearer ${accessToken}`);
     
+    // Set Content-Type for JSON requests
+    if (init.body && typeof init.body === 'string' && init.method && ['POST', 'PUT', 'PATCH'].includes(init.method.toUpperCase())) {
+      headers.set('Content-Type', 'application/json');
+    }
+    
     let res = await fetch(input, { ...init, headers });
     let data;
     
