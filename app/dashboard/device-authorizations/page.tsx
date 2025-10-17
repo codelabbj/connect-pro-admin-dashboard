@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/button"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
+import { PartnerSelectionModal } from "@/components/ui/partner-selection-modal"
+import { DeviceSelectionModal } from "@/components/ui/device-selection-modal"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useRouter } from "next/navigation"
@@ -35,6 +37,10 @@ export default function DeviceAuthorizationsPage() {
   const [selectedAuthorization, setSelectedAuthorization] = useState<any>(null)
   const [toggleLoading, setToggleLoading] = useState<string | null>(null)
   const [createError, setCreateError] = useState("")
+  const [isPartnerModalOpen, setIsPartnerModalOpen] = useState(false)
+  const [isDeviceModalOpen, setIsDeviceModalOpen] = useState(false)
+  const [selectedPartner, setSelectedPartner] = useState<any>(null)
+  const [selectedDevice, setSelectedDevice] = useState<any>(null)
 
   // Form states
   const [formData, setFormData] = useState({
@@ -140,8 +146,7 @@ export default function DeviceAuthorizationsPage() {
         description: t("deviceAuthorizations.createdSuccessfully"),
       })
       
-      setIsCreateDialogOpen(false)
-      setFormData({ partner: "", origin_device: "", is_active: true, notes: "" })
+      handleCloseCreateDialog()
       fetchAuthorizations()
     } catch (err: any) {
       console.error('Create authorization error:', err)
@@ -248,6 +253,24 @@ export default function DeviceAuthorizationsPage() {
     setIsEditDialogOpen(true)
   }
 
+  const handlePartnerSelect = (partner: any) => {
+    setSelectedPartner(partner)
+    setFormData({ ...formData, partner: partner.uid })
+  }
+
+  const handleDeviceSelect = (device: any) => {
+    setSelectedDevice(device)
+    setFormData({ ...formData, origin_device: device.uid })
+  }
+
+  const handleCloseCreateDialog = () => {
+    setIsCreateDialogOpen(false)
+    setCreateError("")
+    setSelectedPartner(null)
+    setSelectedDevice(null)
+    setFormData({ partner: "", origin_device: "", is_active: true, notes: "" })
+  }
+
   const filteredAuthorizations = authorizations
 
   return (
@@ -256,10 +279,11 @@ export default function DeviceAuthorizationsPage() {
         <div className="flex justify-between items-center">
           <CardTitle>{t("deviceAuthorizations.list") || "YapsonPress Device Authorizations"}</CardTitle>
           <Dialog open={isCreateDialogOpen} onOpenChange={(open) => {
-            setIsCreateDialogOpen(open)
-            if (!open) {
-              setCreateError("") // Clear error when modal is closed
+            // Only allow opening, prevent automatic closing
+            if (open) {
+              setIsCreateDialogOpen(true)
             }
+            // Don't close automatically - only close via explicit actions
           }}>
             <DialogTrigger asChild>
               <Button>
@@ -284,21 +308,53 @@ export default function DeviceAuthorizationsPage() {
                 )}
                 <div>
                   <Label htmlFor="partner">{t("deviceAuthorizations.partner") || "Partner"}</Label>
-                  <Input
-                    id="partner"
-                    value={formData.partner}
-                    onChange={(e) => setFormData({ ...formData, partner: e.target.value })}
-                    placeholder={t("deviceAuthorizations.partnerPlaceholder") || "Enter partner ID"}
-                  />
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Input
+                      id="partner"
+                      value={selectedPartner ? (selectedPartner.display_name || `${selectedPartner.first_name || ""} ${selectedPartner.last_name || ""}`.trim()) : formData.partner}
+                      placeholder={t("deviceAuthorizations.partnerPlaceholder") || "Select a partner"}
+                      readOnly
+                      className="flex-1"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setIsPartnerModalOpen(true)}
+                      className="sm:w-auto w-full"
+                    >
+                      {t("common.select") || "Select"}
+                    </Button>
+                  </div>
+                  {selectedPartner && (
+                    <div className="text-xs text-gray-500 mt-1">
+                      ID: {selectedPartner.uid}
+                    </div>
+                  )}
                 </div>
                 <div>
                   <Label htmlFor="origin_device">{t("deviceAuthorizations.originDevice") || "Origin Device"}</Label>
-                  <Input
-                    id="origin_device"
-                    value={formData.origin_device}
-                    onChange={(e) => setFormData({ ...formData, origin_device: e.target.value })}
-                    placeholder={t("deviceAuthorizations.originDevicePlaceholder") || "Enter device ID"}
-                  />
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Input
+                      id="origin_device"
+                      value={selectedDevice ? (selectedDevice.device_name || selectedDevice.name || `Device ${(selectedDevice.device_id || selectedDevice.uid)?.slice(0, 8)}...`) : formData.origin_device}
+                      placeholder={t("deviceAuthorizations.originDevicePlaceholder") || "Select a device"}
+                      readOnly
+                      className="flex-1"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setIsDeviceModalOpen(true)}
+                      className="sm:w-auto w-full"
+                    >
+                      {t("common.select") || "Select"}
+                    </Button>
+                  </div>
+                  {selectedDevice && (
+                    <div className="text-xs text-gray-500 mt-1">
+                      UID: {selectedDevice.uid}
+                    </div>
+                  )}
                 </div>
                 <div className="flex items-center space-x-2">
                   <input
@@ -319,11 +375,11 @@ export default function DeviceAuthorizationsPage() {
                   />
                 </div>
               </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+              <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-0">
+                <Button variant="outline" onClick={handleCloseCreateDialog} className="w-full sm:w-auto">
                   {t("common.cancel") || "Cancel"}
                 </Button>
-                <Button onClick={handleCreate} disabled={loading}>
+                <Button onClick={handleCreate} disabled={loading} className="w-full sm:w-auto">
                   {loading ? t("common.loading") : t("common.create") || "Create"}
                 </Button>
               </DialogFooter>
@@ -531,6 +587,22 @@ export default function DeviceAuthorizationsPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Partner Selection Modal */}
+        <PartnerSelectionModal
+          isOpen={isPartnerModalOpen}
+          onClose={() => setIsPartnerModalOpen(false)}
+          onSelect={handlePartnerSelect}
+          selectedPartnerUid={selectedPartner?.uid}
+        />
+
+        {/* Device Selection Modal */}
+        <DeviceSelectionModal
+          isOpen={isDeviceModalOpen}
+          onClose={() => setIsDeviceModalOpen(false)}
+          onSelect={handleDeviceSelect}
+          selectedDeviceUid={selectedDevice?.uid}
+        />
       </CardContent>
     </Card>
   )

@@ -18,6 +18,7 @@ import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-displa
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { DeviceSelectionModal } from "@/components/ui/device-selection-modal"
 import Link from "next/link"
 
 
@@ -61,6 +62,10 @@ export default function PartnerPage() {
 		is_active: true,
 		notes: ""
 	})
+
+	// Device selection states
+	const [isDeviceModalOpen, setIsDeviceModalOpen] = useState(false)
+	const [selectedDevice, setSelectedDevice] = useState<any>(null)
 
 	// Fetch partners from API (authenticated)
 	useEffect(() => {
@@ -254,6 +259,7 @@ export default function PartnerPage() {
 				is_active: true,
 				notes: ""
 			})
+			setSelectedDevice(null)
 			setIsCreateAuthDialogOpen(false)
 
 			toast({
@@ -277,6 +283,11 @@ export default function PartnerPage() {
 		} finally {
 			setCreateAuthLoading(false)
 		}
+	}
+
+	const handleDeviceSelect = (device: any) => {
+		setSelectedDevice(device)
+		setCreateAuthFormData(prev => ({ ...prev, origin_device: device.uid }))
 	}
 
 	return (
@@ -656,13 +667,28 @@ export default function PartnerPage() {
 							<Label htmlFor="origin_device">
 								{t("deviceAuthorizations.originDevice") || "Origin Device"} *
 							</Label>
-							<Input
-								id="origin_device"
-								value={createAuthFormData.origin_device}
-								onChange={(e) => setCreateAuthFormData(prev => ({ ...prev, origin_device: e.target.value }))}
-								placeholder={t("deviceAuthorizations.originDevicePlaceholder") || "Enter device ID"}
-								className="mt-1"
-							/>
+							<div className="flex gap-2">
+								<Input
+									id="origin_device"
+									value={selectedDevice ? (selectedDevice.device_name || selectedDevice.name || `Device ${selectedDevice.uid?.slice(0, 8)}...`) : createAuthFormData.origin_device}
+									placeholder={t("deviceAuthorizations.originDevicePlaceholder") || "Select a device"}
+									readOnly
+									className="flex-1 mt-1"
+								/>
+								<Button
+									type="button"
+									variant="outline"
+									onClick={() => setIsDeviceModalOpen(true)}
+									className="mt-1"
+								>
+									{t("common.select") || "Select"}
+								</Button>
+							</div>
+							{selectedDevice && (
+								<div className="text-xs text-gray-500 mt-1">
+									UID: {selectedDevice.uid}
+								</div>
+							)}
 						</div>
 						<div>
 							<Label htmlFor="notes">
@@ -708,6 +734,14 @@ export default function PartnerPage() {
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
+
+			{/* Device Selection Modal */}
+			<DeviceSelectionModal
+				isOpen={isDeviceModalOpen}
+				onClose={() => setIsDeviceModalOpen(false)}
+				onSelect={handleDeviceSelect}
+				selectedDeviceUid={selectedDevice?.uid}
+			/>
 		</>
 	)
 }

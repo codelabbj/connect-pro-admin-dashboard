@@ -534,6 +534,14 @@ const translations = {
     "common.dismiss": "Dismiss",
     "common.submitting": "Submitting...",
     "common.refresh": "Refresh",
+    "common.select": "Select",
+    "common.done": "Done",
+    "common.creating": "Creating...",
+    "common.create": "Create",
+    "common.update": "Update",
+    "common.edit": "Edit",
+    "common.delete": "Delete",
+    "common.no": "No",
 
     // Registration Form
     "register.title": "Register New User",
@@ -721,12 +729,10 @@ const translations = {
     "remoteCommand.selectDeviceId": "Select a device",
 
     // Common additional
-    "common.no": "No",
     "common.failedToLoad": "Failed to load data",
     "common.failedToCreate": "Failed to create",
     "common.failedToUpdate": "Failed to update",
     "common.failedToDelete": "Failed to delete",
-    "common.create": "Create",
 
     // Date filtering common
     "transactions.startDate": "Start Date",
@@ -1087,6 +1093,8 @@ const translations = {
     "deviceAuthorizations.lastModified": "Last Modified",
     "deviceAuthorizations.currentStatus": "Current Status",
     "deviceAuthorizations.activityLog": "Activity Log",
+    "deviceAuthorizations.selectPartner": "Select Partner",
+    "deviceAuthorizations.selectDevice": "Select Device",
   },
   fr: {
     // Auth
@@ -1616,7 +1624,14 @@ const translations = {
     "common.dismiss": "Fermer",
     "common.submitting": "Envoi...",
     "common.refresh": "Rafraîchir",
-    "common.create": "Create",
+    "common.select": "Sélectionner",
+    "common.done": "Terminé",
+    "common.creating": "Création...",
+    "common.create": "Créer",
+    "common.update": "Mettre à jour",
+    "common.edit": "Modifier",
+    "common.delete": "Supprimer",
+    "common.no": "Non",
 
     // Registration Form
     "register.title": "Enregistrer un nouvel utilisateur",
@@ -1804,7 +1819,6 @@ const translations = {
     "remoteCommand.selectDeviceId": "Sélectionnez un appareil",
 
     // Common additional
-    "common.no": "Non",
     "common.failedToLoad": "Échec du chargement des données",
     "common.failedToCreate": "Échec de la création",
     "common.failedToUpdate": "Échec de la mise à jour",
@@ -2169,6 +2183,8 @@ const translations = {
     "deviceAuthorizations.lastModified": "Dernière Modification",
     "deviceAuthorizations.currentStatus": "Statut Actuel",
     "deviceAuthorizations.activityLog": "Journal d'Activité",
+    "deviceAuthorizations.selectPartner": "Sélectionner Partenaire",
+    "deviceAuthorizations.selectDevice": "Sélectionner Appareil",
   },
 }
 

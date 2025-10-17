@@ -318,7 +318,7 @@ export default function SmsLogsListPage() {
                   paginationData.results.map((log: any) => (
                     <TableRow key={log.uid || log.id || log.content}>
                       <TableCell>{log.sender}</TableCell>
-                      <TableCell className="max-w-md truncate">{log.content}</TableCell>
+                      <TableCell className="whitespace-pre-wrap break-words">{log.content}</TableCell>
                       <TableCell>{log.received_at ? log.received_at.split("T")[0] : '-'}</TableCell>
                       <TableCell>{log.sms_type}</TableCell>
                       <TableCell>
