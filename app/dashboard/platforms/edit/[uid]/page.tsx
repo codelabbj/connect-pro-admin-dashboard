@@ -57,14 +57,14 @@ export default function PlatformEditPage() {
         setIsActive(data.is_active ?? true)
         
         toast({
-          title: "Platform loaded",
-          description: "Platform details loaded successfully",
+          title: t("platforms.platformLoaded"),
+          description: t("platforms.platformDetailsLoadedSuccessfully"),
         })
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
         setError(errorMessage)
         toast({
-          title: "Failed to load platform",
+          title: t("platforms.failedToLoadPlatform"),
           description: errorMessage,
           variant: "destructive",
         })
@@ -99,8 +99,8 @@ export default function PlatformEditPage() {
       })
       
       toast({
-        title: "Platform Updated",
-        description: "Platform has been updated successfully",
+        title: t("platforms.platformUpdated"),
+        description: t("platforms.platformUpdatedSuccessfully"),
       })
       
       router.push("/dashboard/platforms/list")
@@ -108,7 +108,7 @@ export default function PlatformEditPage() {
       const errorMessage = extractErrorMessages(err)
       setError(errorMessage)
       toast({
-        title: "Failed to update platform",
+        title: t("platforms.failedToUpdatePlatform"),
         description: errorMessage,
         variant: "destructive",
       })
@@ -120,7 +120,7 @@ export default function PlatformEditPage() {
   if (fetching) {
     return (
       <div className="flex items-center justify-center h-96">
-        <span className="text-lg font-semibold">Loading platform...</span>
+        <span className="text-lg font-semibold">{t("platforms.loadingPlatform")}</span>
       </div>
     )
   }
@@ -128,13 +128,13 @@ export default function PlatformEditPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Edit Platform</CardTitle>
+        <CardTitle>{t("platforms.editPlatform")}</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Platform UID (Read-only) */}
           <div className="space-y-2">
-            <Label htmlFor="uid">UID</Label>
+            <Label htmlFor="uid">{t("platforms.uid") || "UID"}</Label>
             <Input
               id="uid"
               value={uid}
@@ -145,7 +145,7 @@ export default function PlatformEditPage() {
 
           {/* External ID (Read-only) */}
           <div className="space-y-2">
-            <Label htmlFor="external_id">External ID</Label>
+            <Label htmlFor="external_id">{t("platforms.externalId")}</Label>
             <Input
               id="external_id"
               value={externalId}
@@ -156,12 +156,12 @@ export default function PlatformEditPage() {
 
           {/* Platform Name */}
           <div className="space-y-2">
-            <Label html-for="name">Platform Name *</Label>
+            <Label htmlFor="name">{t("platforms.platformName")} *</Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., 1xbet"
+              placeholder={t("platforms.platformNamePlaceholder")}
               required
             />
           </div>
@@ -169,7 +169,7 @@ export default function PlatformEditPage() {
           {/* Deposit Limits */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="min_deposit">Minimum Deposit Amount</Label>
+              <Label htmlFor="min_deposit">{t("platforms.minimumDepositAmount")}</Label>
               <Input
                 id="min_deposit"
                 type="number"
@@ -182,7 +182,7 @@ export default function PlatformEditPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="max_deposit">Maximum Deposit Amount</Label>
+              <Label htmlFor="max_deposit">{t("platforms.maximumDepositAmount")}</Label>
               <Input
                 id="max_deposit"
                 type="number"
@@ -198,7 +198,7 @@ export default function PlatformEditPage() {
           {/* Withdrawal Limits */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="min_withdrawal">Minimum Withdrawal Amount</Label>
+              <Label htmlFor="min_withdrawal">{t("platforms.minimumWithdrawalAmount")}</Label>
               <Input
                 id="min_withdrawal"
                 type="number"
@@ -211,7 +211,7 @@ export default function PlatformEditPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="max_withdrawal">Maximum Withdrawal Amount</Label>
+              <Label htmlFor="max_withdrawal">{t("platforms.maximumWithdrawalAmount")}</Label>
               <Input
                 id="max_withdrawal"
                 type="number"
@@ -226,12 +226,12 @@ export default function PlatformEditPage() {
 
           {/* Description */}
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">{t("platforms.description")}</Label>
             <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Platform description..."
+              placeholder={t("platforms.descriptionPlaceholder")}
               rows={3}
             />
           </div>
@@ -243,7 +243,7 @@ export default function PlatformEditPage() {
               checked={isActive}
               onCheckedChange={setIsActive}
             />
-            <Label htmlFor="is_active">Active Platform</Label>
+            <Label htmlFor="is_active">{t("platforms.activePlatform")}</Label>
           </div>
 
           {error && (
@@ -257,26 +257,26 @@ export default function PlatformEditPage() {
 
           <div className="flex gap-4">
             <Button type="submit" disabled={loading}>
-              {loading ? "Updating..." : "Update Platform"}
+              {loading ? t("platforms.updating") : t("platforms.updatePlatform")}
             </Button>
             <Button type="button" variant="outline" onClick={() => router.push("/dashboard/platforms/list")}>
-              Cancel
+              {t("common.cancel")}
             </Button>
             <Button 
               type="button" 
               variant="destructive" 
               onClick={() => {
-                if (confirm("Are you sure you want to delete this platform? This action cannot be undone.")) {
+                if (confirm(t("platforms.deletePlatformConfirm"))) {
                   // Note: The API docs mention that deletion is not allowed for security reasons
                   toast({
-                    title: "Deletion Not Allowed",
-                    description: "Platform deletion is not allowed for security reasons.",
+                    title: t("platforms.deletionNotAllowed"),
+                    description: t("platforms.deletionNotAllowedReason"),
                     variant: "destructive",
                   })
                 }
               }}
             >
-              Delete Platform
+              {t("platforms.deletePlatform")}
             </Button>
           </div>
         </form>

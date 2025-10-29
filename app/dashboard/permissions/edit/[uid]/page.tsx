@@ -77,14 +77,14 @@ export default function PermissionEditPage() {
         setIsActive(permission.is_active)
         
         toast({
-          title: "Permission loaded",
-          description: "Permission details loaded successfully",
+          title: t("permissions.permissionLoaded"),
+          description: t("permissions.permissionDetailsLoadedSuccessfully"),
         })
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
         setError(errorMessage)
         toast({
-          title: "Failed to load permission",
+          title: t("permissions.failedToLoadPermission"),
           description: errorMessage,
           variant: "destructive",
         })
@@ -115,8 +115,8 @@ export default function PermissionEditPage() {
       })
       
       toast({
-        title: "Permission Updated",
-        description: "Permission has been updated successfully",
+        title: t("permissions.permissionUpdated"),
+        description: t("permissions.permissionUpdatedSuccessfully"),
       })
       
       router.push("/dashboard/permissions/list")
@@ -124,7 +124,7 @@ export default function PermissionEditPage() {
       const errorMessage = extractErrorMessages(err)
       setError(errorMessage)
       toast({
-        title: "Failed to update permission",
+        title: t("permissions.failedToUpdatePermission"),
         description: errorMessage,
         variant: "destructive",
       })
@@ -136,7 +136,7 @@ export default function PermissionEditPage() {
   if (fetching) {
     return (
       <div className="flex items-center justify-center h-96">
-        <span className="text-lg font-semibold">Loading permission...</span>
+        <span className="text-lg font-semibold">{t("permissions.loadingPermission")}</span>
       </div>
     )
   }
@@ -144,7 +144,7 @@ export default function PermissionEditPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Edit Permission</CardTitle>
+        <CardTitle>{t("permissions.editPermission")}</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -152,33 +152,33 @@ export default function PermissionEditPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-muted rounded-lg">
             <div className="space-y-3">
               <div>
-                <Label className="text-sm font-medium">Permission UID</Label>
+                <Label className="text-sm font-medium">{t("permissions.permissionUid")}</Label>
                 <code className="block px-2 py-1 bg-background rounded text-sm mt-1">{uid}</code>
               </div>
               
               <div>
-                <Label className="text-sm font-medium">Partner</Label>
+                <Label className="text-sm font-medium">{t("permissions.partner")}</Label>
                 <div className="mt-1">
-                  <div className="font-medium">{partner?.name || "Unknown"}</div>
-                  <code className="text-xs text-muted-foreground">{partner?.uid || "N/A"}</code>
+                  <div className="font-medium">{partner?.name || t("platforms.unknown")}</div>
+                  <code className="text-xs text-muted-foreground">{partner?.uid || t("bettingCommission.notApplicable")}</code>
                 </div>
               </div>
 
               <div>
-                <Label className="text-sm font-medium">Platform</Label>
+                <Label className="text-sm font-medium">{t("permissions.platform")}</Label>
                 <div className="mt-1">
-                  <div className="font-medium">{platform?.name || "Unknown"}</div>
-                  <code className="text-xs text-muted-foreground">{platform?.external_id || "N/A"}</code>
+                  <div className="font-medium">{platform?.name || t("platforms.unknown")}</div>
+                  <code className="text-xs text-muted-foreground">{platform?.external_id || t("bettingCommission.notApplicable")}</code>
                 </div>
               </div>
             </div>
 
             <div className="space-y-3">
               <div>
-                <Label className="text-sm font-medium">Platform Limits</Label>
+                <Label className="text-sm font-medium">{t("permissions.platformLimits")}</Label>
                 <div className="mt-1 space-y-1 text-sm">
-                  <div><span className="font-medium">Deposit:</span> {platform?.min_deposit_amount} - {platform?.max_deposit_amount}</div>
-                  <div><span className="font-medium">Withdrawal:</span> {platform?.min_withdrawal_amount} - {platform?.max_withdrawal_amount}</div>
+                  <div><span className="font-medium">{t("permissions.deposit")}:</span> {platform?.min_deposit_amount} - {platform?.max_deposit_amount}</div>
+                  <div><span className="font-medium">{t("permissions.withdrawal")}:</span> {platform?.min_withdrawal_amount} - {platform?.max_withdrawal_amount}</div>
                 </div>
               </div>
             </div>
@@ -186,7 +186,7 @@ export default function PermissionEditPage() {
 
           {/* Editable Permissions */}
           <div className="space-y-4">
-            <Label className="text-base font-semibold">Access Permissions</Label>
+            <Label className="text-base font-semibold">{t("permissions.accessPermissionsLabel")}</Label>
             
             <div className="flex items-center space-x-2">
               <Switch
@@ -194,7 +194,7 @@ export default function PermissionEditPage() {
                 checked={canDeposit}
                 onCheckedChange={setCanDeposit}
               />
-              <Label htmlFor="can_deposit">Allow Deposit Operations</Label>
+              <Label htmlFor="can_deposit">{t("permissions.allowDepositOperations")}</Label>
             </div>
 
             <div className="flex items-center space-x-2">
@@ -203,7 +203,7 @@ export default function PermissionEditPage() {
                 checked={canWithdraw}
                 onCheckedChange={setCanWithdraw}
               />
-              <Label htmlFor="can_withdraw">Allow Withdrawal Operations</Label>
+              <Label htmlFor="can_withdraw">{t("permissions.allowWithdrawalOperations")}</Label>
             </div>
 
             <div className="flex items-center space-x-2">
@@ -212,19 +212,19 @@ export default function PermissionEditPage() {
                 checked={isActive}
                 onCheckedChange={setIsActive}
               />
-              <Label htmlFor="is_active">Permission Status (Active/Inactive)</Label>
+              <Label htmlFor="is_active">{t("permissions.permissionStatus")}</Label>
             </div>
           </div>
 
           {/* Permission Summary */}
           <div className="p-4 border rounded-lg bg-blue-50 dark:bg-blue-900/20">
-            <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">Updated Permission Summary:</h4>
+            <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">{t("permissions.updatedPermissionSummary")}:</h4>
             <div className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
-              <div><strong>Partner:</strong> {partner?.name}</div>
-              <div><strong>Platform:</strong> {platform?.name}</div>
-              <div><strong>Can Deposit:</strong> {canDeposit ? "Yes" : "No"}</div>
-              <div><strong>Can Withdraw:</strong> {canWithdraw ? "Yes" : "No"}</div>
-              <div><strong>Status:</strong> {isActive ? "Active" : "Inactive"}</div>
+              <div><strong>{t("permissions.partner")}:</strong> {partner?.name}</div>
+              <div><strong>{t("permissions.platform")}:</strong> {platform?.name}</div>
+              <div><strong>{t("permissions.canDepositLabel")}:</strong> {canDeposit ? t("common.yes") : t("common.no")}</div>
+              <div><strong>{t("permissions.canWithdrawLabel")}:</strong> {canWithdraw ? t("common.yes") : t("common.no")}</div>
+              <div><strong>{t("permissions.status")}:</strong> {isActive ? t("common.active") : t("common.inactive")}</div>
             </div>
           </div>
 
@@ -239,10 +239,10 @@ export default function PermissionEditPage() {
 
           <div className="flex gap-4">
             <Button type="submit" disabled={loading}>
-              {loading ? "Updating..." : "Update Permission"}
+              {loading ? t("permissions.updating") : t("permissions.updatePermission")}
             </Button>
             <Button type="button" variant="outline" onClick={() => router.push("/dashboard/permissions/list")}>
-              Cancel
+              {t("common.cancel")}
             </Button>
           </div>
         </form>

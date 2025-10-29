@@ -104,8 +104,8 @@ export default function PermissionListPage() {
         setTotalPages(Math.ceil((data.count || 0) / itemsPerPage))
         
         toast({
-          title: "Permissions loaded",
-          description: "Permissions loaded successfully",
+          title: t("permissions.permissionsLoaded"),
+          description: t("permissions.permissionsLoadedSuccessfully"),
         })
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
@@ -114,7 +114,7 @@ export default function PermissionListPage() {
         setTotalCount(0)
         setTotalPages(1)
         toast({
-          title: "Failed to load permissions",
+          title: t("permissions.failedToLoadPermissions"),
           description: errorMessage,
           variant: "destructive",
         })
@@ -182,12 +182,12 @@ export default function PermissionListPage() {
       ))
       
       toast({
-        title: "Permission status updated",
-        description: `Permission ${data.is_active ? "activated" : "deactivated"}`,
+        title: t("permissions.permissionStatusUpdated"),
+        description: data.is_active ? t("permissions.permissionActivated") : t("permissions.permissionDeactivated"),
       })
     } catch (err: any) {
       toast({
-        title: "Failed to update permission status",
+        title: t("permissions.failedToUpdatePermissionStatus"),
         description: extractErrorMessages(err),
         variant: "destructive",
       })
@@ -200,13 +200,13 @@ export default function PermissionListPage() {
 
   const getPermissionBadge = (canDeposit: boolean, canWithdraw: boolean) => {
     if (canDeposit && canWithdraw) {
-      return <Badge variant="default">Full Access</Badge>
+      return <Badge variant="default">{t("permissions.fullAccess")}</Badge>
     } else if (canDeposit) {
-      return <Badge variant="secondary">Deposit Only</Badge>
+      return <Badge variant="secondary">{t("permissions.depositOnly")}</Badge>
     } else if (canWithdraw) {
-      return <Badge variant="outline">Withdraw Only</Badge>
+      return <Badge variant="outline">{t("permissions.withdrawOnly")}</Badge>
     } else {
-      return <Badge variant="destructive">No Access</Badge>
+      return <Badge variant="destructive">{t("permissions.noAccess")}</Badge>
     }
   }
 
@@ -223,7 +223,7 @@ export default function PermissionListPage() {
               <Button>{t("permissions.list.grantPermission")}</Button>
             </Link>
             <Link href="/dashboard/permissions/partners-summary">
-              <Button variant="outline">Partners Summary</Button>
+              <Button variant="outline">{t("permissions.partnersSummary")}</Button>
             </Link>
           </div>
         </CardHeader>
@@ -257,22 +257,22 @@ export default function PermissionListPage() {
             </Select>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-full sm:w-48">
-                <SelectValue placeholder="Filter by status" />
+                <SelectValue placeholder={t("permissions.filterByStatus")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="inactive">Inactive</SelectItem>
+                <SelectItem value="all">{t("permissions.allStatus")}</SelectItem>
+                <SelectItem value="active">{t("common.active")}</SelectItem>
+                <SelectItem value="inactive">{t("common.inactive")}</SelectItem>
               </SelectContent>
             </Select>
             <Select value={depositFilter} onValueChange={setDepositFilter}>
               <SelectTrigger className="w-full sm:w-48">
-                <SelectValue placeholder="Filter by deposit" />
+                <SelectValue placeholder={t("permissions.filterByDeposit")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Access</SelectItem>
-                <SelectItem value="true">Deposit Allowed</SelectItem>
-                <SelectItem value="false">No Deposit</SelectItem>
+                <SelectItem value="all">{t("permissions.allAccess")}</SelectItem>
+                <SelectItem value="true">{t("permissions.depositAllowed")}</SelectItem>
+                <SelectItem value="false">{t("permissions.noDeposit")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -282,7 +282,7 @@ export default function PermissionListPage() {
             <div className="flex flex-col lg:flex-row gap-4 flex-1">
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Start Date
+                  {t("common.startDate")}
                 </label>
                 <Input
                   type="date"
@@ -296,7 +296,7 @@ export default function PermissionListPage() {
               </div>
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  End Date
+                  {t("common.endDate")}
                 </label>
                 <Input
                   type="date"
@@ -319,7 +319,7 @@ export default function PermissionListPage() {
                 }}
                 className="h-10"
               >
-                Clear Dates
+                {t("common.clearDates")}
               </Button>
             </div>
           </div>
@@ -327,7 +327,7 @@ export default function PermissionListPage() {
           {/* Table */}
           <div className="rounded-md border">
             {loading ? (
-              <div className="p-8 text-center text-muted-foreground">Loading...</div>
+              <div className="p-8 text-center text-muted-foreground">{t("common.loading")}</div>
             ) : error ? (
               <ErrorDisplay
                 error={error}
@@ -342,30 +342,30 @@ export default function PermissionListPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>UID</TableHead>
+                    <TableHead>{t("common.uid") || "UID"}</TableHead>
                     <TableHead>
                       <Button variant="ghost" onClick={() => handleSort("partner_name")} className="h-auto p-0 font-semibold">
-                        Partner
+                        {t("permissions.partner") || "Partner"}
                         <ArrowUpDown className="ml-2 h-4 w-4" />
                       </Button>
                     </TableHead>
                     <TableHead>
                       <Button variant="ghost" onClick={() => handleSort("platform_name")} className="h-auto p-0 font-semibold">
-                        Platform
+                        {t("permissions.platform") || "Platform"}
                         <ArrowUpDown className="ml-2 h-4 w-4" />
                       </Button>
                     </TableHead>
-                    <TableHead>Access Level</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Deposit Limits</TableHead>
-                    <TableHead>Withdrawal Limits</TableHead>
+                    <TableHead>{t("permissions.accessLevel") || "Access Level"}</TableHead>
+                    <TableHead>{t("permissions.status") || "Status"}</TableHead>
+                    <TableHead>{t("permissions.depositLimits") || "Deposit Limits"}</TableHead>
+                    <TableHead>{t("permissions.withdrawalLimits") || "Withdrawal Limits"}</TableHead>
                     <TableHead>
                       <Button variant="ghost" onClick={() => handleSort("created_at")} className="h-auto p-0 font-semibold">
-                        Granted
+                        {t("permissions.granted") || "Granted"}
                         <ArrowUpDown className="ml-2 h-4 w-4" />
                       </Button>
                     </TableHead>
-                    <TableHead>Actions</TableHead>
+                    <TableHead>{t("common.actions") || "Actions"}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -382,7 +382,7 @@ export default function PermissionListPage() {
                             className="h-5 w-5"
                             onClick={() => {
                               navigator.clipboard.writeText(permission.uid)
-                              toast({ title: "UID copied!" })
+                              toast({ title: t("common.uidCopied") || "UID copied!" })
                             }}
                           >
                             <CopyIcon className="h-4 w-4" />
@@ -409,25 +409,25 @@ export default function PermissionListPage() {
                           ) : (
                             <img src="/icon-no.svg" alt="Inactive" className="h-4 w-4" />
                           )}
-                          <span className="text-sm">{permission.is_active ? "Active" : "Inactive"}</span>
+                          <span className="text-sm">{permission.is_active ? t("common.active") : t("common.inactive")}</span>
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="text-sm">
-                          <div>Min: {permission.platform_min_deposit}</div>
-                          <div>Max: {permission.platform_max_deposit}</div>
+                          <div>{t("permissions.min")}: {permission.platform_min_deposit}</div>
+                          <div>{t("permissions.max")}: {permission.platform_max_deposit}</div>
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="text-sm">
-                          <div>Min: {permission.platform_min_withdrawal}</div>
-                          <div>Max: {permission.platform_max_withdrawal}</div>
+                          <div>{t("permissions.min")}: {permission.platform_min_withdrawal}</div>
+                          <div>{t("permissions.max")}: {permission.platform_max_withdrawal}</div>
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="text-sm">
                           <div>{permission.created_at ? new Date(permission.created_at).toLocaleDateString() : "-"}</div>
-                          <div className="text-xs text-muted-foreground">by {permission.granted_by_name}</div>
+                          <div className="text-xs text-muted-foreground">{t("permissions.by")} {permission.granted_by_name}</div>
                         </div>
                       </TableCell>
                       <TableCell>
@@ -439,11 +439,11 @@ export default function PermissionListPage() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => handleOpenDetail(permission)}>
-                              View Details
+                              {t("permissions.viewDetails") || "View Details"}
                             </DropdownMenuItem>
                             <DropdownMenuItem>
                               <Link href={`/dashboard/permissions/edit/${permission.uid}`}>
-                                Edit Permission
+                                {t("permissions.editPermission")}
                               </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem 
@@ -456,12 +456,12 @@ export default function PermissionListPage() {
                                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
                                   </svg>
-                                  Toggling...
+                                  {t("common.toggling") || "Toggling..."}
                                 </span>
                               ) : permission.is_active ? (
-                                "Deactivate"
+                                t("common.deactivate") || "Deactivate"
                               ) : (
-                                "Activate"
+                                t("common.activate") || "Activate"
                               )}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
@@ -477,7 +477,7 @@ export default function PermissionListPage() {
           {/* Pagination */}
           <div className="flex items-center justify-between mt-6">
             <div className="text-sm text-muted-foreground">
-              Showing: {startIndex + 1}-{Math.min(startIndex + itemsPerPage, totalCount)} of {totalCount}
+              {t("common.showing")}: {startIndex + 1}-{Math.min(startIndex + itemsPerPage, totalCount)} {t("common.of")} {totalCount}
             </div>
             <div className="flex items-center space-x-2">
               <Button
@@ -487,10 +487,10 @@ export default function PermissionListPage() {
                 disabled={currentPage === 1}
               >
                 <ChevronLeft className="h-4 w-4 mr-1" />
-                Previous
+                {t("common.previous")}
               </Button>
               <div className="text-sm">
-                Page {currentPage} of {totalPages}
+                {t("common.page")} {currentPage} {t("common.of")} {totalPages}
               </div>
               <Button
                 variant="outline"
@@ -498,7 +498,7 @@ export default function PermissionListPage() {
                 onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
               >
-                Next
+                {t("common.next")}
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </div>
@@ -510,53 +510,53 @@ export default function PermissionListPage() {
       <Dialog open={detailModalOpen} onOpenChange={setDetailModalOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Permission Details</DialogTitle>
+            <DialogTitle>{t("permissions.permissionDetails") || "Permission Details"}</DialogTitle>
           </DialogHeader>
           {selectedPermission ? (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <strong>UID:</strong> {selectedPermission.uid}
+                    <strong>{t("common.uid")}:</strong> {selectedPermission.uid}
                     <Button
                       variant="ghost"
                       size="icon"
                       className="h-5 w-5"
                       onClick={() => {
                         navigator.clipboard.writeText(selectedPermission.uid)
-                        toast({ title: "UID copied!" })
+                        toast({ title: t("common.uidCopied") || "UID copied!" })
                       }}
                     >
                       <CopyIcon className="h-4 w-4" />
                     </Button>
                   </div>
-                  <div><strong>Partner:</strong> {selectedPermission.partner_name}</div>
-                  <div><strong>Partner ID:</strong> {selectedPermission.partner}</div>
-                  <div><strong>Platform:</strong> {selectedPermission.platform_name}</div>
-                  <div><strong>Platform ID:</strong> {selectedPermission.platform}</div>
-                  <div><strong>External ID:</strong> {selectedPermission.platform_external_id}</div>
+                  <div><strong>{t("permissions.partner")}:</strong> {selectedPermission.partner_name}</div>
+                  <div><strong>{t("permissions.partnerId") || "Partner ID"}:</strong> {selectedPermission.partner}</div>
+                  <div><strong>{t("permissions.platform")}:</strong> {selectedPermission.platform_name}</div>
+                  <div><strong>{t("permissions.platformId") || "Platform ID"}:</strong> {selectedPermission.platform}</div>
+                  <div><strong>{t("platforms.externalId")}:</strong> {selectedPermission.platform_external_id}</div>
                 </div>
                 <div className="space-y-2">
-                  <div><strong>Can Deposit:</strong> {selectedPermission.can_deposit ? "Yes" : "No"}</div>
-                  <div><strong>Can Withdraw:</strong> {selectedPermission.can_withdraw ? "Yes" : "No"}</div>
-                  <div><strong>Status:</strong> {selectedPermission.is_active ? "Active" : "Inactive"}</div>
-                  <div><strong>Granted by:</strong> {selectedPermission.granted_by_name}</div>
-                  <div><strong>Created:</strong> {selectedPermission.created_at ? new Date(selectedPermission.created_at).toLocaleString() : "Unknown"}</div>
-                  <div><strong>Updated:</strong> {selectedPermission.updated_at ? new Date(selectedPermission.updated_at).toLocaleString() : "Unknown"}</div>
+                  <div><strong>{t("permissions.canDepositLabel")}:</strong> {selectedPermission.can_deposit ? t("common.yes") : t("common.no")}</div>
+                  <div><strong>{t("permissions.canWithdrawLabel")}:</strong> {selectedPermission.can_withdraw ? t("common.yes") : t("common.no")}</div>
+                  <div><strong>{t("permissions.status")}:</strong> {selectedPermission.is_active ? t("common.active") : t("common.inactive")}</div>
+                  <div><strong>{t("permissions.grantedBy") || "Granted by"}:</strong> {selectedPermission.granted_by_name}</div>
+                  <div><strong>{t("platforms.createdAtLabel")}:</strong> {selectedPermission.created_at ? new Date(selectedPermission.created_at).toLocaleString() : t("platforms.unknown")}</div>
+                  <div><strong>{t("platforms.updatedAt")}:</strong> {selectedPermission.updated_at ? new Date(selectedPermission.updated_at).toLocaleString() : t("platforms.unknown")}</div>
                 </div>
               </div>
               <div className="space-y-2">
-                <strong>Platform Limits:</strong>
+                <strong>{t("permissions.platformLimits")}:</strong>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <strong>Deposit Limits:</strong>
-                    <div>Min: {selectedPermission.platform_min_deposit}</div>
-                    <div>Max: {selectedPermission.platform_max_deposit}</div>
+                    <strong>{t("permissions.depositLimits")}:</strong>
+                    <div>{t("permissions.min")}: {selectedPermission.platform_min_deposit}</div>
+                    <div>{t("permissions.max")}: {selectedPermission.platform_max_deposit}</div>
                   </div>
                   <div>
-                    <strong>Withdrawal Limits:</strong>
-                    <div>Min: {selectedPermission.platform_min_withdrawal}</div>
-                    <div>Max: {selectedPermission.platform_max_withdrawal}</div>
+                    <strong>{t("permissions.withdrawalLimits")}:</strong>
+                    <div>{t("permissions.min")}: {selectedPermission.platform_min_withdrawal}</div>
+                    <div>{t("permissions.max")}: {selectedPermission.platform_max_withdrawal}</div>
                   </div>
                 </div>
               </div>
@@ -564,7 +564,7 @@ export default function PermissionListPage() {
           ) : null}
           <div className="flex justify-end mt-4">
             <Button onClick={() => setDetailModalOpen(false)}>
-              Close
+              {t("common.close")}
             </Button>
           </div>
         </DialogContent>

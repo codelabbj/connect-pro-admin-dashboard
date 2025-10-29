@@ -110,25 +110,121 @@ export function Sidebar() {
               <BarChart3 className="mr-3 h-6 w-6 flex-shrink-0" />
               {t("nav.dashboard")}
             </Link>
-            {/* <Link href="/dashboard/platforms/list" className={cn(
-              "group flex items-center px-2 py-2 text-sm font-medium rounded-md",
-              pathname === "/dashboard/platforms/list" || pathname.startsWith("/dashboard/platforms/")
-                ? "bg-blue-100 text-blue-900 dark:bg-blue-900 dark:text-blue-100"
-                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"  
-            )}>
-              <Gamepad2 className="mr-3 h-6 w-6 flex-shrink-0" />
-              Platforms
-            </Link>
-            <Link href="/dashboard/permissions/list" className={cn(
-              "group flex items-center px-2 py-2 text-sm font-medium rounded-md",
-              pathname === "/dashboard/permissions/list" || pathname.startsWith("/dashboard/permissions/")
-                ? "bg-blue-100 text-blue-900 dark:bg-blue-900 dark:text-blue-100"
-                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"  
-            )}>
-              <Shield className="mr-3 h-6 w-6 flex-shrink-0" />
-              Permissions
-            </Link> */}
-            {/* <div>
+            <div>
+              <button
+                className={cn(
+                  "group flex items-center w-full px-2 py-2 text-sm font-medium rounded-md transition-colors",
+                  isPlatformsActive
+                    ? "bg-blue-100 text-blue-900 dark:bg-blue-900 dark:text-blue-100"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                )}
+                onClick={() => setPlatformsDropdownOpen((open) => !open)}
+                aria-expanded={platformsDropdownOpen}
+              >
+                <Gamepad2 className="mr-3 h-6 w-6 flex-shrink-0" />
+                {t("nav.platforms") || "Platforms"}
+                {platformsDropdownOpen ? (
+                  <ChevronUp className="ml-auto h-4 w-4" />
+                ) : (
+                  <ChevronDown className="ml-auto h-4 w-4" />
+                )}
+              </button>
+              <div
+                className={cn(
+                  "pl-8 flex flex-col gap-1 overflow-hidden transition-all duration-300",
+                  platformsDropdownOpen ? "max-h-32 opacity-100" : "max-h-0 opacity-0 pointer-events-none"
+                )}
+              >
+                <Link
+                  href="/dashboard/platforms/list"
+                  className={cn(
+                    "block px-2 py-2 text-sm rounded-md transition-colors",
+                    isPlatformsListActive
+                      ? "bg-blue-200 text-blue-900 dark:bg-blue-800 dark:text-blue-100"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                  )}
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  {t("nav.platformsList") || "List Platforms"}
+                </Link>
+                <Link
+                  href="/dashboard/platforms/create"
+                  className={cn(
+                    "block px-2 py-2 text-sm rounded-md transition-colors",
+                    isPlatformsCreateActive
+                      ? "bg-blue-200 text-blue-900 dark:bg-blue-800 dark:text-blue-100"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                  )}
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  {t("nav.createPlatform") || "Create Platform"}
+                </Link>
+              </div>
+            </div>
+            <div>
+              <button
+                className={cn(
+                  "group flex items-center w-full px-2 py-2 text-sm font-medium rounded-md transition-colors",
+                  isPermissionsActive
+                    ? "bg-blue-100 text-blue-900 dark:bg-blue-900 dark:text-blue-100"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                )}
+                onClick={() => setPermissionsDropdownOpen((open) => !open)}
+                aria-expanded={permissionsDropdownOpen}
+              >
+                <Shield className="mr-3 h-6 w-6 flex-shrink-0" />
+                {t("nav.permissions") || "Permissions"}
+                {permissionsDropdownOpen ? (
+                  <ChevronUp className="ml-auto h-4 w-4" />
+                ) : (
+                  <ChevronDown className="ml-auto h-4 w-4" />
+                )}
+              </button>
+              <div
+                className={cn(
+                  "pl-8 flex flex-col gap-1 overflow-hidden transition-all duration-300",
+                  permissionsDropdownOpen ? "max-h-48 opacity-100" : "max-h-0 opacity-0 pointer-events-none"
+                )}
+              >
+                <Link
+                  href="/dashboard/permissions/list"
+                  className={cn(
+                    "block px-2 py-2 text-sm rounded-md transition-colors",
+                    isPermissionsListActive
+                      ? "bg-blue-200 text-blue-900 dark:bg-blue-800 dark:text-blue-100"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                  )}
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  {t("nav.permissionsList") || "List Permissions"}
+                </Link>
+                <Link
+                  href="/dashboard/permissions/create"
+                  className={cn(
+                    "block px-2 py-2 text-sm rounded-md transition-colors",
+                    isPermissionsCreateActive
+                      ? "bg-blue-200 text-blue-900 dark:bg-blue-800 dark:text-blue-100"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                  )}
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  {t("nav.grantPermission") || "Grant Permission"}
+                </Link>
+                <Link
+                  href="/dashboard/permissions/partners-summary"
+                  className={cn(
+                    "block px-2 py-2 text-sm rounded-md transition-colors",
+                    isPermissionsSummaryActive
+                      ? "bg-blue-200 text-blue-900 dark:bg-blue-800 dark:text-blue-100"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                  )}
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  {t("nav.permissionsSummary") || "Permissions Summary"}
+                </Link>
+              </div>
+            </div>
+            <div>
               <button
                 className={cn(
                   "group flex items-center w-full px-2 py-2 text-sm font-medium rounded-md transition-colors",
@@ -140,7 +236,7 @@ export function Sidebar() {
                 aria-expanded={commissionDropdownOpen}
               >
                 <DollarSign className="mr-3 h-6 w-6 flex-shrink-0" />
-                Commission
+                {t("nav.commission") || "Commission"}
                 {commissionDropdownOpen ? (
                   <ChevronUp className="ml-auto h-4 w-4" />
                 ) : (
@@ -163,7 +259,7 @@ export function Sidebar() {
                   )}
                   onClick={() => setSidebarOpen(false)}
                 >
-                  Config Management
+                  {t("nav.commissionConfig") || "Config Management"}
                 </Link>
                 <Link
                   href="/dashboard/commission-payments"
@@ -175,7 +271,7 @@ export function Sidebar() {
                   )}
                   onClick={() => setSidebarOpen(false)}
                 >
-                  Payments
+                  {t("nav.commissionPayments") || "Payments"}
                 </Link>
               </div>
             </div>
@@ -183,10 +279,25 @@ export function Sidebar() {
               "group flex items-center px-2 py-2 text-sm font-medium rounded-md",
               pathname.startsWith("/dashboard/betting-transactions")
                 ? "bg-blue-100 text-blue-900 dark:bg-blue-900 dark:text-blue-100"
-                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"  
-            )}>
+                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+            )}
+              onClick={() => setSidebarOpen(false)}
+            >
               <Receipt className="mr-3 h-6 w-6 flex-shrink-0" />
-              Betting Transactions
+              {t("nav.bettingTransactions") || "Betting Transactions"}
+            </Link>
+            <Link
+              href="/dashboard/transfers"
+              className={cn(
+                "group flex items-center px-2 py-2 text-sm font-medium rounded-md",
+                pathname === "/dashboard/transfers" || pathname.startsWith("/dashboard/transfers/")
+                  ? "bg-blue-100 text-blue-900 dark:bg-blue-900 dark:text-blue-100"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white",
+              )}
+              onClick={() => setSidebarOpen(false)}
+            >
+              <ArrowRightLeft className="mr-3 h-6 w-6 flex-shrink-0" />
+              {t("nav.partnerTransfers") || "Partner Transfers"}
             </Link>
             <div>
               <button
@@ -200,7 +311,7 @@ export function Sidebar() {
                 aria-expanded={apiConfigDropdownOpen}
               >
                 <Settings className="mr-3 h-6 w-6 flex-shrink-0" />
-                API Config
+                {t("nav.apiConfig") || "API Config"}
                 {apiConfigDropdownOpen ? (
                   <ChevronUp className="ml-auto h-4 w-4" />
                 ) : (
@@ -223,7 +334,7 @@ export function Sidebar() {
                   )}
                   onClick={() => setSidebarOpen(false)}
                 >
-                  Configuration List
+                  {t("nav.apiConfigList") || "Configuration List"}
                 </Link>
                 <Link
                   href="/dashboard/api-config/create"
@@ -235,10 +346,10 @@ export function Sidebar() {
                   )}
                   onClick={() => setSidebarOpen(false)}
                 >
-                  Create Config
+                  {t("nav.createApiConfig") || "Create Config"}
                 </Link>
               </div>
-            </div> */}
+            </div>
             {/* Users Dropdown */}
             <div>
               <button
@@ -598,37 +709,128 @@ export function Sidebar() {
               <BarChart3 className="mr-3 h-6 w-6 flex-shrink-0" />
               {t("nav.dashboard")}
             </Link>
-            {/* <Link href="/dashboard/platforms/list" className={cn(
-              "group flex items-center px-2 py-2 text-sm font-medium rounded-md",
-              pathname === "/dashboard/platforms/list" || pathname.startsWith("/dashboard/platforms/")
-                ? "bg-blue-100 text-blue-900 dark:bg-blue-900 dark:text-blue-100"
-                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
-            )}>
-              <Gamepad2 className="mr-3 h-6 w-6 flex-shrink-0" />
-              Platforms
-            </Link>
-            <Link href="/dashboard/permissions/list" className={cn(
-              "group flex items-center px-2 py-2 text-sm font-medium rounded-md",
-              pathname === "/dashboard/permissions/list" || pathname.startsWith("/dashboard/permissions/")
-                ? "bg-blue-100 text-blue-900 dark:bg-blue-900 dark:text-blue-100"
-                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
-            )}>
-              <Shield className="mr-3 h-6 w-6 flex-shrink-0" />
-              Permissions
-            </Link> */}
-            {/* <div>
+            <div>
+              <button
+                className={cn(
+                  "group flex items-center w-full px-2 py-2 text-sm font-medium rounded-md transition-colors",
+                  isPlatformsActive
+                    ? "bg-blue-100 text-blue-900 dark:bg-blue-900 dark:text-blue-100"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                )}
+                onClick={() => setPlatformsDropdownOpen((open) => !open)}
+                aria-expanded={platformsDropdownOpen}
+              >
+                <Gamepad2 className="mr-3 h-6 w-6 flex-shrink-0" />
+                {t("nav.platforms") || "Platforms"}
+                {platformsDropdownOpen ? (
+                  <ChevronUp className="ml-auto h-4 w-4" />
+                ) : (
+                  <ChevronDown className="ml-auto h-4 w-4" />
+                )}
+              </button>
+              <div
+                className={cn(
+                  "pl-8 flex flex-col gap-1 overflow-hidden transition-all duration-300",
+                  platformsDropdownOpen ? "max-h-32 opacity-100" : "max-h-0 opacity-0 pointer-events-none"
+                )}
+              >
+                <Link
+                  href="/dashboard/platforms/list"
+                  className={cn(
+                    "block px-2 py-2 text-sm rounded-md transition-colors",
+                    isPlatformsListActive
+                      ? "bg-blue-200 text-blue-900 dark:bg-blue-800 dark:text-blue-100"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                  )}
+                >
+                  {t("nav.platformsList") || "List Platforms"}
+                </Link>
+                <Link
+                  href="/dashboard/platforms/create"
+                  className={cn(
+                    "block px-2 py-2 text-sm rounded-md transition-colors",
+                    isPlatformsCreateActive
+                      ? "bg-blue-200 text-blue-900 dark:bg-blue-800 dark:text-blue-100"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                  )}
+                >
+                  {t("nav.createPlatform") || "Create Platform"}
+                </Link>
+              </div>
+            </div>
+            <div>
+              <button
+                className={cn(
+                  "group flex items-center w-full px-2 py-2 text-sm font-medium rounded-md transition-colors",
+                  isPermissionsActive
+                    ? "bg-blue-100 text-blue-900 dark:bg-blue-900 dark:text-blue-100"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                )}
+                onClick={() => setPermissionsDropdownOpen((open) => !open)}
+                aria-expanded={permissionsDropdownOpen}
+              >
+                <Shield className="mr-3 h-6 w-6 flex-shrink-0" />
+                {t("nav.permissions") || "Permissions"}
+                {permissionsDropdownOpen ? (
+                  <ChevronUp className="ml-auto h-4 w-4" />
+                ) : (
+                  <ChevronDown className="ml-auto h-4 w-4" />
+                )}
+              </button>
+              <div
+                className={cn(
+                  "pl-8 flex flex-col gap-1 overflow-hidden transition-all duration-300",
+                  permissionsDropdownOpen ? "max-h-48 opacity-100" : "max-h-0 opacity-0 pointer-events-none"
+                )}
+              >
+                <Link
+                  href="/dashboard/permissions/list"
+                  className={cn(
+                    "block px-2 py-2 text-sm rounded-md transition-colors",
+                    isPermissionsListActive
+                      ? "bg-blue-200 text-blue-900 dark:bg-blue-800 dark:text-blue-100"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                  )}
+                >
+                  {t("nav.permissionsList") || "List Permissions"}
+                </Link>
+                <Link
+                  href="/dashboard/permissions/create"
+                  className={cn(
+                    "block px-2 py-2 text-sm rounded-md transition-colors",
+                    isPermissionsCreateActive
+                      ? "bg-blue-200 text-blue-900 dark:bg-blue-800 dark:text-blue-100"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                  )}
+                >
+                  {t("nav.grantPermission") || "Grant Permission"}
+                </Link>
+                <Link
+                  href="/dashboard/permissions/partners-summary"
+                  className={cn(
+                    "block px-2 py-2 text-sm rounded-md transition-colors",
+                    isPermissionsSummaryActive
+                      ? "bg-blue-200 text-blue-900 dark:bg-blue-800 dark:text-blue-100"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                  )}
+                >
+                  {t("nav.permissionsSummary") || "Permissions Summary"}
+                </Link>
+              </div>
+            </div>
+            <div>
               <button
                 className={cn(
                   "group flex items-center w-full px-2 py-2 text-sm font-medium rounded-md transition-colors",
                   isCommissionActive
-                    ? "bg-blue-100 dark:bg-blue-900 dark:text-blue-100"
+                    ? "bg-blue-100 text-blue-900 dark:bg-blue-900 dark:text-blue-100"
                     : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
                 )}
                 onClick={() => setCommissionDropdownOpen((open) => !open)}
                 aria-expanded={commissionDropdownOpen}
               >
                 <DollarSign className="mr-3 h-6 w-6 flex-shrink-0" />
-                Commission
+                {t("nav.commission") || "Commission"}
                 {commissionDropdownOpen ? (
                   <ChevronUp className="ml-auto h-4 w-4" />
                 ) : (
@@ -650,7 +852,7 @@ export function Sidebar() {
                       : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
                   )}
                 >
-                  Config Management
+                  {t("nav.commissionConfig") || "Config Management"}
                 </Link>
                 <Link
                   href="/dashboard/commission-payments"
@@ -661,7 +863,7 @@ export function Sidebar() {
                       : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
                   )}
                 >
-                  Payments
+                  {t("nav.commissionPayments") || "Payments"}
                 </Link>
               </div>
             </div>
@@ -672,8 +874,69 @@ export function Sidebar() {
                 : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
             )}>
               <Receipt className="mr-3 h-6 w-6 flex-shrink-0" />
-              Betting Transactions
-            </Link> */}
+              {t("nav.bettingTransactions") || "Betting Transactions"}
+            </Link>
+            <Link
+              href="/dashboard/transfers"
+              className={cn(
+                "group flex items-center px-2 py-2 text-sm font-medium rounded-md",
+                pathname === "/dashboard/transfers" || pathname.startsWith("/dashboard/transfers/")
+                  ? "bg-blue-100 text-blue-900 dark:bg-blue-900 dark:text-blue-100"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white",
+              )}
+            >
+              <ArrowRightLeft className="mr-3 h-6 w-6 flex-shrink-0" />
+              {t("nav.partnerTransfers") || "Partner Transfers"}
+            </Link>
+            <div>
+              <button
+                className={cn(
+                  "group flex items-center w-full px-2 py-2 text-sm font-medium rounded-md transition-colors",
+                  isApiConfigActive
+                    ? "bg-blue-100 text-blue-900 dark:bg-blue-900 dark:text-blue-100"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                )}
+                onClick={() => setApiConfigDropdownOpen((open) => !open)}
+                aria-expanded={apiConfigDropdownOpen}
+              >
+                <Settings className="mr-3 h-6 w-6 flex-shrink-0" />
+                {t("nav.apiConfig") || "API Config"}
+                {apiConfigDropdownOpen ? (
+                  <ChevronUp className="ml-auto h-4 w-4" />
+                ) : (
+                  <ChevronDown className="ml-auto h-4 w-4" />
+                )}
+              </button>
+              <div
+                className={cn(
+                  "pl-8 flex flex-col gap-1 overflow-hidden transition-all duration-300",
+                  apiConfigDropdownOpen ? "max-h-32 opacity-100" : "max-h-0 opacity-0 pointer-events-none"
+                )}
+              >
+                <Link
+                  href="/dashboard/api-config/list"
+                  className={cn(
+                    "block px-2 py-2 text-sm rounded-md transition-colors",
+                    isApiConfigListActive
+                      ? "bg-blue-200 text-blue-900 dark:bg-blue-800 dark:text-blue-100"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                  )}
+                >
+                  {t("nav.apiConfigList") || "Configuration List"}
+                </Link>
+                <Link
+                  href="/dashboard/api-config/create"
+                  className={cn(
+                    "block px-2 py-2 text-sm rounded-md transition-colors",
+                    !isApiConfigListActive && isApiConfigActive
+                      ? "bg-blue-200 text-blue-900 dark:bg-blue-800 dark:text-blue-100"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+                  )}
+                >
+                  {t("nav.createApiConfig") || "Create Config"}
+                </Link>
+              </div>
+            </div>
             {/* Users Dropdown */}
             <div>
               <button

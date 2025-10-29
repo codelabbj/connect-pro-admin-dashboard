@@ -43,17 +43,31 @@ export default function CommissionPaymentsPage() {
       try {
         const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/commissions/unpaid_by_partner/`
         const data = await apiFetch(endpoint)
-        setUnpaidCommissions(data || [])
+        // Normalize the response - handle both array and object with results property
+        let normalizedData: any[] = []
+        if (Array.isArray(data)) {
+          normalizedData = data
+        } else if (data && typeof data === 'object') {
+          // Check common API response formats
+          normalizedData = data.results || data.data || data.items || []
+          // If still not an array, try to find array in object values
+          if (!Array.isArray(normalizedData)) {
+            const arrayValue = Object.values(data).find(val => Array.isArray(val))
+            normalizedData = (arrayValue as any[]) || []
+          }
+        }
+        setUnpaidCommissions(normalizedData)
         
         toast({
-          title: "Unpaid commissions loaded",
-          description: "Unpaid commission data loaded successfully",
+          title: t("commissionPayments.unpaidCommissionsLoaded"),
+          description: t("commissionPayments.unpaidCommissionsLoadedSuccessfully"),
         })
       } catch (err: any) {
         console.error("Failed to load unpaid commissions:", err)
+        setUnpaidCommissions([]) // Ensure it's always an array
         toast({
-          title: "Warning",
-          description: "Could not load unpaid commission data",
+          title: t("common.warning"),
+          description: t("commissionPayments.couldNotLoadUnpaidCommissions"),
           variant: "destructive",
         })
       }
@@ -109,8 +123,8 @@ export default function CommissionPaymentsPage() {
   const handlePayCommission = async () => {
     if (!selectedPartner) {
       toast({
-        title: "Validation Error",
-        description: "Please select a partner",
+        title: t("commissionPayments.validationError"),
+        description: t("commissionPayments.pleaseSelectPartner"),
         variant: "destructive",
       })
       return
@@ -131,14 +145,27 @@ export default function CommissionPaymentsPage() {
       })
       
       toast({
-        title: "Payment Successful",
-        description: response.message || "Commission payment completed successfully",
+        title: t("commissionPayments.paymentSuccessful") || "Payment Successful",
+        description: response.message || t("commissionPayments.paymentCompletedSuccessfully") || "Commission payment completed successfully",
       })
       
       // Refresh unpaid commissions
       const unpaidEndpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/commissions/unpaid_by_partner/`
       const unpaidData = await apiFetch(unpaidEndpoint)
-      setUnpaidCommissions(unpaidData || [])
+      // Normalize the response - handle both array and object with results property
+      let normalizedData: any[] = []
+      if (Array.isArray(unpaidData)) {
+        normalizedData = unpaidData
+      } else if (unpaidData && typeof unpaidData === 'object') {
+        // Check common API response formats
+        normalizedData = unpaidData.results || unpaidData.data || unpaidData.items || []
+        // If still not an array, try to find array in object values
+        if (!Array.isArray(normalizedData)) {
+          const arrayValue = Object.values(unpaidData).find(val => Array.isArray(val))
+          normalizedData = (arrayValue as any[]) || []
+        }
+      }
+      setUnpaidCommissions(normalizedData)
       
       // Reset form
       setSelectedPartner("")
@@ -147,7 +174,7 @@ export default function CommissionPaymentsPage() {
     } catch (err: any) {
       const errorMessage = extractErrorMessages(err)
       toast({
-        title: "Payment Failed",
+        title: t("commissionPayments.paymentFailed") || "Payment Failed",
         description: errorMessage,
         variant: "destructive",
       })
@@ -159,8 +186,10 @@ export default function CommissionPaymentsPage() {
   // Get selected partner details
   const selectedPartnerData = partners.find(p => p.uid === selectedPartner)
   
-  // Get unpaid amount for selected partner
-  const selectedPartnerUnpaid = unpaidCommissions.find(u => u.partner_uid === selectedPartner)
+  // Get unpaid amount for selected partner (ensure unpaidCommissions is an array)
+  const selectedPartnerUnpaid = Array.isArray(unpaidCommissions) 
+    ? unpaidCommissions.find(u => u.partner_uid === selectedPartner)
+    : undefined
 
   return (
     <Card>
@@ -175,7 +204,7 @@ export default function CommissionPaymentsPage() {
         <div className="mb-6">
           <h3 className="text-lg font-semibold mb-4">{t("commissionPayments.commissionStatistics")}</h3>
           {statsLoading ? (
-            <div className="text-center py-4">Loading statistics...</div>
+            <div className="text-center py-4">{t("commissionPayments.loadingStatistics")}</div>
           ) : globalStats ? (
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
@@ -197,7 +226,7 @@ export default function CommissionPaymentsPage() {
               <div className="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
                 <div className="flex items-center gap-2">
                   <DollarSign className="h-4 w-4 text-orange-600" />
-                  <span className="text-sm font-medium">Paid Commission</span>
+                  <span className="text-sm font-medium">{t("commissionPayments.paidCommissionLabel")}</span>
                 </div>
                 <div className="text-2xl font-bold text-orange-600">{globalStats.paid_commission}</div>
               </div>
@@ -205,22 +234,22 @@ export default function CommissionPaymentsPage() {
               <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
                 <div className="flex items-center gap-2">
                   <TrendingDown className="h-4 w-4 text-red-600" />
-                  <span className="text-sm font-medium">Unpaid Commission</span>
+                  <span className="text-sm font-medium">{t("commissionPayments.unpaidCommissionLabel")}</span>
                 </div>
                 <div className="text-2xl font-bold text-red-600">{globalStats.unpaid_commission}</div>
               </div>
             </div>
           ) : (
-            <div className="text-center py-4 text-muted-foreground">No statistics available</div>
+            <div className="text-center py-4 text-muted-foreground">{t("commissionPayments.noStatisticsAvailable")}</div>
           )}
         </div>
 
         {/* Date Filter for Statistics */}
         <div className="mb-6 p-4 bg-muted rounded-lg">
-          <h4 className="font-medium mb-3">Filter Statistics by Date</h4>
+          <h4 className="font-medium mb-3">{t("commissionPayments.filterStatisticsByDate")}</h4>
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="start_date">Start Date</Label>
+              <Label htmlFor="start_date">{t("common.startDate") || "Start Date"}</Label>
               <Input
                 id="start_date"
                 type="date"
@@ -230,7 +259,7 @@ export default function CommissionPaymentsPage() {
               />
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="end_date">End Date</Label>
+              <Label htmlFor="end_date">{t("common.endDate") || "End Date"}</Label>
               <Input
                 id="end_date"
                 type="date"
@@ -248,7 +277,7 @@ export default function CommissionPaymentsPage() {
                 }}
                 className="h-10"
               >
-                Clear Dates
+                {t("common.clearDates") || "Clear Dates"}
               </Button>
             </div>
           </div>
@@ -256,14 +285,14 @@ export default function CommissionPaymentsPage() {
 
         {/* Commission Payment Form */}
         <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-          <h4 className="font-medium mb-3 text-blue-900 dark:text-blue-100">Pay Commission to Partner</h4>
+          <h4 className="font-medium mb-3 text-blue-900 dark:text-blue-100">{t("commissionPayments.payCommissionToPartner")}</h4>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div className="space-y-2">
-              <Label htmlFor="partner_select">Select Partner</Label>
+              <Label htmlFor="partner_select">{t("commissionPayments.selectPartner")}</Label>
               <Select value={selectedPartner} onValueChange={setSelectedPartner}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Choose a partner to pay commission" />
+                  <SelectValue placeholder={t("commissionPayments.choosePartnerToPay")} />
                 </SelectTrigger>
                 <SelectContent>
                   {partners.map((partner) => (
@@ -279,12 +308,12 @@ export default function CommissionPaymentsPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="payment_notes">Payment Notes</Label>
+              <Label htmlFor="payment_notes">{t("commissionPayments.paymentNotes")}</Label>
               <Input
                 id="payment_notes"
                 value={paymentNotes}
                 onChange={(e) => setPaymentNotes(e.target.value)}
-                placeholder="e.g., Monthly commission payment December 2024"
+                placeholder={t("commissionPayments.paymentNotesPlaceholder")}
               />
             </div>
           </div>
@@ -292,13 +321,13 @@ export default function CommissionPaymentsPage() {
           {/* Selected Partner Info */}
           {selectedPartnerData && (
             <div className="mb-4 p-3 bg-white dark:bg-gray-800 rounded border">
-              <h5 className="font-medium mb-2">Selected Partner Information:</h5>
+              <h5 className="font-medium mb-2">{t("commissionPayments.selectedPartnerInformation")}:</h5>
               <div className="grid grid-cols-2 gap-4 text-sm">
-                <div><strong>Name:</strong> {selectedPartnerData.display_name || `${selectedPartnerData.first_name || ""} ${selectedPartnerData.last_name || ""}`}</div>
-                <div><strong>Email:</strong> {selectedPartnerData.email}</div>
-                <div><strong>UID:</strong> {selectedPartnerData.uid}</div>
+                <div><strong>{t("commissionPayments.name")}:</strong> {selectedPartnerData.display_name || `${selectedPartnerData.first_name || ""} ${selectedPartnerData.last_name || ""}`}</div>
+                <div><strong>{t("commissionPayments.email")}:</strong> {selectedPartnerData.email}</div>
+                <div><strong>{t("commissionPayments.uid")}:</strong> {selectedPartnerData.uid}</div>
                 {selectedPartnerUnpaid && (
-                  <div><strong>Unpaid Amount:</strong> <span className="text-green-600 font-medium">{selectedPartnerUnpaid.total_unpaid_amount}</span></div>
+                  <div><strong>{t("commissionPayments.unpaidAmount")}:</strong> <span className="text-green-600 font-medium">{selectedPartnerUnpaid.total_unpaid_amount}</span></div>
                 )}
               </div>
             </div>
@@ -315,12 +344,12 @@ export default function CommissionPaymentsPage() {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
                 </svg>
-                <span>Processing Payment...</span>
+                <span>{t("commissionPayments.processingPayment") || "Processing Payment..."}</span>
               </>
             ) : (
               <>
                 <DollarSign className="h-4 w-4" />
-                Pay Commission
+                {t("commissionPayments.payCommission") || "Pay Commission"}
               </>
             )}
           </Button>
@@ -328,23 +357,23 @@ export default function CommissionPaymentsPage() {
 
         {/* Unpaid Commissions Table */}
         <div className="mb-6">
-          <h4 className="font-medium mb-3">Unpaid Commissions by Partner</h4>
+          <h4 className="font-medium mb-3">{t("commissionPayments.unpaidCommissionsByPartner")}</h4>
           <div className="rounded-md border">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Partner</TableHead>
-                  <TableHead>Partner UID</TableHead>
-                  <TableHead>Unsuccessful Transactions</TableHead>
-                  <TableHead>Successful Transactions</TableHead>
-                  <TableHead>Unpaid Amount</TableHead>
+                  <TableHead>{t("commissionPayments.partner")}</TableHead>
+                  <TableHead>{t("commissionPayments.partnerUid")}</TableHead>
+                  <TableHead>{t("commissionPayments.unsuccessfulTransactions")}</TableHead>
+                  <TableHead>{t("commissionPayments.successfulTransactions")}</TableHead>
+                  <TableHead>{t("commissionPayments.unpaidAmount")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {unpaidCommissions.length === 0 ? (
+                {!Array.isArray(unpaidCommissions) || unpaidCommissions.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                      No unpaid commissions found
+                      {t("commissionPayments.noUnpaidCommissionsFound")}
                     </TableCell>
                   </TableRow>
                 ) : (

@@ -130,8 +130,8 @@ export default function BettingTransactionsPage() {
         setTotalPages(Math.ceil((data.count || 0) / itemsPerPage))
         
         toast({
-          title: "Transactions loaded",
-          description: "Betting transactions loaded successfully",
+          title: t("bettingTransactions.transactionsLoaded"),
+          description: t("bettingTransactions.transactionsLoadedSuccessfully"),
         })
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
@@ -140,7 +140,7 @@ export default function BettingTransactionsPage() {
         setTotalCount(0)
         setTotalPages(1)
         toast({
-          title: "Failed to load transactions",
+          title: t("bettingTransactions.failedToLoadTransactions"),
           description: errorMessage,
           variant: "destructive",
         })
@@ -197,8 +197,8 @@ export default function BettingTransactionsPage() {
       setSelectedTransaction(detailedTransaction)
     } catch (err) {
       toast({
-        title: "Warning",
-        description: "Could not load detailed transaction information",
+        title: t("common.warning"),
+        description: t("bettingTransactions.couldNotLoadTransactionDetails") || "Could not load detailed transaction information",
         variant: "destructive",
       })
     }
@@ -221,8 +221,8 @@ export default function BettingTransactionsPage() {
       })
       
       toast({
-        title: "Cancellation Processed",
-        description: "Transaction cancellation has been processed successfully",
+        title: t("bettingTransactions.cancellationProcessed"),
+        description: t("bettingTransactions.cancellationProcessedSuccessfully"),
       })
       
       // Refresh transactions
@@ -235,7 +235,7 @@ export default function BettingTransactionsPage() {
     } catch (err: any) {
       const errorMessage = extractErrorMessages(err)
       toast({
-        title: "Cancellation Failed",
+        title: t("bettingTransactions.cancellationFailed"),
         description: errorMessage,
         variant: "destructive",
       })
@@ -280,7 +280,7 @@ export default function BettingTransactionsPage() {
         <CardContent>
           {/* Statistics Cards */}
           {statsLoading ? (
-            <div className="text-center py-4">Loading statistics...</div>
+            <div className="text-center py-4">{t("commissionPayments.loadingStatistics") || "Loading statistics..."}</div>
           ) : stats ? (
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
               <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
@@ -301,7 +301,7 @@ export default function BettingTransactionsPage() {
               </div>
             </div>
           ) : (
-            <div className="text-center py-4 text-muted-foreground mb-6">No statistics available</div>
+            <div className="text-center py-4 text-muted-foreground mb-6">{t("commissionPayments.noStatisticsAvailable") || "No statistics available"}</div>
           )}
 
           {/* Search and Filter Controls */}
@@ -310,7 +310,7 @@ export default function BettingTransactionsPage() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input
-                  placeholder="Search transactions... (reference, partner, platform)"
+                  placeholder={t("bettingTransactions.search") || "Search transactions... (reference, partner, platform)"}
                   value={searchTerm}
                   onChange={(e) => {
                     setSearchTerm(e.target.value)
@@ -324,36 +324,36 @@ export default function BettingTransactionsPage() {
             <div className="flex flex-wrap gap-4">
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-full lg:w-48">
-                  <SelectValue placeholder="Status" />
+                  <SelectValue placeholder={t("bettingTransactions.filterByStatus") || "Status"} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Statuses</SelectItem>
-                  <SelectItem value="success">Success</SelectItem>
-                  <SelectItem value="failed">Failed</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="cancelled">Cancelled</SelectItem>
-                  <SelectItem value="cancellation_requested">Cancellation Requested</SelectItem>
+                  <SelectItem value="all">{t("bettingTransactions.allStatus") || "All Statuses"}</SelectItem>
+                  <SelectItem value="success">{t("bettingTransactions.successful") || "Success"}</SelectItem>
+                  <SelectItem value="failed">{t("bettingTransactions.failed") || "Failed"}</SelectItem>
+                  <SelectItem value="pending">{t("bettingTransactions.pending") || "Pending"}</SelectItem>
+                  <SelectItem value="cancelled">{t("bettingTransactions.cancelled") || "Cancelled"}</SelectItem>
+                  <SelectItem value="cancellation_requested">{t("bettingTransactions.cancellationRequested") || "Cancellation Requested"}</SelectItem>
                 </SelectContent>
               </Select>
 
               <Select value={transactionTypeFilter} onValueChange={setTransactionTypeFilter}>
                 <SelectTrigger className="w-full lg:w-48">
-                  <SelectValue placeholder="Type" />
+                  <SelectValue placeholder={t("bettingTransactions.filterByType") || "Type"} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="deposit">Deposit</SelectItem>
-                  <SelectItem value="withdraw">Withdraw</SelectItem>
-                  <SelectItem value="withdrawal">Withdrawal</SelectItem>
+                  <SelectItem value="all">{t("bettingTransactions.allTypes") || "All Types"}</SelectItem>
+                  <SelectItem value="deposit">{t("bettingTransactions.deposit") || "Deposit"}</SelectItem>
+                  <SelectItem value="withdraw">{t("bettingTransactions.withdraw") || "Withdraw"}</SelectItem>
+                  <SelectItem value="withdrawal">{t("bettingTransactions.withdrawal") || "Withdrawal"}</SelectItem>
                 </SelectContent>
               </Select>
 
               <Select value={platformFilter} onValueChange={setPlatformFilter}>
                 <SelectTrigger className="w-full lg:w-48">
-                  <SelectValue placeholder="Platform" />
+                  <SelectValue placeholder={t("bettingTransactions.filterByPlatform") || "Platform"} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Platforms</SelectItem>
+                  <SelectItem value="all">{t("bettingTransactions.allPlatforms") || "All Platforms"}</SelectItem>
                   {platforms.map((platform) => (
                     <SelectItem key={platform.uid} value={platform.uid}>
                       {platform.name}
@@ -364,12 +364,12 @@ export default function BettingTransactionsPage() {
 
               <Select value={commissionPaidFilter} onValueChange={setCommissionPaidFilter}>
                 <SelectTrigger className="w-full lg:w-48">
-                  <SelectValue placeholder="Commission" />
+                  <SelectValue placeholder={t("bettingTransactions.filterByCommission") || "Commission"} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="paid">Paid</SelectItem>
-                  <SelectItem value="unpaid">Unpaid</SelectItem>
+                  <SelectItem value="all">{t("bettingTransactions.allCommission") || "All"}</SelectItem>
+                  <SelectItem value="paid">{t("bettingTransactions.paid") || "Paid"}</SelectItem>
+                  <SelectItem value="unpaid">{t("bettingTransactions.unpaid") || "Unpaid"}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -378,7 +378,7 @@ export default function BettingTransactionsPage() {
           {/* Date Filters */}
           <div className="flex flex-col sm:flex-row gap-4 mb-6">
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium">Start Date</label>
+              <label className="text-sm font-medium">{t("common.startDate")}</label>
               <input
                 type="date"
                 value={startDate}
@@ -390,7 +390,7 @@ export default function BettingTransactionsPage() {
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium">End Date</label>
+              <label className="text-sm font-medium">{t("common.endDate")}</label>
               <input
                 type="date"
                 value={endDate}
@@ -406,7 +406,7 @@ export default function BettingTransactionsPage() {
           {/* Transactions Table */}
           <div className="rounded-md border">
             {loading ? (
-              <div className="p-8 text-center text-muted-foreground">Loading...</div>
+              <div className="p-8 text-center text-muted-foreground">{t("common.loading")}</div>
             ) : error ? (
               <ErrorDisplay
                 error={error}
@@ -422,7 +422,7 @@ export default function BettingTransactionsPage() {
                 <TableHeader>
                   <TableRow>
                      <TableHead>{t("bettingTransactions.uid")}</TableHead>
-                    <TableHead>Reference</TableHead>
+                    <TableHead>{t("bettingTransactions.reference")}</TableHead>
                     <TableHead>
                       <Button variant="ghost" onClick={() => handleSort("partner_name")} className="h-auto p-0 font-semibold">
                         {t("bettingTransactions.partner")}
@@ -462,7 +462,7 @@ export default function BettingTransactionsPage() {
                             className="h-5 w-5"
                             onClick={() => {
                               navigator.clipboard.writeText(transaction.uid)
-                              toast({ title: "UID copied!" })
+                              toast({ title: t("common.uidCopied") })
                             }}
                           >
                             <CopyIcon className="h-4 w-4" />
@@ -481,7 +481,7 @@ export default function BettingTransactionsPage() {
                         <div className="flex items-center gap-2">
                           <span>{transaction.commission_amount} XOF</span>
                           {!transaction.commission_paid && (
-                            <Badge variant="outline" className="text-xs">Unpaid</Badge>
+                            <Badge variant="outline" className="text-xs">{t("bettingTransactions.unpaid")}</Badge>
                           )}
                         </div>
                       </TableCell>
@@ -499,7 +499,7 @@ export default function BettingTransactionsPage() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => handleOpenDetail(transaction)}>
-                              View Details
+                              {t("bettingTransactions.viewDetails") || "View Details"}
                             </DropdownMenuItem>
                             {transaction.status === "cancellation_requested" && (
                               <DropdownMenuItem
@@ -509,7 +509,7 @@ export default function BettingTransactionsPage() {
                                 }}
                                 className="text-orange-600"
                               >
-                                Process Cancellation
+                                {t("bettingTransactions.processCancellation")}
                               </DropdownMenuItem>
                             )}
                           </DropdownMenuContent>
@@ -558,7 +558,7 @@ export default function BettingTransactionsPage() {
       <Dialog open={detailModalOpen} onOpenChange={setDetailModalOpen}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Transaction Details</DialogTitle>
+            <DialogTitle>{t("bettingTransactions.transactionDetailsTitle")}</DialogTitle>
           </DialogHeader>
           {selectedTransaction ? (
             <div className="space-y-6">
@@ -566,63 +566,63 @@ export default function BettingTransactionsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <strong>UID:</strong> {selectedTransaction.uid}
+                    <strong>{t("common.uid")}:</strong> {selectedTransaction.uid}
                     <Button
                       variant="ghost"
                       size="icon"
                       className="h-5 w-5"
                       onClick={() => {
                         navigator.clipboard.writeText(selectedTransaction.uid)
-                        toast({ title: "UID copied!" })
+                        toast({ title: t("common.uidCopied") })
                       }}
                     >
                       <CopyIcon className="h-4 w-4" />
                     </Button>
                   </div>
-                  <div><strong>Reference:</strong> {selectedTransaction.reference}</div>
-                  <div><strong>Type:</strong> {selectedTransaction.transaction_type?.toUpperCase()}</div>
+                  <div><strong>{t("bettingTransactions.reference")}:</strong> {selectedTransaction.reference}</div>
+                  <div><strong>{t("bettingTransactions.transactionType")}:</strong> {selectedTransaction.transaction_type?.toUpperCase()}</div>
                   <div><strong>{t("bettingTransactions.amount")}:</strong> {selectedTransaction.amount} XOF</div>
-                  <div><strong>Status:</strong> {getStatusBadge(selectedTransaction.status)}</div>
+                  <div><strong>{t("bettingTransactions.status")}:</strong> {getStatusBadge(selectedTransaction.status)}</div>
                 </div>
                 <div className="space-y-2">
-                  <div><strong>Partner:</strong> {selectedTransaction.partner_name}</div>
-                  <div><strong>Platform:</strong> {selectedTransaction.platform_name}</div>
-                  <div><strong>Betting User ID:</strong> {selectedTransaction.betting_user_id || "N/A"}</div>
-                  <div><strong>External Transaction ID:</strong> {selectedTransaction.external_transaction_id || "N/A"}</div>
+                  <div><strong>{t("bettingTransactions.partnerName")}:</strong> {selectedTransaction.partner_name}</div>
+                  <div><strong>{t("bettingTransactions.platformName")}:</strong> {selectedTransaction.platform_name}</div>
+                  <div><strong>{t("bettingTransactions.bettingUserId")}:</strong> {selectedTransaction.betting_user_id || t("bettingCommission.notApplicable")}</div>
+                  <div><strong>{t("bettingTransactions.externalTransactionId")}:</strong> {selectedTransaction.external_transaction_id || t("bettingCommission.notApplicable")}</div>
                 </div>
               </div>
 
               {/* Commission Information */}
               <div className="border-t pt-4">
-                <h4 className="font-medium mb-3">Commission Details</h4>
+                <h4 className="font-medium mb-3">{t("bettingTransactions.commissionInformation")}</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div><strong>Rate:</strong> {selectedTransaction.commission_rate}%</div>
-                  <div><strong>{t("bettingTransactions.commissionAmount")}:</strong> {selectedTransaction.commission_amount} XOF</div>
-                  <div><strong>Paid:</strong> {selectedTransaction.commission_paid ? "Yes" : "No"}</div>
-                  <div><strong>Paid At:</strong> {selectedTransaction.commission_paid_at ? new Date(selectedTransaction.commission_paid_at).toLocaleString() : "Not paid"}</div>
+                  <div><strong>{t("bettingTransactions.commissionRate")}:</strong> {selectedTransaction.commission_rate}%</div>
+                  <div><strong>{t("bettingTransactions.commissionAmountDetail")}:</strong> {selectedTransaction.commission_amount} XOF</div>
+                  <div><strong>{t("bettingTransactions.commissionPaid")}:</strong> {selectedTransaction.commission_paid ? t("common.yes") : t("common.no")}</div>
+                  <div><strong>{t("bettingTransactions.paidAt")}:</strong> {selectedTransaction.commission_paid_at ? new Date(selectedTransaction.commission_paid_at).toLocaleString() : t("bettingTransactions.notPaid")}</div>
                 </div>
               </div>
 
               {/* Partner Balance */}
               <div className="border-t pt-4">
-                <h4 className="font-medium mb-3">Partner Balance</h4>
+                <h4 className="font-medium mb-3">{t("bettingTransactions.partnerBalanceImpact")}</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div><strong>{t("bettingTransactions.beforeBalance")}:</strong> {selectedTransaction.partner_balance_before} XOF</div>
-                  <div><strong>{t("bettingTransactions.afterBalance")}:</strong> {selectedTransaction.partner_balance_after} XOF</div>
+                  <div><strong>{t("bettingTransactions.balanceBeforeDetail")}:</strong> {selectedTransaction.partner_balance_before} XOF</div>
+                  <div><strong>{t("bettingTransactions.balanceAfterDetail")}:</strong> {selectedTransaction.partner_balance_after} XOF</div>
                 </div>
               </div>
 
               {/* Timing Information */}
               <div className="border-t pt-4">
-                <h4 className="font-medium mb-3">Timestamps</h4>
+                <h4 className="font-medium mb-3">{t("bettingTransactions.transactionTimeline")}</h4>
                 <div className="space-y-2">
-                  <div><strong>Created:</strong> {selectedTransaction.created_at ? new Date(selectedTransaction.created_at).toLocaleString() : "Unknown"}</div>
-                  <div><strong>Updated:</strong> {selectedTransaction.updated_at ? new Date(selectedTransaction.updated_at).toLocaleString() : "Unknown"}</div>
+                  <div><strong>{t("bettingTransactions.createdDetail")}:</strong> {selectedTransaction.created_at ? new Date(selectedTransaction.created_at).toLocaleString() : t("platforms.unknown")}</div>
+                  <div><strong>{t("bettingTransactions.lastUpdatedDetail")}:</strong> {selectedTransaction.updated_at ? new Date(selectedTransaction.updated_at).toLocaleString() : t("platforms.unknown")}</div>
                   {selectedTransaction.cancellation_requested_at && (
-                    <div><strong>Cancellation Requested:</strong> {new Date(selectedTransaction.cancellation_requested_at).toLocaleString()}</div>
+                    <div><strong>{t("bettingTransactions.cancellationRequested")}:</strong> {new Date(selectedTransaction.cancellation_requested_at).toLocaleString()}</div>
                   )}
                   {selectedTransaction.cancelled_at && (
-                    <div><strong>Cancelled:</strong> {new Date(selectedTransaction.cancelled_at).toLocaleString()}</div>
+                    <div><strong>{t("bettingTransactions.cancelled")}:</strong> {new Date(selectedTransaction.cancelled_at).toLocaleString()}</div>
                   )}
                 </div>
               </div>
@@ -630,7 +630,7 @@ export default function BettingTransactionsPage() {
               {/* External Response */}
               {selectedTransaction.external_response && (
                 <div className="border-t pt-4">
-                  <h4 className="font-medium mb-3">External Platform Response</h4>
+                  <h4 className="font-medium mb-3">{t("bettingTransactions.externalPlatformResponse")}</h4>
                   <div className="bg-muted p-3 rounded">
                     <pre className="text-sm overflow-auto">
                       {JSON.stringify(selectedTransaction.external_response, null, 2)}
@@ -642,7 +642,7 @@ export default function BettingTransactionsPage() {
               {/* Notes */}
               {selectedTransaction.notes && (
                 <div className="border-t pt-4">
-                  <h4 className="font-medium mb-3">Notes</h4>
+                  <h4 className="font-medium mb-3">{t("bettingTransactions.notes")}</h4>
                   <div className="bg-muted p-3 rounded whitespace-pre-wrap">
                     {selectedTransaction.notes}
                   </div>
@@ -657,44 +657,43 @@ export default function BettingTransactionsPage() {
       <AlertDialog open={cancellationModalOpen} onOpenChange={setCancellationModalOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Process Transaction Cancellation</AlertDialogTitle>
+            <AlertDialogTitle>{t("bettingTransactions.processTransactionCancellation")}</AlertDialogTitle>
             <AlertDialogDescription>
-              You are about to approve the cancellation of transaction <strong>{selectedTransaction?.reference}</strong>. 
-              This will refund the partner and mark the transaction as cancelled.
+              {t("bettingTransactions.cancellationApprovalDescription")?.replace("{reference}", selectedTransaction?.reference || "")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium">Admin Notes (Optional)</label>
+              <label className="text-sm font-medium">{t("bettingTransactions.adminNotesOptional")}</label>
               <textarea
                 value={cancellationNotes}
                 onChange={(e) => setCancellationNotes(e.target.value)}
-                placeholder="Add notes about the cancellation approval..."
+                placeholder={t("bettingTransactions.cancellationNotesPlaceholder")}
                 className="w-full p-2 border rounded mt-1"
                 rows={3}
               />
             </div>
             
             <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded">
-              <h4 className="font-medium text-red-900 dark:text-red-100 mb-2">Transaction Information:</h4>
+              <h4 className="font-medium text-red-900 dark:text-red-100 mb-2">{t("bettingTransactions.transactionInformation")}:</h4>
               <div className="text-sm text-red-800 dark:text-red-200 space-y-1">
                 <div><strong>{t("bettingTransactions.amount")}:</strong> {selectedTransaction?.amount} XOF</div>
-                <div><strong>Partner:</strong> {selectedTransaction?.partner_name}</div>
-                <div><strong>Platform:</strong> {selectedTransaction?.platform_name}</div>
+                <div><strong>{t("bettingTransactions.partnerName")}:</strong> {selectedTransaction?.partner_name}</div>
+                <div><strong>{t("bettingTransactions.platformName")}:</strong> {selectedTransaction?.platform_name}</div>
                 <div><strong>{t("bettingTransactions.commissionLoss")}:</strong> {selectedTransaction?.commission_amount} XOF</div>
               </div>
             </div>
           </div>
           
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleProcessCancellation}
               disabled={processingCancellation}
               className="bg-red-600 hover:bg-red-700"
             >
-              {processingCancellation ? "Processing..." : "Approve Cancellation"}
+              {processingCancellation ? t("bettingTransactions.processing") : t("bettingTransactions.approveCancellation")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -55,14 +55,14 @@ export default function PlatformDetailsPage() {
         }
         
         toast({
-          title: "Platform details loaded",
-          description: "Platform details loaded successfully",
+          title: t("platforms.platformDetailsLoaded"),
+          description: t("platforms.platformDetailsLoadedSuccessfully"),
         })
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
         setError(errorMessage)
         toast({
-          title: "Failed to load platform",
+          title: t("platforms.failedToLoadPlatform"),
           description: errorMessage,
           variant: "destructive",
         })
@@ -87,12 +87,12 @@ export default function PlatformDetailsPage() {
       setPlatform(prev => prev ? { ...prev, is_active: data.is_active } : prev)
       
       toast({
-        title: "Platform status updated",
-        description: data.message || (data.is_active ? "Platform activated" : "Platform deactivated"),
+        title: t("platforms.platformStatusUpdated"),
+        description: data.message || (data.is_active ? t("platforms.platformActivated") : t("platforms.platformDeactivated")),
       })
     } catch (err: any) {
       toast({
-        title: "Failed to update platform status",
+        title: t("platforms.failedToUpdatePlatformStatus"),
         description: extractErrorMessages(err),
         variant: "destructive",
       })
@@ -108,8 +108,8 @@ export default function PlatformDetailsPage() {
 
   const confirmDelete = () => {
     toast({
-      title: "Deletion Not Allowed",
-      description: "Platform deletion is not allowed for security reasons.",
+      title: t("platforms.deletionNotAllowed"),
+      description: t("platforms.deletionNotAllowedReason"),
       variant: "destructive",
     })
     setDeleteModalOpen(false)
@@ -118,7 +118,7 @@ export default function PlatformDetailsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <span className="text-lg font-semibold">Loading platform details...</span>
+        <span className="text-lg font-semibold">{t("platforms.loadingPlatformDetails")}</span>
       </div>
     )
   }
@@ -139,7 +139,7 @@ export default function PlatformDetailsPage() {
   if (!platform) {
     return (
       <div className="flex items-center justify-center h-96">
-        <span className="text-lg font-semibold">Platform not found</span>
+        <span className="text-lg font-semibold">{t("platforms.platformNotFound")}</span>
       </div>
     )
   }
@@ -151,11 +151,11 @@ export default function PlatformDetailsPage() {
         <div className="flex items-center gap-4">
           <Button variant="outline" onClick={() => router.push("/dashboard/platforms/list")}>
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Platforms
+            {t("platforms.backToPlatforms")}
           </Button>
           <div>
             <h1 className="text-2xl font-bold">{platform.name}</h1>
-            <p className="text-muted-foreground">Platform Details</p>
+            <p className="text-muted-foreground">{t("platforms.platformDetailsTitle")}</p>
           </div>
         </div>
 
@@ -163,7 +163,7 @@ export default function PlatformDetailsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
-              Platform Information
+              {t("platforms.platformInformation")}
               <div className="flex items-center gap-2">
                 <Switch
                   checked={platform.is_active}
@@ -171,7 +171,7 @@ export default function PlatformDetailsPage() {
                   disabled={togglingStatus}
                 />
                 <span className="text-sm">
-                  {platform.is_active ? "Active" : "Inactive"}
+                  {platform.is_active ? t("platforms.active") : t("platforms.inactive")}
                 </span>
               </div>
             </CardTitle>
@@ -180,7 +180,7 @@ export default function PlatformDetailsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-3">
                 <div>
-                  <Label className="text-sm font-medium">UID</Label>
+                  <Label className="text-sm font-medium">{t("platforms.uid") || "UID"}</Label>
                   <div className="flex items-center gap-2 mt-1">
                     <code className="px-2 py-1 bg-muted rounded text-sm">{platform.uid}</code>
                     <Button
@@ -189,7 +189,7 @@ export default function PlatformDetailsPage() {
                       className="h-6 w-6"
                       onClick={() => {
                         navigator.clipboard.writeText(platform.uid)
-                        toast({ title: "UID copied!" })
+                        toast({ title: t("platforms.uidCopied") })
                       }}
                     >
                       <Copy className="h-4 w-4" />
@@ -198,12 +198,12 @@ export default function PlatformDetailsPage() {
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium">Name</Label>
+                  <Label className="text-sm font-medium">{t("platforms.name")}</Label>
                   <p>{platform.name}</p>
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium">External ID</Label>
+                  <Label className="text-sm font-medium">{t("platforms.externalId")}</Label>
                   <div className="flex items-center gap-2 mt-1">
                     <code className="px-2 py-1 bg-muted rounded text-sm">{platform.external_id}</code>
                     <Button
@@ -212,7 +212,7 @@ export default function PlatformDetailsPage() {
                       className="h-6 w-6"
                       onClick={() => {
                         navigator.clipboard.writeText(platform.external_id)
-                        toast({ title: "External ID copied!" })
+                        toast({ title: t("platforms.externalIdCopied") })
                       }}
                     >
                       <Copy className="h-4 w-4" />
@@ -221,38 +221,38 @@ export default function PlatformDetailsPage() {
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium">Description</Label>
-                  <p className="text-muted-foreground">{platform.description || "No description provided"}</p>
+                  <Label className="text-sm font-medium">{t("platforms.description")}</Label>
+                  <p className="text-muted-foreground">{platform.description || t("platforms.noDescriptionProvided")}</p>
                 </div>
               </div>
 
               <div className="space-y-3">
                 <div>
-                  <Label className="text-sm font-medium">Status</Label>
+                  <Label className="text-sm font-medium">{t("platforms.status")}</Label>
                   <div className="flex items-center gap-2 mt-1">
                     <Badge variant={platform.is_active ? "default" : "secondary"}>
-                      {platform.is_active ? "Active" : "Inactive"}
+                      {platform.is_active ? t("platforms.active") : t("platforms.inactive")}
                     </Badge>
                   </div>
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium">Minimum Deposit</Label>
+                  <Label className="text-sm font-medium">{t("platforms.minimumDeposit")}</Label>
                   <p className="font-mono">{platform.min_deposit_amount}</p>
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium">Maximum Deposit</Label>
+                  <Label className="text-sm font-medium">{t("platforms.maximumDeposit")}</Label>
                   <p className="font-mono">{platform.max_deposit_amount}</p>
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium">Minimum Withdrawal</Label>
+                  <Label className="text-sm font-medium">{t("platforms.minimumWithdrawal")}</Label>
                   <p className="font-mono">{platform.min_withdrawal_amount}</p>
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium">Maximum Withdrawal</Label>
+                  <Label className="text-sm font-medium">{t("platforms.maximumWithdrawal")}</Label>
                   <p className="font-mono">{platform.max_withdrawal_amount}</p>
                 </div>
               </div>
@@ -261,24 +261,24 @@ export default function PlatformDetailsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t">
               <div className="space-y-3">
                 <div>
-                  <Label className="text-sm font-medium">Created by</Label>
-                  <p>{platform.created_by_name || "Unknown"}</p>
+                  <Label className="text-sm font-medium">{t("platforms.createdBy")}</Label>
+                  <p>{platform.created_by_name || t("platforms.unknown")}</p>
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium">Created at</Label>
-                  <p>{platform.created_at ? new Date(platform.created_at).toLocaleString() : "Unknown"}</p>
+                  <Label className="text-sm font-medium">{t("platforms.createdAtLabel")}</Label>
+                  <p>{platform.created_at ? new Date(platform.created_at).toLocaleString() : t("platforms.unknown")}</p>
                 </div>
               </div>
 
               <div className="space-y-3">
                 <div>
-                  <Label className="text-sm font-medium">Updated at</Label>
-                  <p>{platform.updated_at ? new Date(platform.updated_at).toLocaleString() : "Unknown"}</p>
+                  <Label className="text-sm font-medium">{t("platforms.updatedAt")}</Label>
+                  <p>{platform.updated_at ? new Date(platform.updated_at).toLocaleString() : t("platforms.unknown")}</p>
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium">Active Partners</Label>
+                  <Label className="text-sm font-medium">{t("platforms.activePartners")}</Label>
                   <p className="font-semibold">{platform.active_partners_count || 0}</p>
                 </div>
               </div>
@@ -292,7 +292,7 @@ export default function PlatformDetailsPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <BarChart3 className="h-5 w-5" />
-                Platform Statistics
+                {t("platforms.platformStatistics")}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -300,7 +300,7 @@ export default function PlatformDetailsPage() {
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <CreditCard className="h-4 w-4 text-blue-600" />
-                    <Label className="text-sm font-medium">Total Transactions</Label>
+                    <Label className="text-sm font-medium">{t("platforms.totalTransactions") || "Total Transactions"}</Label>
                   </div>
                   <p className="text-2xl font-bold">{stats.total_transactions}</p>
                 </div>
@@ -308,7 +308,7 @@ export default function PlatformDetailsPage() {
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <TrendingUp className="h-4 w-4 text-green-600" />
-                    <Label className="text-sm font-medium">Successful</Label>
+                    <Label className="text-sm font-medium">{t("platforms.successful") || "Successful"}</Label>
                   </div>
                   <p className="text-2xl font-bold text-green-600">{stats.successful_transactions}</p>
                 </div>
@@ -316,7 +316,7 @@ export default function PlatformDetailsPage() {
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <TrendingDown className="h-4 w-4 text-red-600" />
-                    <Label className="text-sm font-medium">Failed</Label>
+                    <Label className="text-sm font-medium">{t("platforms.failed") || "Failed"}</Label>
                   </div>
                   <p className="text-2xl font-bold text-red-600">{stats.failed_transactions}</p>
                 </div>
@@ -324,7 +324,7 @@ export default function PlatformDetailsPage() {
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <Users className="h-4 w-4 text-orange-600" />
-                    <Label className="text-sm font-medium">Active Partners</Label>
+                    <Label className="text-sm font-medium">{t("platforms.activePartners")}</Label>
                   </div>
                   <p className="text-2xl font-bold text-orange-600">{stats.active_partners}</p>
                 </div>
@@ -332,17 +332,17 @@ export default function PlatformDetailsPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Pending Transactions</Label>
+                  <Label className="text-sm font-medium">{t("platforms.pending") || "Pending Transactions"}</Label>
                   <p className="text-xl font-semibold">{stats.pending_transactions}</p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Total Volume</Label>
+                  <Label className="text-sm font-medium">{t("platforms.totalVolume") || "Total Volume"}</Label>
                   <p className="text-xl font-semibold">{stats.total_volume}</p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Total Commissions</Label>
+                  <Label className="text-sm font-medium">{t("platforms.totalCommissions") || "Total Commissions"}</Label>
                   <p className="text-xl font-semibold">{stats.total_commissions}</p>
                 </div>
               </div>
@@ -353,14 +353,14 @@ export default function PlatformDetailsPage() {
         {/* Actions */}
         <Card>
           <CardHeader>
-            <CardTitle>Actions</CardTitle>
+            <CardTitle>{t("common.actions")}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex gap-4">
               <Link href={`/dashboard/platforms/edit/${platform.uid}`}>
                 <Button variant="outline" className="flex items-center gap-2">
                   <Edit className="h-4 w-4" />
-                  Edit Platform
+                  {t("platforms.editPlatform")}
                 </Button>
               </Link>
               
@@ -376,12 +376,12 @@ export default function PlatformDetailsPage() {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
                     </svg>
-                    Toggling...
+                    {t("common.toggling")}
                   </>
                 ) : platform.is_active ? (
-                  "Deactivate Platform"
+                  t("platforms.deactivate") || "Deactivate Platform"
                 ) : (
-                  "Activate Platform"
+                  t("platforms.activate") || "Activate Platform"
                 )}
               </Button>
 
@@ -390,7 +390,7 @@ export default function PlatformDetailsPage() {
                 className="flex items-center gap-2"
                 onClick={handleDeleteAttempt}
               >
-                Delete Platform
+                {t("platforms.deletePlatform")}
               </Button>
             </div>
           </CardContent>
@@ -401,14 +401,14 @@ export default function PlatformDetailsPage() {
       <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Platform Not Allowed</DialogTitle>
+            <DialogTitle>{t("platforms.deletionNotAllowed")}</DialogTitle>
           </DialogHeader>
           <div className="py-4">
-            Platform deletion is not allowed for security reasons. If you need to disable a platform, you can toggle its status to inactive instead.
+            {t("platforms.deletionDisabledInfo")}
           </div>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Close</Button>
+              <Button variant="outline">{t("common.close")}</Button>
             </DialogClose>
           </DialogFooter>
         </DialogContent>

@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useLanguage } from "@/components/providers/language-provider"
-import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy, MoreHorizontal, ShieldCheck, ToggleLeft, ToggleRight, Loader, Plus } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy, MoreHorizontal, ShieldCheck, ToggleLeft, ToggleRight, Loader, Plus, TrendingUp, ArrowRightLeft, Wallet, DollarSign, CheckCircle, Clock, CreditCard, Users, Calendar, Settings } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose, DialogFooter } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
@@ -66,6 +66,33 @@ export default function PartnerPage() {
 	// Device selection states
 	const [isDeviceModalOpen, setIsDeviceModalOpen] = useState(false)
 	const [selectedDevice, setSelectedDevice] = useState<any>(null)
+
+	// Betting commission states
+	const [bettingCommissionModalOpen, setBettingCommissionModalOpen] = useState(false)
+	const [bettingCommissionPartner, setBettingCommissionPartner] = useState<any | null>(null)
+	const [bettingCommissionConfig, setBettingCommissionConfig] = useState<any | null>(null)
+	const [bettingCommissionLoading, setBettingCommissionLoading] = useState(false)
+	const [bettingCommissionError, setBettingCommissionError] = useState("")
+	const [bettingCommissionForm, setBettingCommissionForm] = useState({
+		deposit_commission_rate: "",
+		withdrawal_commission_rate: "",
+	})
+	const [bettingCommissionStats, setBettingCommissionStats] = useState<any | null>(null)
+	const [partnerAccountInfo, setPartnerAccountInfo] = useState<any | null>(null)
+
+	// Betting transfers states
+	const [transfersModalOpen, setTransfersModalOpen] = useState(false)
+	const [transfersPartner, setTransfersPartner] = useState<any | null>(null)
+	const [transfers, setTransfers] = useState<any[]>([])
+	const [transfersLoading, setTransfersLoading] = useState(false)
+
+	// Betting commission payment states
+	const [bettingCommissionPaymentModalOpen, setBettingCommissionPaymentModalOpen] = useState(false)
+	const [bettingCommissionPaymentForm, setBettingCommissionPaymentForm] = useState({
+		admin_notes: "",
+	})
+	const [bettingCommissionPaymentLoading, setBettingCommissionPaymentLoading] = useState(false)
+	const [bettingCommissionPaymentError, setBettingCommissionPaymentError] = useState("")
 
 	// Fetch partners from API (authenticated)
 	useEffect(() => {
@@ -290,6 +317,161 @@ export default function PartnerPage() {
 		setCreateAuthFormData(prev => ({ ...prev, origin_device: device.uid }))
 	}
 
+	// Betting commission handlers
+	const handleOpenBettingCommission = async (partner: any) => {
+		setBettingCommissionModalOpen(true)
+		setBettingCommissionLoading(true)
+		setBettingCommissionError("")
+		setBettingCommissionPartner(partner)
+		setBettingCommissionConfig(null)
+		setBettingCommissionStats(null)
+		setPartnerAccountInfo(null)
+		
+		try {
+			// Get partner commission config
+			const configEndpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/commission-configs/get_partner_config/?partner_uid=${partner.uid}`
+			const configData = await apiFetch(configEndpoint)
+			
+			if (configData.success && configData.has_config) {
+				setBettingCommissionConfig(configData.config)
+				setPartnerAccountInfo(configData.account)
+				setBettingCommissionForm({
+					deposit_commission_rate: configData.config.deposit_commission_rate || "",
+					withdrawal_commission_rate: configData.config.withdrawal_commission_rate || "",
+				})
+			} else {
+				// Default values if no config exists
+				setBettingCommissionForm({
+					deposit_commission_rate: "2.00",
+					withdrawal_commission_rate: "3.00",
+				})
+			}
+			
+			// Store account info even if no config exists
+			if (configData.success && configData.account) {
+				setPartnerAccountInfo(configData.account)
+			}
+			
+			// Get partner-specific stats
+			const statsEndpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/commissions/partner_commission_stats/?partner_uid=${partner.uid}`
+			const statsData = await apiFetch(statsEndpoint)
+			setBettingCommissionStats(statsData)
+			
+			toast({ title: t("common.success"), description: t("bettingCommission.loadedSuccessfully") })
+		} catch (err: any) {
+			setBettingCommissionError(extractErrorMessages(err))
+			toast({ title: t("common.error"), description: extractErrorMessages(err), variant: "destructive" })
+		} finally {
+			setBettingCommissionLoading(false)
+		}
+	}
+
+	const handleSaveBettingCommission = async (e: React.FormEvent) => {
+		e.preventDefault()
+		if (!bettingCommissionPartner) return
+
+		setBettingCommissionLoading(true)
+		setBettingCommissionError("")
+		
+		try {
+			const payload = {
+				partner: bettingCommissionPartner.uid,
+				deposit_commission_rate: bettingCommissionForm.deposit_commission_rate,
+				withdrawal_commission_rate: bettingCommissionForm.withdrawal_commission_rate,
+			}
+
+			let endpoint, method
+			if (bettingCommissionConfig) {
+				// Update existing config
+				endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/commission-configs/${bettingCommissionConfig.uid}/`
+				method = "PATCH"
+			} else {
+				// Create new config
+				endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/commission-configs/`
+				method = "POST"
+			}
+
+			const data = await apiFetch(endpoint, {
+				method,
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(payload),
+			})
+
+			setBettingCommissionConfig(data)
+			toast({ 
+				title: t("common.success"), 
+				description: t("bettingCommission.configurationSaved") 
+			})
+		} catch (err: any) {
+			setBettingCommissionError(extractErrorMessages(err))
+			toast({ title: t("common.error"), description: extractErrorMessages(err), variant: "destructive" })
+		} finally {
+			setBettingCommissionLoading(false)
+		}
+	}
+
+	const handleOpenTransfers = async (partner: any) => {
+		setTransfersPartner(partner)
+		setTransfersModalOpen(true)
+		setTransfersLoading(true)
+		setTransfers([])
+		
+		try {
+			const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/partner-transfers/by_partner/?partner_uid=${partner.uid}`
+			const data = await apiFetch(endpoint)
+			setTransfers(Array.isArray(data) ? data : data.results || [])
+		} catch (err: any) {
+			toast({
+				title: t("common.error"),
+				description: extractErrorMessages(err),
+				variant: "destructive",
+			})
+		} finally {
+			setTransfersLoading(false)
+		}
+	}
+
+	const handlePayBettingCommission = async (e: React.FormEvent) => {
+		e.preventDefault()
+		if (!bettingCommissionPartner) return
+
+		setBettingCommissionPaymentLoading(true)
+		setBettingCommissionPaymentError("")
+		
+		try {
+			const payload = {
+				partner_uid: bettingCommissionPartner.uid,
+				transaction_ids: null, // null = pay all unpaid commissions
+				admin_notes: bettingCommissionPaymentForm.admin_notes,
+			}
+
+			const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/commissions/pay_commissions/`
+			const data = await apiFetch(endpoint, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(payload),
+			})
+
+			toast({ 
+				title: t("common.success"), 
+				description: data.message || t("bettingCommission.paymentCompleted") 
+			})
+			
+			setBettingCommissionPaymentModalOpen(false)
+			setBettingCommissionPaymentForm({ admin_notes: "" })
+			
+			// Refresh partner-specific stats
+			const statsEndpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/commissions/partner_commission_stats/?partner_uid=${bettingCommissionPartner.uid}`
+			const statsData = await apiFetch(statsEndpoint)
+			setBettingCommissionStats(statsData)
+		} catch (err: any) {
+			setBettingCommissionPaymentError(extractErrorMessages(err))
+			toast({ title: t("common.error"), description: extractErrorMessages(err), variant: "destructive" })
+		} finally {
+			setBettingCommissionPaymentLoading(false)
+		}
+	}
+
 	return (
 		<>
 			<Card>
@@ -427,19 +609,45 @@ export default function PartnerPage() {
 									<TableCell>
 										<DropdownMenu>
 											<DropdownMenuTrigger asChild>
-												<Button variant="outline" size="sm">
+												<Button variant="outline" size="sm" className="h-8 w-8 p-0">
+													<span className="sr-only">Ouvrir le menu</span>
 													<MoreHorizontal className="h-4 w-4" />
 												</Button>
 											</DropdownMenuTrigger>
-											<DropdownMenuContent align="end">
-												<DropdownMenuItem onClick={() => handleOpenDeviceAuth(partner)}>
-													<ShieldCheck className="mr-2 h-4 w-4" />
-													{t("deviceAuthorizations.viewAuthorizations") || "View YapsonPress Device Authorizations"}
-												</DropdownMenuItem>
+											<DropdownMenuContent align="end" className="w-56">
+												{/* Non-betting action */}
 												<DropdownMenuItem asChild>
-													<Link href={`/dashboard/commission-payments?partner=${partner.uid}`}>
-														{t("commissionPayments.payCommission")}
+													<Link href={`/dashboard/partner/commission/${partner.uid}`} className="flex items-center">
+														<DollarSign className="h-4 w-4 mr-2 text-green-600" />
+														<span>Commission momo</span>
 													</Link>
+												</DropdownMenuItem>
+												
+												{/* Betting Commission Configuration */}
+												<DropdownMenuItem onClick={() => handleOpenBettingCommission(partner)}>
+													<TrendingUp className="h-4 w-4 mr-2 text-orange-600" />
+													<span>{t("bettingCommission.partnersTitle")}</span>
+												</DropdownMenuItem>
+												
+												{/* Betting Partner Transfers */}
+												<DropdownMenuItem onClick={() => handleOpenTransfers(partner)}>
+													<ArrowRightLeft className="h-4 w-4 mr-2 text-blue-600" />
+													<span>{t("bettingCommission.transfers")}</span>
+												</DropdownMenuItem>
+												
+												{/* Betting Commission Payment */}
+												<DropdownMenuItem onClick={() => {
+													setBettingCommissionPartner(partner)
+													setBettingCommissionPaymentModalOpen(true)
+												}}>
+													<Wallet className="h-4 w-4 mr-2 text-emerald-600" />
+													<span>{t("bettingCommission.payCommission")}</span>
+												</DropdownMenuItem>
+
+												{/* Device Authorizations */}
+												<DropdownMenuItem onClick={() => handleOpenDeviceAuth(partner)}>
+													<ShieldCheck className="h-4 w-4 mr-2" />
+													<span>{t("deviceAuthorizations.viewAuthorizations") || "View YapsonPress Device Authorizations"}</span>
 												</DropdownMenuItem>
 											</DropdownMenuContent>
 										</DropdownMenu>
@@ -742,6 +950,265 @@ export default function PartnerPage() {
 				onSelect={handleDeviceSelect}
 				selectedDeviceUid={selectedDevice?.uid}
 			/>
+
+			{/* Betting Commission Configuration Modal */}
+			<Dialog open={bettingCommissionModalOpen} onOpenChange={setBettingCommissionModalOpen}>
+				<DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+					<DialogHeader>
+						<DialogTitle>{t("bettingCommission.title")} - {bettingCommissionPartner?.display_name || bettingCommissionPartner?.email || t("bettingCommission.partner")}</DialogTitle>
+					</DialogHeader>
+					
+					{bettingCommissionLoading ? (
+						<div className="flex items-center justify-center py-8">
+							<Loader className="animate-spin mr-2 h-6 w-6" />
+							<span>{t("common.loading")}</span>
+						</div>
+					) : bettingCommissionError ? (
+						<ErrorDisplay error={bettingCommissionError} variant="inline" className="mb-4" />
+					) : (
+						<div className="space-y-4">
+							{/* Partner Balance */}
+							{partnerAccountInfo && (
+								<div className="p-4 bg-muted rounded-lg">
+									<div className="flex items-center gap-2">
+										<Wallet className="h-5 w-5 text-green-600" />
+										<div>
+											<span className="text-sm font-medium text-gray-600 dark:text-gray-400">{t("bettingCommission.partnerBalance")}:</span>
+											<p className="text-xl font-bold">{partnerAccountInfo.formatted_balance || `${partnerAccountInfo.balance || 0} XOF`}</p>
+										</div>
+									</div>
+								</div>
+							)}
+
+							{/* Commission Statistics */}
+							{bettingCommissionStats && bettingCommissionStats.commissions && (
+								<div className="space-y-4">
+									<h3 className="font-semibold">{t("bettingCommission.commissionStatistics")}</h3>
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+										<div><b>{t("bettingCommission.totalTransactionsLabel")}:</b> {bettingCommissionStats.commissions.total_transaction_count || 0}</div>
+										<div><b>{t("bettingCommission.totalEarned")}:</b> XOF {parseFloat(bettingCommissionStats.commissions.total_earned || 0).toFixed(2)}</div>
+										<div><b>{t("bettingCommission.commissionPaid")}:</b> XOF {parseFloat(bettingCommissionStats.commissions.total_paid || 0).toFixed(2)}</div>
+										<div><b>{t("bettingCommission.commissionUnpaid")}:</b> XOF {parseFloat(bettingCommissionStats.commissions.total_unpaid || 0).toFixed(2)}</div>
+										<div><b>{t("bettingCommission.commissionPayable")}:</b> XOF {parseFloat(bettingCommissionStats.commissions.payable || 0).toFixed(2)}</div>
+										<div><b>{t("bettingCommission.payableTransactions")}:</b> {bettingCommissionStats.commissions.payable_count || 0}</div>
+										<div><b>{t("bettingCommission.currentMonthCommission")}:</b> XOF {parseFloat(bettingCommissionStats.commissions.current_month || 0).toFixed(2)}</div>
+										<div><b>{t("bettingCommission.currentMonthTransactions")}:</b> {bettingCommissionStats.commissions.current_month_count || 0}</div>
+									</div>
+								</div>
+							)}
+
+							{/* Current Configuration Display */}
+							{bettingCommissionConfig && (
+								<div className="space-y-2 p-4 bg-muted rounded-lg">
+									<h3 className="font-semibold">{t("bettingCommission.currentConfiguration")}</h3>
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+										<div><b>{t("bettingCommission.depositCommissionRate")}:</b> {bettingCommissionConfig.deposit_commission_rate}%</div>
+										<div><b>{t("bettingCommission.withdrawalCommissionRate")}:</b> {bettingCommissionConfig.withdrawal_commission_rate}%</div>
+										<div><b>{t("bettingCommission.updatedBy")}:</b> {bettingCommissionConfig.updated_by_name || t("bettingCommission.notAvailable")}</div>
+										<div><b>{t("bettingCommission.lastUpdated")}:</b> {bettingCommissionConfig.updated_at ? new Date(bettingCommissionConfig.updated_at).toLocaleString() : t("bettingCommission.notAvailable")}</div>
+									</div>
+								</div>
+							)}
+
+							{/* Commission Configuration Form */}
+							<div className="space-y-4">
+								<h3 className="font-semibold">{t("bettingCommission.configurationTitle")}</h3>
+								{bettingCommissionError && (
+									<ErrorDisplay error={bettingCommissionError} variant="inline" className="mb-4" />
+								)}
+								<form onSubmit={handleSaveBettingCommission} className="space-y-4">
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+										<div className="space-y-2">
+											<Label htmlFor="deposit_commission_rate">{t("bettingCommission.depositCommissionRate")}</Label>
+											<Input
+												id="deposit_commission_rate"
+												type="number"
+												step="0.01"
+												min="0"
+												max="100"
+												value={bettingCommissionForm.deposit_commission_rate}
+												onChange={(e) => setBettingCommissionForm((prev: any) => ({ 
+													...prev, 
+													deposit_commission_rate: e.target.value 
+												}))}
+												required
+											/>
+										</div>
+										<div className="space-y-2">
+											<Label htmlFor="withdrawal_commission_rate">{t("bettingCommission.withdrawalCommissionRate")}</Label>
+											<Input
+												id="withdrawal_commission_rate"
+												type="number"
+												step="0.01"
+												min="0"
+												max="100"
+												value={bettingCommissionForm.withdrawal_commission_rate}
+												onChange={(e) => setBettingCommissionForm((prev: any) => ({ 
+													...prev, 
+													withdrawal_commission_rate: e.target.value 
+												}))}
+												required
+											/>
+										</div>
+									</div>
+
+									<div className="flex items-center gap-4 pt-4 border-t">
+										<Button
+											type="submit"
+											disabled={bettingCommissionLoading}
+										>
+											{bettingCommissionLoading ? (
+												<>
+													<Loader className="mr-2 h-4 w-4 animate-spin" />
+													{t("bettingCommission.saving")}
+												</>
+											) : (
+												<>
+													<Settings className="h-4 w-4 mr-2" />
+													{bettingCommissionConfig ? t("bettingCommission.updateConfiguration") : t("bettingCommission.createConfiguration")}
+												</>
+											)}
+										</Button>
+										<Button
+											type="button"
+											variant="outline"
+											onClick={() => setBettingCommissionPaymentModalOpen(true)}
+											disabled={bettingCommissionLoading}
+										>
+											<CreditCard className="h-4 w-4 mr-2" />
+											{t("bettingCommission.payCommission")}
+										</Button>
+									</div>
+								</form>
+							</div>
+						</div>
+					)}
+					<DialogFooter>
+						<Button variant="outline" onClick={() => setBettingCommissionModalOpen(false)}>
+							{t("common.close")}
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+
+			{/* Partner Transfers Modal */}
+			<Dialog open={transfersModalOpen} onOpenChange={setTransfersModalOpen}>
+				<DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+					<DialogHeader>
+						<DialogTitle>{t("bettingCommission.transfersTitle")} - {transfersPartner?.display_name || transfersPartner?.email}</DialogTitle>
+					</DialogHeader>
+					{transfersLoading ? (
+						<div className="flex items-center justify-center py-8">
+							<Loader className="animate-spin mr-2 h-6 w-6" />
+							<span>{t("common.loading")}</span>
+						</div>
+					) : transfers.length > 0 ? (
+						<div className="border rounded-lg">
+							<Table>
+								<TableHeader>
+									<TableRow>
+										<TableHead>{t("bettingCommission.transferDate")}</TableHead>
+										<TableHead>{t("bettingCommission.transferType")}</TableHead>
+										<TableHead>{t("bettingCommission.transferAmount")}</TableHead>
+										<TableHead>{t("bettingCommission.transferStatus")}</TableHead>
+										<TableHead>{t("bettingCommission.transferReference")}</TableHead>
+									</TableRow>
+								</TableHeader>
+								<TableBody>
+									{transfers.map((transfer: any) => (
+										<TableRow key={transfer.uid}>
+											<TableCell>{new Date(transfer.created_at).toLocaleString()}</TableCell>
+											<TableCell>{transfer.transfer_type || t("bettingCommission.notApplicable")}</TableCell>
+											<TableCell className="font-medium">{transfer.amount} XOF</TableCell>
+											<TableCell>
+												<Badge variant={transfer.status === "completed" ? "default" : "secondary"}>
+													{transfer.status || t("bettingCommission.notApplicable")}
+												</Badge>
+											</TableCell>
+											<TableCell className="font-mono text-xs">{transfer.reference || transfer.uid}</TableCell>
+										</TableRow>
+									))}
+								</TableBody>
+							</Table>
+						</div>
+					) : (
+						<div className="text-center py-8 text-gray-500">
+							<ArrowRightLeft className="mx-auto h-12 w-12 mb-4 opacity-50" />
+							<p>{t("bettingCommission.noTransfers")}</p>
+						</div>
+					)}
+					<DialogFooter>
+						<Button variant="outline" onClick={() => setTransfersModalOpen(false)}>
+							{t("common.close")}
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+
+			{/* Betting Commission Payment Modal */}
+			<Dialog open={bettingCommissionPaymentModalOpen} onOpenChange={setBettingCommissionPaymentModalOpen}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>{t("bettingCommission.payCommission")} - {bettingCommissionPartner?.display_name || bettingCommissionPartner?.email}</DialogTitle>
+					</DialogHeader>
+					{bettingCommissionPaymentLoading ? (
+						<div className="flex items-center justify-center py-8">
+							<Loader className="animate-spin mr-2 h-6 w-6" />
+							<span>{t("common.loading")}</span>
+						</div>
+					) : (
+						<form onSubmit={handlePayBettingCommission} className="space-y-4">
+							{bettingCommissionPaymentError && (
+								<ErrorDisplay error={bettingCommissionPaymentError} variant="inline" className="mb-4" />
+							)}
+							<div className="space-y-2">
+								<Label htmlFor="admin_notes">{t("bettingCommission.paymentNotes")}</Label>
+								<Textarea
+									id="admin_notes"
+									placeholder={t("bettingCommission.paymentNotesPlaceholder")}
+									value={bettingCommissionPaymentForm.admin_notes}
+									onChange={(e) => setBettingCommissionPaymentForm((prev: any) => ({ 
+										...prev, 
+										admin_notes: e.target.value 
+									}))}
+									rows={3}
+								/>
+							</div>
+							<div className="p-3 bg-muted rounded-lg">
+								<p className="text-sm">
+									{t("bettingCommission.paymentInfo")}
+								</p>
+							</div>
+							<DialogFooter>
+								<Button 
+									type="button"
+									variant="outline" 
+									onClick={() => {
+										setBettingCommissionPaymentModalOpen(false)
+										setBettingCommissionPaymentForm({ admin_notes: "" })
+										setBettingCommissionPaymentError("")
+									}}
+								>
+									{t("common.cancel")}
+								</Button>
+								<Button type="submit" disabled={bettingCommissionPaymentLoading}>
+									{bettingCommissionPaymentLoading ? (
+										<>
+											<Loader className="mr-2 h-4 w-4 animate-spin" />
+											{t("common.processing") || "Processing..."}
+										</>
+									) : (
+										<>
+											<Wallet className="mr-2 h-4 w-4" />
+											{t("bettingCommission.payCommission")}
+										</>
+									)}
+								</Button>
+							</DialogFooter>
+						</form>
+					)}
+				</DialogContent>
+			</Dialog>
 		</>
 	)
 }

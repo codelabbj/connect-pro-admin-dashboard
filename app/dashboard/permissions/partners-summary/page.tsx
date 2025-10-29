@@ -55,8 +55,8 @@ export default function PartnersPermissionsSummaryPage() {
         setTotalPartners(data.total_partners || 0)
         
         toast({
-          title: "Partners summary loaded",
-          description: "Partners permissions summary loaded successfully",
+          title: t("permissions.partnersSummaryLoaded") || "Partners summary loaded",
+          description: t("permissions.partnersSummaryLoadedSuccessfully") || "Partners permissions summary loaded successfully",
         })
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
@@ -64,7 +64,7 @@ export default function PartnersPermissionsSummaryPage() {
         setPartners([])
         setTotalPartners(0)
         toast({
-          title: "Failed to load partners summary",
+          title: t("permissions.failedToLoadPartnersSummary") || "Failed to load partners summary",
           description: errorMessage,
           variant: "destructive",
         })
@@ -79,7 +79,7 @@ export default function PartnersPermissionsSummaryPage() {
   const getStatusBadge = (isActive: boolean) => {
     return (
       <Badge variant={isActive ? "default" : "secondary"}>
-        {isActive ? "Active" : "Inactive"}
+        {isActive ? t("common.active") : t("common.inactive")}
       </Badge>
     )
   }
@@ -87,19 +87,19 @@ export default function PartnersPermissionsSummaryPage() {
   const getPermissionBadge = (totalPermissions: number, activePermissions: number) => {
     const ratio = totalPermissions > 0 ? activePermissions / totalPermissions : 0
     
-    if (ratio === 0) return <Badge variant="secondary">No Permissions</Badge>
-    if (ratio === 1) return <Badge variant="default">All Active</Badge>
-    return <Badge variant="outline">Partial</Badge>
+    if (ratio === 0) return <Badge variant="secondary">{t("permissions.noPermissions") || "No Permissions"}</Badge>
+    if (ratio === 1) return <Badge variant="default">{t("permissions.allActive") || "All Active"}</Badge>
+    return <Badge variant="outline">{t("permissions.partial") || "Partial"}</Badge>
   }
 
   const getCommissionBadge = (totalCommission: number, unpaidCommission: number) => {
-    if (unpaidCommission === 0) return <Badge variant="default">All Paid</Badge>
-    if (unpaidCommission === totalCommission) return <Badge variant="destructive">All Unpaid</Badge>
-    return <Badge variant="outline">Partial Unpaid</Badge>
+    if (unpaidCommission === 0) return <Badge variant="default">{t("permissions.allPaid") || "All Paid"}</Badge>
+    if (unpaidCommission === totalCommission) return <Badge variant="destructive">{t("permissions.allUnpaid") || "All Unpaid"}</Badge>
+    return <Badge variant="outline">{t("permissions.partialUnpaid") || "Partial Unpaid"}</Badge>
   }
 
   const formatCurrency = (amount: number) => {
-    return `$${amount.toFixed(2)}`
+    return `${amount.toFixed(2)} XOF`
   }
 
   const calculateCommissionPercentage = (totalCommission: number, unpaidCommission: number) => {
@@ -119,18 +119,18 @@ export default function PartnersPermissionsSummaryPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="h-5 w-5" />
-            Partners Permissions Summary
+            {t("permissions.partnersSummary")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           {/* Global Statistics */}
           <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-4">Summary Statistics</h3>
+            <h3 className="text-lg font-semibold mb-4">{t("permissions.summaryStatistics") || "Summary Statistics"}</h3>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                 <div className="flex items-center gap-2">
                   <Users className="h-4 w-4 text-blue-600" />
-                  <span className="text-sm font-medium">Total Partners</span>
+                  <span className="text-sm font-medium">{t("permissions.totalPartners") || "Total Partners"}</span>
                 </div>
                 <div className="text-2xl font-bold text-blue-600">{totalPartners}</div>
               </div>
@@ -138,7 +138,7 @@ export default function PartnersPermissionsSummaryPage() {
               <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
                 <div className="flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-green-600" />
-                  <span className="text-sm font-medium">Active Partners</span>
+                  <span className="text-sm font-medium">{t("permissions.activePartners") || "Active Partners"}</span>
                 </div>
                 <div className="text-2xl font-bold text-green-600">
                   {partners.filter(p => p.is_active).length}
@@ -148,7 +148,7 @@ export default function PartnersPermissionsSummaryPage() {
               <div className="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
                 <div className="flex items-center gap-2">
                   <PieChart className="h-4 w-4 text-orange-600" />
-                  <span className="text-sm font-medium">Partner Permissions</span>
+                  <span className="text-sm font-medium">{t("permissions.partnerPermissions") || "Partner Permissions"}</span>
                 </div>
                 <div className="text-2xl font-bold text-orange-600">
                   {partners.reduce((sum, p) => sum + p.permission_summary.total_permissions, 0)}
@@ -158,7 +158,7 @@ export default function PartnersPermissionsSummaryPage() {
               <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
                 <div className="flex items-center gap-2">
                   <DollarSign className="h-4 w-4 text-red-600" />
-                  <span className="text-sm font-medium">Unpaid Commission</span>
+                  <span className="text-sm font-medium">{t("permissions.unpaidCommission") || "Unpaid Commission"}</span>
                 </div>
                 <div className="text-2xl font-bold text-red-600">
                   {formatCurrency(partners.reduce((sum, p) => sum + p.transaction_summary.unpaid_commission, 0))}
@@ -172,7 +172,7 @@ export default function PartnersPermissionsSummaryPage() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
-                placeholder="Search partners... (name, email)"
+                placeholder={t("permissions.searchPartners") || "Search partners... (name, email)"}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -183,7 +183,7 @@ export default function PartnersPermissionsSummaryPage() {
           {/* Partners Table */}
           <div className="rounded-md border">
             {loading ? (
-              <div className="p-8 text-center text-muted-foreground">Loading...</div>
+              <div className="p-8 text-center text-muted-foreground">{t("common.loading")}</div>
             ) : error ? (
               <ErrorDisplay
                 error={error}
@@ -197,12 +197,12 @@ export default function PartnersPermissionsSummaryPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Partner</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Permissions</TableHead>
-                    <TableHead>Transaction Stats</TableHead>
-                    <TableHead>Commission Status</TableHead>
-                    <TableHead>Actions</TableHead>
+                    <TableHead>{t("permissions.partner")}</TableHead>
+                    <TableHead>{t("permissions.status")}</TableHead>
+                    <TableHead>{t("permissions.permissionsLabel") || "Permissions"}</TableHead>
+                    <TableHead>{t("permissions.transactionStats") || "Transaction Stats"}</TableHead>
+                    <TableHead>{t("permissions.commissionStatus") || "Commission Status"}</TableHead>
+                    <TableHead>{t("common.actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -211,8 +211,8 @@ export default function PartnersPermissionsSummaryPage() {
                       <TableCell>
                         <div className="space-y-1">
                           <div className="font-medium">{partner.display_name}</div>
-                          <div className="text-sm text-muted-foreground">{partner.email || "No email"}</div>
-                          <div className="text-xs text-muted-foreground">UID: {partner.user_uid.slice(0, 8)}...</div>
+                          <div className="text-sm text-muted-foreground">{partner.email || t("permissions.noEmail") || "No email"}</div>
+                          <div className="text-xs text-muted-foreground">{t("common.uid")}: {partner.user_uid.slice(0, 8)}...</div>
                         </div>
                       </TableCell>
                       <TableCell>{getStatusBadge(partner.is_active)}</TableCell>
@@ -220,23 +220,23 @@ export default function PartnersPermissionsSummaryPage() {
                         <div className="space-y-1">
                           <div>{getPermissionBadge(partner.permission_summary.total_permissions, partner.permission_summary.active_permissions)}</div>
                           <div className="text-xs text-muted-foreground">
-                            {partner.permission_summary.total_permissions} total, {partner.permission_summary.active_permissions} active
+                            {partner.permission_summary.total_permissions} {t("permissions.total") || "total"}, {partner.permission_summary.active_permissions} {t("common.active").toLowerCase()}
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            D: {partner.permission_summary.deposit_permissions} W: {partner.permission_summary.withdrawal_permissions}
+                            {t("permissions.deposit")}: {partner.permission_summary.deposit_permissions} {t("permissions.withdrawal")}: {partner.permission_summary.withdrawal_permissions}
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="space-y-1">
                           <div className="text-sm font-medium">
-                            {partner.transaction_summary.total_transactions} transactions
+                            {partner.transaction_summary.total_transactions} {t("permissions.transactions") || "transactions"}
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            {partner.transaction_summary.successful_transactions} successful
+                            {partner.transaction_summary.successful_transactions} {t("permissions.successful") || "successful"}
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            Total volume: {formatCurrency(partner.transaction_summary.total_commission)}
+                            {t("permissions.totalVolume") || "Total volume"}: {formatCurrency(partner.transaction_summary.total_commission)}
                           </div>
                         </div>
                       </TableCell>
@@ -244,10 +244,10 @@ export default function PartnersPermissionsSummaryPage() {
                         <div className="space-y-1">
                           <div>{getCommissionBadge(partner.transaction_summary.total_commission, partner.transaction_summary.unpaid_commission)}</div>
                           <div className="text-xs text-muted-foreground">
-                            {formatCurrency(partner.transaction_summary.unpaid_commission)} unpaid
+                            {formatCurrency(partner.transaction_summary.unpaid_commission)} {t("permissions.unpaid") || "unpaid"}
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            {calculateCommissionPercentage(partner.transaction_summary.total_commission, partner.transaction_summary.unpaid_commission)} unpaid
+                            {calculateCommissionPercentage(partner.transaction_summary.total_commission, partner.transaction_summary.unpaid_commission)} {t("permissions.unpaid") || "unpaid"}
                           </div>
                         </div>
                       </TableCell>
@@ -257,7 +257,7 @@ export default function PartnersPermissionsSummaryPage() {
                           variant="outline"
                           onClick={() => handleOpenDetail(partner)}
                         >
-                          View Details
+                          {t("permissions.viewDetails") || "View Details"}
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -269,7 +269,7 @@ export default function PartnersPermissionsSummaryPage() {
 
           {/* Results Summary */}
           <div className="mt-4 text-sm text-muted-foreground">
-            Showing {partners.length} of {totalPartners} partners
+            {t("common.showing")} {partners.length} {t("common.of")} {totalPartners} {t("permissions.partners") || "partners"}
           </div>
         </CardContent>
       </Card>
@@ -278,42 +278,42 @@ export default function PartnersPermissionsSummaryPage() {
       <Dialog open={detailModalOpen} onOpenChange={setDetailModalOpen}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Partner Detailed Information</DialogTitle>
+            <DialogTitle>{t("permissions.partnerDetailedInformation") || "Partner Detailed Information"}</DialogTitle>
           </DialogHeader>
           {selectedPartner ? (
             <div className="space-y-6">
               {/* Basic Info */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <div><strong>Display Name:</strong> {selectedPartner.display_name}</div>
-                  <div><strong>Email:</strong> {selectedPartner.email || "Not provided"}</div>
-                  <div><strong>First Name:</strong> {selectedPartner.first_name || "Not provided"}</div>
+                  <div><strong>{t("permissions.displayName") || "Display Name"}:</strong> {selectedPartner.display_name}</div>
+                  <div><strong>{t("commissionPayments.email") || "Email"}:</strong> {selectedPartner.email || t("permissions.notProvided") || "Not provided"}</div>
+                  <div><strong>{t("permissions.firstName") || "First Name"}:</strong> {selectedPartner.first_name || t("permissions.notProvided") || "Not provided"}</div>
                 </div>
                 <div className="space-y-2">
-                  <div><strong>Last Name:</strong> {selectedPartner.last_name || "Not provided"}</div>
-                  <div><strong>UID:</strong> <code>{selectedPartner.user_uid}</code></div>
-                  <div><strong>Status:</strong> {getStatusBadge(selectedPartner.is_active)}</div>
+                  <div><strong>{t("permissions.lastName") || "Last Name"}:</strong> {selectedPartner.last_name || t("permissions.notProvided") || "Not provided"}</div>
+                  <div><strong>{t("common.uid")}:</strong> <code>{selectedPartner.user_uid}</code></div>
+                  <div><strong>{t("permissions.status")}:</strong> {getStatusBadge(selectedPartner.is_active)}</div>
                 </div>
               </div>
 
               {/* Permission Summary */}
               <div className="border-t pt-4">
-                <h4 className="font-medium mb-3">Permission Summary</h4>
+                <h4 className="font-medium mb-3">{t("permissions.permissionSummary") || "Permission Summary"}</h4>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                    <div className="text-sm font-medium text-blue-600">Total Permissions</div>
+                    <div className="text-sm font-medium text-blue-600">{t("permissions.totalPermissions") || "Total Permissions"}</div>
                     <div className="text-xl font-bold text-blue-600">{selectedPartner.permission_summary.total_permissions}</div>
                   </div>
                   <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                    <div className="text-sm font-medium text-green-600">Active Permissions</div>
+                    <div className="text-sm font-medium text-green-600">{t("permissions.activePermissions") || "Active Permissions"}</div>
                     <div className="text-xl font-bold text-green-600">{selectedPartner.permission_summary.active_permissions}</div>
                   </div>
                   <div className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-                    <div className="text-sm font-medium text-orange-600">Deposit Permissions</div>
+                    <div className="text-sm font-medium text-orange-600">{t("permissions.depositPermissions") || "Deposit Permissions"}</div>
                     <div className="text-xl font-bold text-orange-600">{selectedPartner.permission_summary.deposit_permissions}</div>
                   </div>
                   <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                    <div className="text-sm font-medium text-purple-600">Withdrawal Permissions</div>
+                    <div className="text-sm font-medium text-purple-600">{t("permissions.withdrawalPermissions") || "Withdrawal Permissions"}</div>
                     <div className="text-xl font-bold text-purple-600">{selectedPartner.permission_summary.withdrawal_permissions}</div>
                   </div>
                 </div>
@@ -321,34 +321,34 @@ export default function PartnersPermissionsSummaryPage() {
 
               {/* Transaction Summary */}
               <div className="border-t pt-4">
-                <h4 className="font-medium mb-3">Transaction Summary</h4>
+                <h4 className="font-medium mb-3">{t("permissions.transactionSummary") || "Transaction Summary"}</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="p-3 bg-gray-50 dark:bg-gray-900/20 rounded-lg">
-                    <div className="text-sm font-medium text-gray-600 mb-2">Transaction Counts</div>
+                    <div className="text-sm font-medium text-gray-600 mb-2">{t("permissions.transactionCounts") || "Transaction Counts"}</div>
                     <div className="space-y-1">
                       <div className="flex justify-between">
-                        <span>Total Transactions:</span>
+                        <span>{t("permissions.totalTransactions") || "Total Transactions"}:</span>
                         <span className="font-medium">{selectedPartner.transaction_summary.total_transactions}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>Successful Transactions:</span>
+                        <span>{t("permissions.successfulTransactions") || "Successful Transactions"}:</span>
                         <span className="font-medium">{selectedPartner.transaction_summary.successful_transactions}</span>
                       </div>
                     </div>
                   </div>
                   <div className="p-3 bg-gray-50 dark:bg-gray-900/20 rounded-lg">
-                    <div className="text-sm font-medium text-gray-600 mb-2">Commission Information</div>
+                    <div className="text-sm font-medium text-gray-600 mb-2">{t("permissions.commissionInformation") || "Commission Information"}</div>
                     <div className="space-y-1">
                       <div className="flex justify-between">
-                        <span>Total Commission:</span>
+                        <span>{t("permissions.totalCommission") || "Total Commission"}:</span>
                         <span className="font-medium">{formatCurrency(selectedPartner.transaction_summary.total_commission)}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>Unpaid Commission:</span>
+                        <span>{t("permissions.unpaidCommission") || "Unpaid Commission"}:</span>
                         <span className="font-medium text-red-600">{formatCurrency(selectedPartner.transaction_summary.unpaid_commission)}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>Paid Commission:</span>
+                        <span>{t("permissions.paidCommission") || "Paid Commission"}:</span>
                         <span className="font-medium text-green-600">
                           {formatCurrency(selectedPartner.transaction_summary.total_commission - selectedPartner.transaction_summary.unpaid_commission)}
                         </span>
@@ -361,12 +361,12 @@ export default function PartnersPermissionsSummaryPage() {
               <div className="flex gap-2 pt-4">
                 <Button asChild>
                   <Link href={`/dashboard/permissions/user-platforms/${selectedPartner.user_uid}`}>
-                    View Platform Permissions
+                    {t("permissions.viewPlatformPermissions") || "View Platform Permissions"}
                   </Link>
                 </Button>
                 <Button asChild variant="outline">
                   <Link href={`/dashboard/commission-config/edit/${selectedPartner.user_uid}`}>
-                    Edit Commission Config
+                    {t("permissions.editCommissionConfig") || "Edit Commission Config"}
                   </Link>
                 </Button>
               </div>

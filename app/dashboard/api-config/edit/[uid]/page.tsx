@@ -58,18 +58,18 @@ export default function ApiConfigEditPage() {
           // Note: Secret key might not be returned for security reasons
           setSecretKey("") // Will need to be re-entered
         } else {
-          setError("API configuration not found")
+          setError(t("apiConfig.configurationNotFound"))
         }
         
         toast({
-          title: "Configuration loaded",
-          description: "API configuration loaded successfully",
+          title: t("apiConfig.configurationLoaded"),
+          description: t("apiConfig.configurationLoadedSuccessfully"),
         })
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
         setError(errorMessage)
         toast({
-          title: "Failed to load configuration",
+          title: t("apiConfig.failedToLoadConfiguration"),
           description: errorMessage,
           variant: "destructive",
         })
@@ -112,8 +112,8 @@ export default function ApiConfigEditPage() {
 
       
       toast({
-        title: "Configuration Updated",
-        description: "API configuration has been updated successfully",
+        title: t("apiConfig.configurationUpdated"),
+        description: t("apiConfig.configurationUpdatedSuccessfully"),
       })
       
       router.push("/dashboard/api-config/list")
@@ -121,7 +121,7 @@ export default function ApiConfigEditPage() {
       const errorMessage = extractErrorMessages(err)
       setError(errorMessage)
       toast({
-        title: "Failed to update configuration",
+        title: t("apiConfig.failedToUpdateConfiguration"),
         description: errorMessage,
         variant: "destructive",
       })
@@ -134,7 +134,7 @@ export default function ApiConfigEditPage() {
   if (fetching) {
     return (
       <div className="flex items-center justify-center h-96">
-        <span className="text-lg font-semibold">Loading configuration...</span>
+        <span className="text-lg font-semibold">{t("apiConfig.loadingConfiguration")}</span>
       </div>
     )
   }
@@ -148,19 +148,19 @@ export default function ApiConfigEditPage() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Settings className="h-5 w-5" />
-          Edit API Configuration
+          {t("apiConfig.editApiConfiguration")}
         </CardTitle>
       </CardHeader>
       <CardContent>
         {/* Original Configuration Info */}
         {originalConfig && (
           <div className="mb-6 p-4 bg-muted rounded-lg">
-            <h3 className="font-semibold mb-2">Configuration Information</h3>
+            <h3 className="font-semibold mb-2">{t("apiConfig.configurationInformation")}</h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
-              <div><strong>UID:</strong> {originalConfig.uid}</div>
-              <div><strong>Created:</strong> {originalConfig.created_at ? new Date(originalConfig.created_at).toLocaleString() : "Unknown"}</div>
-              <div><strong>Last Updated:</strong> {originalConfig.updated_at ? new Date(originalConfig.updated_at).toLocaleString() : "Unknown"}</div>
-              <div><strong>Updated By:</strong> {originalConfig.updated_by_name || "Unknown"}</div>
+              <div><strong>{t("common.uid")}:</strong> {originalConfig.uid}</div>
+              <div><strong>{t("apiConfig.created")}:</strong> {originalConfig.created_at ? new Date(originalConfig.created_at).toLocaleString() : t("platforms.unknown")}</div>
+              <div><strong>{t("apiConfig.lastUpdated")}:</strong> {originalConfig.updated_at ? new Date(originalConfig.updated_at).toLocaleString() : t("platforms.unknown")}</div>
+              <div><strong>{t("apiConfig.updatedBy")}:</strong> {originalConfig.updated_by_name || t("platforms.unknown")}</div>
             </div>
           </div>
         )}
@@ -169,31 +169,31 @@ export default function ApiConfigEditPage() {
           {/* Basic Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="name">Configuration Name *</Label>
+              <Label htmlFor="name">{t("apiConfig.configurationName")} *</Label>
               <Input
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="e.g., Betpay Production API"
+                placeholder={t("apiConfig.configurationNamePlaceholder")}
                 required
               />
               <p className="text-sm text-muted-foreground">
-                A descriptive name for this API configuration
+                {t("apiConfig.configurationNameDescription")}
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="base_url">Base URL *</Label>
+              <Label htmlFor="base_url">{t("apiConfig.baseUrl")} *</Label>
               <Input
                 id="base_url"
                 type="url"
                 value={baseUrl}
                 onChange={(e) => setBaseUrl(e.target.value)}
-                placeholder="https://api.example.com"
+                placeholder={t("apiConfig.baseUrlPlaceholder")}
                 required
               />
               <p className="text-sm text-muted-foreground">
-                The base URL for the API endpoint
+                {t("apiConfig.baseUrlDescription")}
               </p>
             </div>
           </div>
@@ -201,29 +201,29 @@ export default function ApiConfigEditPage() {
           {/* API Keys */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="public_key">Public Key</Label>
+              <Label htmlFor="public_key">{t("apiConfig.publicKey")}</Label>
               <Input
                 id="public_key"
                 value={publicKey}
                 onChange={(e) => setPublicKey(e.target.value)}
-                placeholder={originalConfig?.public_key ? "Leave blank to keep existing" : "pk_live_abc123..."}
+                placeholder={originalConfig?.public_key ? t("apiConfig.leaveBlankToKeepExistingKey") : t("apiConfig.publicKeyPlaceholder")}
               />
               <p className="text-sm text-muted-foreground">
-                {originalConfig?.public_key ? "Leave blank to keep existing key, or enter new key" : "The public key for API authentication"}
+                {originalConfig?.public_key ? t("apiConfig.leaveBlankToKeepExistingKey") : t("apiConfig.publicKeyDescription")}
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="secret_key">Secret Key</Label>
+              <Label htmlFor="secret_key">{t("apiConfig.secretKey")}</Label>
               <Input
                 id="secret_key"
                 type="password"
                 value={secretKey}
                 onChange={(e) => setSecretKey(e.target.value)}
-                placeholder={originalConfig?.secret_key ? "Leave blank to keep existing" : "sk_live_xyz789..."}
+                placeholder={originalConfig?.secret_key ? t("apiConfig.leaveBlankToKeepExistingKeySecret") : t("apiConfig.secretKeyPlaceholder")}
               />
               <p className="text-sm text-muted-foreground">
-                {originalConfig?.secret_key ? "Leave blank to keep existing key (not displayed for security)" : "The secret key for API authentication"}
+                {originalConfig?.secret_key ? t("apiConfig.leaveBlankToKeepExistingKeySecret") : t("apiConfig.secretKeyDescription")}
               </p>
             </div>
           </div>
@@ -231,7 +231,7 @@ export default function ApiConfigEditPage() {
           {/* Advanced Settings */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="timeout">Timeout (seconds) *</Label>
+              <Label htmlFor="timeout">{t("apiConfig.timeoutSeconds")} *</Label>
               <Input
                 id="timeout"
                 type="number"
@@ -243,12 +243,12 @@ export default function ApiConfigEditPage() {
                 required
               />
               <p className="text-sm text-muted-foreground">
-                Request timeout in seconds (1-300)
+                {t("apiConfig.timeoutDescription")}
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="is_active">Configuration Status</Label>
+              <Label htmlFor="is_active">{t("apiConfig.configurationStatus")}</Label>
               <div className="flex items-center space-x-2 mt-2">
                 <Switch
                   id="is_active"
@@ -256,25 +256,25 @@ export default function ApiConfigEditPage() {
                   onCheckedChange={setIsActive}
                 />
                 <Label htmlFor="is_active">
-                  {isActive ? "Active" : "Inactive"}
+                  {isActive ? t("common.active") : t("common.inactive")}
                 </Label>
               </div>
               <p className="text-sm text-muted-foreground">
-                Whether this configuration is currently active
+                {t("apiConfig.configurationStatusDescription")}
               </p>
             </div>
           </div>
 
           {/* Changes Summary */}
           <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-            <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">Update Summary:</h4>
+            <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">{t("apiConfig.updateSummary")}:</h4>
             <div className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
-              <div><strong>Name:</strong> {name}</div>
-              <div><strong>Base URL:</strong> {baseUrl}</div>
-              <div><strong>Public Key:</strong> {publicKey ? `${publicKey.slice(0, 8)}...${publicKey.slice(-4)}` : "Unchanged"}</div>
-              <div><strong>Secret Key:</strong> {secretKey ? `${secretKey.slice(0, 4)}••••${secretKey.slice(-4)}` : "Unchanged"}</div>
-              <div><strong>Timeout:</strong> {timeoutSeconds}s</div>
-              <div><strong>Status:</strong> {isActive ? "Active" : "Inactive"}</div>
+              <div><strong>{t("apiConfig.nameLabel")}:</strong> {name}</div>
+              <div><strong>{t("apiConfig.baseUrlLabel")}:</strong> {baseUrl}</div>
+              <div><strong>{t("apiConfig.publicKeyLabel")}:</strong> {publicKey ? `${publicKey.slice(0, 8)}...${publicKey.slice(-4)}` : t("apiConfig.unchanged")}</div>
+              <div><strong>{t("apiConfig.secretKeyLabel")}:</strong> {secretKey ? `${secretKey.slice(0, 4)}••••${secretKey.slice(-4)}` : t("apiConfig.unchanged")}</div>
+              <div><strong>{t("apiConfig.timeoutLabel")}:</strong> {timeoutSeconds}s</div>
+              <div><strong>{t("apiConfig.statusLabel")}:</strong> {isActive ? t("common.active") : t("common.inactive")}</div>
             </div>
           </div>
 
@@ -289,10 +289,10 @@ export default function ApiConfigEditPage() {
 
           <div className="flex gap-4">
             <Button type="submit" disabled={loading || !name || !baseUrl || !timeoutSeconds}>
-              {loading ? "Updating Configuration..." : "Update Configuration"}
+              {loading ? t("apiConfig.updatingConfiguration") : t("apiConfig.updateConfiguration")}
             </Button>
             <Button type="button" variant="outline" onClick={() => router.push("/dashboard/api-config/list")}>
-              Cancel
+              {t("common.cancel")}
             </Button>
           </div>
         </form>

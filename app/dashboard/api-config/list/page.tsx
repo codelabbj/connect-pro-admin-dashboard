@@ -74,8 +74,8 @@ export default function ApiConfigListPage() {
         setTotalPages(Math.ceil((data.count || 0) / itemsPerPage))
         
         toast({
-          title: "API configurations loaded",
-          description: "API configurations loaded successfully",
+          title: t("apiConfig.apiConfigurationsLoaded"),
+          description: t("apiConfig.apiConfigurationsLoadedSuccessfully"),
         })
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
@@ -84,7 +84,7 @@ export default function ApiConfigListPage() {
         setTotalCount(0)
         setTotalPages(1)
         toast({
-          title: "Failed to load API configurations",
+          title: t("apiConfig.failedToLoadApiConfigurations"),
           description: errorMessage,
           variant: "destructive",
         })
@@ -113,13 +113,13 @@ export default function ApiConfigListPage() {
   const startIndex = (currentPage - 1) * itemsPerPage
 
   const maskSecretKey = (key: string) => {
-    if (!key) return "Not set"
+    if (!key) return t("apiConfig.notSet")
     if (key.length <= 8) return "••••••••"
     return `${key.slice(0, 4)}${'•'.repeat(key.length - 8)}${key.slice(-4)}`
   }
 
   const maskPublicKey = (key: string) => {
-    if (!key) return "Not set"
+    if (!key) return t("apiConfig.notSet")
     if (key.length <= 12) return "••••••••••••"
     return `${key.slice(0, 8)}${'•'.repeat(key.length - 12)}${key.slice(-4)}`
   }
@@ -127,7 +127,7 @@ export default function ApiConfigListPage() {
   const getStatusBadge = (isActive: boolean) => {
     return (
       <Badge variant={isActive ? "default" : "secondary"}>
-        {isActive ? "Active" : "Inactive"}
+        {isActive ? t("common.active") : t("common.inactive")}
       </Badge>
     )
   }
@@ -138,10 +138,10 @@ export default function ApiConfigListPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Settings className="h-5 w-5" />
-            API Configuration Management
+            {t("apiConfig.apiConfigurationManagement")}
           </CardTitle>
           <Link href="/dashboard/api-config/create">
-            <Button className="mt-2">Create API Configuration</Button>
+            <Button className="mt-2">{t("apiConfig.createApiConfiguration")}</Button>
           </Link>
         </CardHeader>
         <CardContent>
@@ -150,7 +150,7 @@ export default function ApiConfigListPage() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
-                placeholder="Search API configurations..."
+                placeholder={t("apiConfig.searchApiConfigurations")}
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value)
@@ -164,7 +164,7 @@ export default function ApiConfigListPage() {
           {/* Table */}
           <div className="rounded-md border">
             {loading ? (
-              <div className="p-8 text-center text-muted-foreground">Loading...</div>
+              <div className="p-8 text-center text-muted-foreground">{t("common.loading")}</div>
             ) : error ? (
               <ErrorDisplay
                 error={error}
@@ -179,25 +179,25 @@ export default function ApiConfigListPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>UID</TableHead>
+                    <TableHead>{t("common.uid") || "UID"}</TableHead>
                     <TableHead>
                       <Button variant="ghost" onClick={() => handleSort("name")} className="h-auto p-0 font-semibold">
-                        Name
+                        {t("apiConfig.name")}
                         <ArrowUpDown className="ml-2 h-4 w-4" />
                       </Button>
                     </TableHead>
-                    <TableHead>Base URL</TableHead>
-                    <TableHead>Public Key</TableHead>
-                    <TableHead>Timeout</TableHead>
-                    <TableHead>Status</TableHead>
+                    <TableHead>{t("apiConfig.baseUrlTable")}</TableHead>
+                    <TableHead>{t("apiConfig.publicKeyTable")}</TableHead>
+                    <TableHead>{t("apiConfig.timeout")}</TableHead>
+                    <TableHead>{t("apiConfig.status")}</TableHead>
                     <TableHead>
                       <Button variant="ghost" onClick={() => handleSort("updated_at")} className="h-auto p-0 font-semibold">
-                        Last Updated
+                        {t("apiConfig.lastUpdatedTable")}
                         <ArrowUpDown className="ml-2 h-4 w-4" />
                       </Button>
                     </TableHead>
-                    <TableHead>Updated By</TableHead>
-                    <TableHead>Actions</TableHead>
+                    <TableHead>{t("apiConfig.updatedByTable")}</TableHead>
+                    <TableHead>{t("apiConfig.actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -214,7 +214,7 @@ export default function ApiConfigListPage() {
                             className="h-5 w-5"
                             onClick={() => {
                               navigator.clipboard.writeText(config.uid)
-                              toast({ title: "UID copied!" })
+                              toast({ title: t("common.uidCopied") || "UID copied!" })
                             }}
                           >
                             <Copy className="h-4 w-4" />
@@ -249,11 +249,11 @@ export default function ApiConfigListPage() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => handleOpenDetail(config)}>
-                              View Details
+                              {t("apiConfig.viewDetails")}
                             </DropdownMenuItem>
                             <DropdownMenuItem>
                               <Link href={`/dashboard/api-config/edit/${config.uid}`}>
-                                Edit Configuration
+                                {t("apiConfig.editConfiguration")}
                               </Link>
                             </DropdownMenuItem>
                           </DropdownMenuContent>
@@ -269,10 +269,10 @@ export default function ApiConfigListPage() {
           {/* Pagination */}
           <div className="flex items-center justify-between mt-6">
             <div className="text-sm text-muted-foreground">
-              Showing: {startIndex + 1}-{Math.min(startIndex + itemsPerPage, totalCount)} of {totalCount}
+              {t("apiConfig.showing")}: {startIndex + 1}-{Math.min(startIndex + itemsPerPage, totalCount)} {t("common.of")} {totalCount}
             </div>
             <div className="text-sm">
-              Page {currentPage} of {totalPages}
+              {t("common.page")} {currentPage} {t("common.of")} {totalPages}
             </div>
             <div className="flex items-center space-x-2">
 
@@ -283,7 +283,7 @@ export default function ApiConfigListPage() {
                 disabled={currentPage === 1}
               >
                 <ChevronLeft className="h-4 w-4 mr-1" />
-                Previous
+                {t("common.previous")}
               </Button>
               <Button
                 variant="outline"
@@ -291,7 +291,7 @@ export default function ApiConfigListPage() {
                 onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
               >
-                Next
+                {t("common.next")}
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </div>
@@ -303,32 +303,32 @@ export default function ApiConfigListPage() {
       <Dialog open={detailModalOpen} onOpenChange={setDetailModalOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>API Configuration Details</DialogTitle>
+            <DialogTitle>{t("apiConfig.configurationInformation")}</DialogTitle>
           </DialogHeader>
           {selectedConfig ? (
             <div className="space-y-4">
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <strong>UID:</strong> {selectedConfig.uid}
+                  <strong>{t("common.uid")}:</strong> {selectedConfig.uid}
                   <Button
                     variant="ghost"
                     size="icon"
                     className="h-5 w-5"
                     onClick={() => {
                       navigator.clipboard.writeText(selectedConfig.uid)
-                      toast({ title: "UID copied!" })
+                      toast({ title: t("common.uidCopied") || "UID copied!" })
                     }}
                   >
                     <Copy className="h-4 w-4" />
                   </Button>
                 </div>
-                <div><strong>Name:</strong> {selectedConfig.name}</div>
-                <div><strong>Base URL:</strong> <code className="bg-muted px-1 py-0.5 rounded">{selectedConfig.base_url}</code></div>
+                <div><strong>{t("apiConfig.name")}:</strong> {selectedConfig.name}</div>
+                <div><strong>{t("apiConfig.baseUrl")}:</strong> <code className="bg-muted px-1 py-0.5 rounded">{selectedConfig.base_url}</code></div>
               </div>
               
               <div className="grid grid-cols-1 gap-4">
                 <div className="space-y-2">
-                  <div><strong>Public Key:</strong></div>
+                  <div><strong>{t("apiConfig.publicKey")}:</strong></div>
                   <div className="bg-muted p-2 rounded">
                     <code>{maskPublicKey(selectedConfig.public_key)}</code>
                     <Button
@@ -337,7 +337,7 @@ export default function ApiConfigListPage() {
                       className="h-4 w-4 ml-2"
                       onClick={() => {
                         navigator.clipboard.writeText(selectedConfig.public_key)
-                        toast({ title: "Public key copied!" })
+                        toast({ title: t("apiConfig.publicKeyCopied") || "Public key copied!" })
                       }}
                     >
                       <Copy className="h-3 w-3" />
@@ -345,7 +345,7 @@ export default function ApiConfigListPage() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <div><strong>Secret Key:</strong></div>
+                  <div><strong>{t("apiConfig.secretKey")}:</strong></div>
                   <div className="bg-muted p-2 rounded">
                     <code>{maskSecretKey(selectedConfig.secret_key)}</code>
                     <Button
@@ -354,7 +354,7 @@ export default function ApiConfigListPage() {
                       className="h-4 w-4 ml-2"
                       onClick={() => {
                         navigator.clipboard.writeText(selectedConfig.secret_key)
-                        toast({ title: "Secret key copied!" })
+                        toast({ title: t("apiConfig.secretKeyCopied") || "Secret key copied!" })
                       }}
                     >
                       <Copy className="h-3 w-3" />
@@ -364,17 +364,17 @@ export default function ApiConfigListPage() {
               </div>
 
               <div className="space-y-2">
-                <div><strong>Timeout:</strong> {selectedConfig.timeout_seconds} seconds</div>
-                <div><strong>Status:</strong> {getStatusBadge(selectedConfig.is_active)}</div>
-                <div><strong>Created:</strong> {selectedConfig.created_at ? new Date(selectedConfig.created_at).toLocaleString() : "Unknown"}</div>
-                <div><strong>Updated:</strong> {selectedConfig.updated_at ? new Date(selectedConfig.updated_at).toLocaleString() : "Unknown"}</div>
-                <div><strong>Updated by:</strong> {selectedConfig.updated_by_name || "Unknown"}</div>
+                <div><strong>{t("apiConfig.timeout")}:</strong> {selectedConfig.timeout_seconds} {t("apiConfig.seconds") || "seconds"}</div>
+                <div><strong>{t("apiConfig.status")}:</strong> {getStatusBadge(selectedConfig.is_active)}</div>
+                <div><strong>{t("apiConfig.created")}:</strong> {selectedConfig.created_at ? new Date(selectedConfig.created_at).toLocaleString() : t("platforms.unknown")}</div>
+                <div><strong>{t("apiConfig.lastUpdated")}:</strong> {selectedConfig.updated_at ? new Date(selectedConfig.updated_at).toLocaleString() : t("platforms.unknown")}</div>
+                <div><strong>{t("apiConfig.updatedBy")}:</strong> {selectedConfig.updated_by_name || t("platforms.unknown")}</div>
               </div>
             </div>
           ) : null}
           <div className="flex justify-end mt-4">
             <Button onClick={() => setDetailModalOpen(false)}>
-              Close
+              {t("common.close")}
             </Button>
           </div>
         </DialogContent>

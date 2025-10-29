@@ -63,14 +63,14 @@ function PermissionCreatePageContent() {
         setPlatformOptions(platformsData.results || [])
         
         toast({
-          title: "Options loaded",
-          description: "Partners and platforms loaded successfully",
+          title: t("permissions.optionsLoaded"),
+          description: t("permissions.optionsLoadedSuccessfully"),
         })
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
         setError(errorMessage)
         toast({
-          title: "Failed to load options",
+          title: t("permissions.failedToLoadOptions"),
           description: errorMessage,
           variant: "destructive",
         })

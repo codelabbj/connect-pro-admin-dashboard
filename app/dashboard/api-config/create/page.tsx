@@ -51,8 +51,8 @@ export default function ApiConfigCreatePage() {
       })
       
       toast({
-        title: "API Configuration Created",
-        description: "API configuration has been created successfully",
+        title: t("apiConfig.apiConfigurationCreated"),
+        description: t("apiConfig.apiConfigurationCreatedSuccessfully"),
       })
       
       router.push("/dashboard/api-config/list")
@@ -60,7 +60,7 @@ export default function ApiConfigCreatePage() {
       const errorMessage = extractErrorMessages(err)
       setError(errorMessage)
       toast({
-        title: "Failed to create API configuration",
+        title: t("apiConfig.failedToCreateApiConfiguration"),
         description: errorMessage,
         variant: "destructive",
       })
@@ -74,7 +74,7 @@ export default function ApiConfigCreatePage() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Settings className="h-5 w-5" />
-          Create API Configuration
+          {t("apiConfig.createApiConfigTitle")}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -82,31 +82,31 @@ export default function ApiConfigCreatePage() {
           {/* Basic Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="name">Configuration Name *</Label>
+              <Label htmlFor="name">{t("apiConfig.configurationName")} *</Label>
               <Input
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="e.g., Betpay Production API"
+                placeholder={t("apiConfig.configurationNamePlaceholder")}
                 required
               />
               <p className="text-sm text-muted-foreground">
-                A descriptive name for this API configuration
+                {t("apiConfig.configurationNameDescription")}
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="base_url">Base URL *</Label>
+              <Label htmlFor="base_url">{t("apiConfig.baseUrl")} *</Label>
               <Input
                 id="base_url"
                 type="url"
                 value={baseUrl}
                 onChange={(e) => setBaseUrl(e.target.value)}
-                placeholder="https://api.example.com"
+                placeholder={t("apiConfig.baseUrlPlaceholder")}
                 required
               />
               <p className="text-sm text-muted-foreground">
-                The base URL for the API endpoint
+                {t("apiConfig.baseUrlDescription")}
               </p>
             </div>
           </div>
@@ -114,32 +114,32 @@ export default function ApiConfigCreatePage() {
           {/* API Keys */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="public_key">Public Key *</Label>
+              <Label htmlFor="public_key">{t("apiConfig.publicKey")} *</Label>
               <Input
                 id="public_key"
 
                 value={publicKey}
                 onChange={(e) => setPublicKey(e.target.value)}
-                placeholder="pk_live_abc123..."
+                placeholder={t("apiConfig.publicKeyPlaceholder")}
                 required
               />
               <p className="text-sm text-muted-foreground">
-                The public key for API authentication
+                {t("apiConfig.publicKeyDescription")}
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="secret_key">Secret Key *</Label>
+              <Label htmlFor="secret_key">{t("apiConfig.secretKey")} *</Label>
               <Input
                 id="secret_key"
                 type="password"
                 value={secretKey}
                 onChange={(e) => setSecretKey(e.target.value)}
-                placeholder="sk_live_xyz789..."
+                placeholder={t("apiConfig.secretKeyPlaceholder")}
                 required
               />
               <p className="text-sm text-muted-foreground">
-                The secret key for API authentication (will be masked in display)
+                {t("apiConfig.secretKeyDescription")}
               </p>
             </div>
           </div>
@@ -147,7 +147,7 @@ export default function ApiConfigCreatePage() {
           {/* Advanced Settings */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="timeout">Timeout (seconds) *</Label>
+              <Label htmlFor="timeout">{t("apiConfig.timeoutSeconds")} *</Label>
               <Input
                 id="timeout"
                 type="number"
@@ -159,12 +159,12 @@ export default function ApiConfigCreatePage() {
                 required
               />
               <p className="text-sm text-muted-foreground">
-                Request timeout in seconds (1-300)
+                {t("apiConfig.timeoutDescription")}
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="is_active">Configuration Status</Label>
+              <Label htmlFor="is_active">{t("apiConfig.configurationStatus")}</Label>
               <div className="flex items-center space-x-2 mt-2">
                 <Switch
                   id="is_active"
@@ -172,37 +172,37 @@ export default function ApiConfigCreatePage() {
                   onCheckedChange={setIsActive}
                 />
                 <Label htmlFor="is_active">
-                  {isActive ? "Active" : "Inactive"}
+                  {isActive ? t("common.active") : t("common.inactive")}
                 </Label>
               </div>
               <p className="text-sm text-muted-foreground">
-                Whether this configuration is currently active
+                {t("apiConfig.configurationStatusDescription")}
               </p>
             </div>
           </div>
 
           {/* Security Notice */}
           <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-            <h4 className="font-medium text-yellow-900 dark:text-yellow-100 mb-2">Security Notice:</h4>
+            <h4 className="font-medium text-yellow-900 dark:text-yellow-100 mb-2">{t("apiConfig.securityNotice")}:</h4>
             <div className="text-sm text-yellow-800 dark:text-yellow-200 space-y-1">
-              <div>• Secret keys will be masked in the interface for security</div>
-              <div>• Store API keys securely and never share them</div>
-              <div>• Use HTTPS URLs only in production</div>
-              <div>• Test configurations thoroughly before activating</div>
+              <div>• {t("apiConfig.secretKeysMasked")}</div>
+              <div>• {t("apiConfig.storeKeysSecurely")}</div>
+              <div>• {t("apiConfig.useHttpsOnly")}</div>
+              <div>• {t("apiConfig.testConfigurations")}</div>
             </div>
           </div>
 
           {/* Configuration Summary */}
           {(name && baseUrl && publicKey && secretKey && timeoutSeconds) && (
             <div className="p-4 border rounded-lg bg-green-50 dark:bg-green-900/20">
-              <h4 className="font-medium text-green-900 dark:text-green-100 mb-2">Configuration Summary:</h4>
+              <h4 className="font-medium text-green-900 dark:text-green-100 mb-2">{t("apiConfig.configurationSummary")}:</h4>
               <div className="text-sm text-green-800 dark:text-green-200 space-y-1">
-                <div><strong>Name:</strong> {name}</div>
-                <div><strong>Base URL:</strong> {baseUrl}</div>
-                <div><strong>Public Key:</strong> {publicKey.slice(0, 8)}...{publicKey.slice(-4)}</div>
-                <div><strong>Secret Key:</strong> {secretKey.slice(0, 4)}••••{secretKey.slice(-4)}</div>
-                <div><strong>Timeout:</strong> {timeoutSeconds}s</div>
-                <div><strong>Status:</strong> {isActive ? "Active" : "Inactive"}</div>
+                <div><strong>{t("apiConfig.nameLabel")}:</strong> {name}</div>
+                <div><strong>{t("apiConfig.baseUrlLabel")}:</strong> {baseUrl}</div>
+                <div><strong>{t("apiConfig.publicKeyLabel")}:</strong> {publicKey.slice(0, 8)}...{publicKey.slice(-4)}</div>
+                <div><strong>{t("apiConfig.secretKeyLabel")}:</strong> {secretKey.slice(0, 4)}••••{secretKey.slice(-4)}</div>
+                <div><strong>{t("apiConfig.timeoutLabel")}:</strong> {timeoutSeconds}s</div>
+                <div><strong>{t("apiConfig.statusLabel")}:</strong> {isActive ? t("common.active") : t("common.inactive")}</div>
               </div>
             </div>
           )}
@@ -218,10 +218,10 @@ export default function ApiConfigCreatePage() {
 
           <div className="flex gap-4">
             <Button type="submit" disabled={loading || !name || !baseUrl || !publicKey || !secretKey || !timeoutSeconds}>
-              {loading ? "Creating Configuration..." : "Create Configuration"}
+              {loading ? t("apiConfig.creatingConfiguration") : t("apiConfig.createConfiguration")}
             </Button>
             <Button type="button" variant="outline" onClick={() => router.push("/dashboard/api-config/list")}>
-              Cancel
+              {t("common.cancel")}
             </Button>
           </div>
         </form>

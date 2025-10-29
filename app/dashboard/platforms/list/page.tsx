@@ -82,8 +82,8 @@ export default function PlatformListPage() {
         setTotalPages(Math.ceil((data.count || 0) / itemsPerPage))
         
         toast({
-          title: "Platforms loaded",
-          description: "Platforms loaded successfully",
+          title: t("platforms.loadedSuccessfully") || "Platforms loaded",
+          description: t("platforms.loadedSuccessfully") || "Platforms loaded successfully",
         })
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
@@ -92,7 +92,7 @@ export default function PlatformListPage() {
         setTotalCount(0)
         setTotalPages(1)
         toast({
-          title: "Failed to load platforms",
+          title: t("platforms.failedToLoad"),
           description: errorMessage,
           variant: "destructive",
         })
@@ -121,12 +121,12 @@ export default function PlatformListPage() {
       const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/platforms/${platform.uid}/`)
       setSelectedPlatform(data)
       toast({
-        title: "Platform details loaded",
-        description: "Platform details loaded successfully",
+        title: t("platforms.platformDetailsLoaded"),
+        description: t("platforms.platformDetailsLoadedSuccessfully"),
       })
     } catch (err: any) {
       toast({
-        title: "Failed to load platform details",
+        title: t("platforms.failedToLoadPlatform"),
         description: extractErrorMessages(err),
         variant: "destructive",
       })
@@ -144,12 +144,12 @@ export default function PlatformListPage() {
       const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/platforms/${platform.uid}/stats/`)
       setPlatformStats(data)
       toast({
-        title: "Platform statistics loaded",
-        description: "Platform statistics loaded successfully",
+        title: t("platforms.platformStatistics") || "Platform statistics loaded",
+        description: t("platforms.platformStatistics") + " " + t("common.success")?.toLowerCase() || "Platform statistics loaded successfully",
       })
     } catch (err: any) {
       toast({
-        title: "Failed to load platform statistics",
+        title: t("platforms.failedToLoad") || "Failed to load platform statistics",
         description: extractErrorMessages(err),
         variant: "destructive",
       })
@@ -174,12 +174,12 @@ export default function PlatformListPage() {
       ))
       
       toast({
-        title: "Platform status updated",
-        description: data.message || (data.is_active ? "Platform activated" : "Platform deactivated"),
+        title: t("platforms.platformStatusUpdated"),
+        description: data.message || (data.is_active ? t("platforms.platformActivated") : t("platforms.platformDeactivated")),
       })
     } catch (err: any) {
       toast({
-        title: "Failed to update platform status",
+        title: t("platforms.failedToUpdatePlatformStatus"),
         description: extractErrorMessages(err),
         variant: "destructive",
       })
@@ -231,7 +231,7 @@ export default function PlatformListPage() {
             <div className="flex flex-col lg:flex-row gap-4 flex-1">
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Start Date
+                  {t("platforms.startDate")}
                 </label>
                 <Input
                   type="date"
@@ -245,7 +245,7 @@ export default function PlatformListPage() {
               </div>
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  End Date
+                  {t("platforms.endDate")}
                 </label>
                 <Input
                   type="date"
@@ -276,7 +276,7 @@ export default function PlatformListPage() {
           {/* Table */}
           <div className="rounded-md border">
             {loading ? (
-              <div className="p-8 text-center text-muted-foreground">Loading...</div>
+              <div className="p-8 text-center text-muted-foreground">{t("platforms.loading") || t("common.loading")}</div>
             ) : error ? (
               <ErrorDisplay
                 error={error}
@@ -324,7 +324,7 @@ export default function PlatformListPage() {
                             className="h-5 w-5"
                             onClick={() => {
                               navigator.clipboard.writeText(platform.uid)
-                              toast({ title: "UID copied!" })
+                              toast({ title: t("platforms.uidCopied") })
                             }}
                           >
                             <Copy className="h-4 w-4" />
@@ -400,7 +400,7 @@ export default function PlatformListPage() {
           {/* Pagination */}
           <div className="flex items-center justify-between mt-6">
             <div className="text-sm text-muted-foreground">
-              Showing: {startIndex + 1}-{Math.min(startIndex + itemsPerPage, totalCount)} of {totalCount}
+              {t("common.showing") || "Showing"}: {startIndex + 1}-{Math.min(startIndex + itemsPerPage, totalCount)} {t("common.of") || "of"} {totalCount}
             </div>
             <div className="flex items-center space-x-2">
               <Button
@@ -410,10 +410,10 @@ export default function PlatformListPage() {
                 disabled={currentPage === 1}
               >
                 <ChevronLeft className="h-4 w-4 mr-1" />
-                Previous
+                {t("common.previous")}
               </Button>
               <div className="text-sm">
-                Page {currentPage} of {totalPages}
+                {t("common.page") || "Page"} {currentPage} {t("common.of") || "of"} {totalPages}
               </div>
               <Button
                 variant="outline"
@@ -421,7 +421,7 @@ export default function PlatformListPage() {
                 onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
               >
-                Next
+                {t("common.next")}
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             </div>
@@ -436,48 +436,48 @@ export default function PlatformListPage() {
             <DialogTitle>{t("platforms.platformDetails")}</DialogTitle>
           </DialogHeader>
           {detailLoading ? (
-            <div className="p-4 text-center">Loading platform details...</div>
+            <div className="p-4 text-center">{t("platforms.loadingPlatformDetails")}</div>
           ) : selectedPlatform ? (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <strong>UID:</strong> {selectedPlatform.uid}
+                    <strong>{t("platforms.name")}:</strong> {selectedPlatform.uid}
                     <Button
                       variant="ghost"
                       size="icon"
                       className="h-5 w-5"
                       onClick={() => {
                         navigator.clipboard.writeText(selectedPlatform.uid)
-                        toast({ title: "UID copied!" })
+                        toast({ title: t("platforms.uidCopied") })
                       }}
                     >
                       <Copy className="h-4 w-4" />
                     </Button>
                   </div>
-                  <div><strong>Name:</strong> {selectedPlatform.name}</div>
-                  <div><strong>External ID:</strong> {selectedPlatform.external_id}</div>
-                  <div><strong>Status:</strong> {selectedPlatform.is_active ? "Active" : "Inactive"}</div>
+                  <div><strong>{t("platforms.name")}:</strong> {selectedPlatform.name}</div>
+                  <div><strong>{t("platforms.externalId")}:</strong> {selectedPlatform.external_id}</div>
+                  <div><strong>{t("platforms.status")}:</strong> {selectedPlatform.is_active ? t("platforms.active") : t("platforms.inactive")}</div>
                 </div>
                 <div className="space-y-2">
-                  <div><strong>Min Deposit:</strong> {selectedPlatform.min_deposit_amount}</div>
-                  <div><strong>Max Deposit:</strong> {selectedPlatform.max_deposit_amount}</div>
-                  <div><strong>Min Withdrawal:</strong> {selectedPlatform.min_withdrawal_amount}</div>
-                  <div><strong>Max Withdrawal:</strong> {selectedPlatform.max_withdrawal_amount}</div>
+                  <div><strong>{t("platforms.minDeposit")}:</strong> {selectedPlatform.min_deposit_amount}</div>
+                  <div><strong>{t("platforms.maxDeposit")}:</strong> {selectedPlatform.max_deposit_amount}</div>
+                  <div><strong>{t("platforms.minimumWithdrawal")}:</strong> {selectedPlatform.min_withdrawal_amount}</div>
+                  <div><strong>{t("platforms.maximumWithdrawal")}:</strong> {selectedPlatform.max_withdrawal_amount}</div>
                 </div>
               </div>
               <div className="space-y-2">
-                <div><strong>Description:</strong> {selectedPlatform.description || "No description"}</div>
-                <div><strong>Created by:</strong> {selectedPlatform.created_by_name || "Unknown"}</div>
-                <div><strong>Created at:</strong> {selectedPlatform.created_at ? new Date(selectedPlatform.created_at).toLocaleString() : "Unknown"}</div>
-                <div><strong>Updated at:</strong> {selectedPlatform.updated_at ? new Date(selectedPlatform.updated_at).toLocaleString() : "Unknown"}</div>
-                <div><strong>Active Partners:</strong> {selectedPlatform.active_partners_count || 0}</div>
-                <div><strong>Total Transactions:</strong> {selectedPlatform.total_transactions_count || 0}</div>
+                <div><strong>{t("platforms.description")}:</strong> {selectedPlatform.description || t("platforms.noDescriptionProvided")}</div>
+                <div><strong>{t("platforms.createdBy")}:</strong> {selectedPlatform.created_by_name || t("platforms.unknown")}</div>
+                <div><strong>{t("platforms.createdAtLabel")}:</strong> {selectedPlatform.created_at ? new Date(selectedPlatform.created_at).toLocaleString() : t("platforms.unknown")}</div>
+                <div><strong>{t("platforms.updatedAt")}:</strong> {selectedPlatform.updated_at ? new Date(selectedPlatform.updated_at).toLocaleString() : t("platforms.unknown")}</div>
+                <div><strong>{t("platforms.activePartners")}:</strong> {selectedPlatform.active_partners_count || 0}</div>
+                <div><strong>{t("platforms.totalTransactions")}:</strong> {selectedPlatform.total_transactions_count || 0}</div>
               </div>
             </div>
           ) : null}
           <DialogClose asChild>
-            <Button className="mt-4 w-full">Close</Button>
+            <Button className="mt-4 w-full">{t("common.close")}</Button>
           </DialogClose>
         </DialogContent>
       </Dialog>
@@ -489,7 +489,7 @@ export default function PlatformListPage() {
             <DialogTitle>{t("platforms.platformStatistics")}</DialogTitle>
           </DialogHeader>
           {statsLoading ? (
-            <div className="p-4 text-center">Loading statistics...</div>
+            <div className="p-4 text-center">{t("common.loading")}</div>
           ) : platformStats ? (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -506,7 +506,7 @@ export default function PlatformListPage() {
             </div>
           ) : null}
           <DialogClose asChild>
-            <Button className="mt-4 w-full">Close</Button>
+            <Button className="mt-4 w-full">{t("common.close")}</Button>
           </DialogClose>
         </DialogContent>
       </Dialog>

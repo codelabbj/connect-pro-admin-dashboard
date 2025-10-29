@@ -47,8 +47,8 @@ export default function PlatformCreatePage() {
       } catch (err) {
         console.error("Failed to fetch Yapson apps:", err)
         toast({
-          title: "Warning",
-          description: "Could not load external platform options. You can still enter external ID manually.",
+          title: t("common.warning"),
+          description: t("commissionPayments.couldNotLoadExternalPlatformOptions"),
           variant: "destructive",
         })
       } finally {
@@ -82,8 +82,8 @@ export default function PlatformCreatePage() {
       })
       
       toast({
-        title: "Platform Created",
-        description: "Platform has been created successfully",
+        title: t("platforms.platformCreated"),
+        description: t("platforms.platformCreatedSuccessfully"),
       })
       
       router.push("/dashboard/platforms/list")
@@ -91,7 +91,7 @@ export default function PlatformCreatePage() {
       const errorMessage = extractErrorMessages(err)
       setError(errorMessage)
       toast({
-        title: "Failed to create platform",
+        title: t("platforms.failedToCreatePlatform"),
         description: errorMessage,
         variant: "destructive",
       })
@@ -110,7 +110,7 @@ export default function PlatformCreatePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <span className="text-lg font-semibold">Creating platform...</span>
+        <span className="text-lg font-semibold">{t("platforms.creating")}</span>
       </div>
     )
   }
@@ -118,25 +118,24 @@ export default function PlatformCreatePage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Create Platform</CardTitle>
+        <CardTitle>{t("platforms.createPlatform")}</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Yapson App Selection */}
           <div className="space-y-4">
-            <Label>Quick Select from Yapson Apps (Optional)</Label>
+            <Label>{t("platforms.quickSelectYapsonApps")}</Label>
             {yapsonLoading ? (
-              <div className="text-sm text-muted-foreground">Loading available apps...</div>
+              <div className="text-sm text-muted-foreground">{t("commissionPayments.loadingAvailableApps")}</div>
             ) : (
               <Select
                 onValueChange={(appId) => {
                   const app = yapsonApps.find(a => a.id === appId)
                   if (app) handleYapsonAppSelect(app)
                 }}
-                placeholder="Select a platform to auto-fill details"
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Choose a platform to auto-fill details" />
+                  <SelectValue placeholder={t("commissionPayments.selectPlatformToAutoFill") || t("commissionPayments.choosePlatformToAutoFill")} />
                 </SelectTrigger>
                 <SelectContent>
                   {yapsonApps.map((app) => (
@@ -157,23 +156,23 @@ export default function PlatformCreatePage() {
           {/* Basic Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Platform Name *</Label>
+              <Label htmlFor="name">{t("platforms.platformName")} *</Label>
               <Input
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="e.g., 1xbet"
+                placeholder={t("platforms.platformNamePlaceholder")}
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="external_id">External ID *</Label>
+              <Label htmlFor="external_id">{t("platforms.externalIdLabel")} *</Label>
               <Input
                 id="external_id"
                 value={externalId}
                 onChange={(e) => setExternalId(e.target.value)}
-                placeholder="Platform's external identifier"
+                placeholder={t("platforms.externalIdPlaceholder")}
                 required
               />
             </div>
@@ -182,7 +181,7 @@ export default function PlatformCreatePage() {
           {/* Deposit Limits */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="min_deposit">Minimum Deposit Amount</Label>
+              <Label htmlFor="min_deposit">{t("platforms.minimumDepositAmount")}</Label>
               <Input
                 id="min_deposit"
                 type="number"
@@ -195,7 +194,7 @@ export default function PlatformCreatePage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="max_deposit">Maximum Deposit Amount</Label>
+              <Label htmlFor="max_deposit">{t("platforms.maximumDepositAmount")}</Label>
               <Input
                 id="max_deposit"
                 type="number"
@@ -211,7 +210,7 @@ export default function PlatformCreatePage() {
           {/* Withdrawal Limits */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="min_withdrawal">Minimum Withdrawal Amount</Label>
+              <Label htmlFor="min_withdrawal">{t("platforms.minimumWithdrawalAmount")}</Label>
               <Input
                 id="min_withdrawal"
                 type="number"
@@ -224,7 +223,7 @@ export default function PlatformCreatePage() {
             </div>
 
             <div className="space-y-2">
-              <Label html-for="max_withdrawal">Maximum Withdrawal Amount</Label>
+              <Label htmlFor="max_withdrawal">{t("platforms.maximumWithdrawalAmount")}</Label>
               <Input
                 id="max_withdrawal"
                 type="number"
@@ -239,12 +238,12 @@ export default function PlatformCreatePage() {
 
           {/* Description */}
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">{t("platforms.description")}</Label>
             <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Platform description..."
+              placeholder={t("platforms.descriptionPlaceholder")}
               rows={3}
             />
           </div>
@@ -256,7 +255,7 @@ export default function PlatformCreatePage() {
               checked={isActive}
               onCheckedChange={setIsActive}
             />
-            <Label htmlFor="is_active">Active Platform</Label>
+            <Label htmlFor="is_active">{t("platforms.activePlatform")}</Label>
           </div>
 
           {error && (
@@ -270,10 +269,10 @@ export default function PlatformCreatePage() {
 
           <div className="flex gap-4">
             <Button type="submit" disabled={loading}>
-              {loading ? "Creating..." : "Create Platform"}
+              {loading ? t("platforms.creating") : t("platforms.createPlatform")}
             </Button>
             <Button type="button" variant="outline" onClick={() => router.push("/dashboard/platforms/list")}>
-              Cancel
+              {t("common.cancel")}
             </Button>
           </div>
         </form>

@@ -12,12 +12,14 @@ import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-displa
 import { ArrowLeft, DollarSign, CopyIcon, ExternalLink } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
+import { useLanguage } from "@/components/providers/language-provider"
 
 export default function BettingTransactionDetailsPage() {
   const params = useParams()
   const router = useRouter()
   const apiFetch = useApi()
   const { toast } = useToast()
+  const { t } = useLanguage()
   
   const transactionUid = params.uid as string
   
@@ -44,14 +46,14 @@ export default function BettingTransactionDetailsPage() {
         setTransaction(data)
         
         toast({
-          title: "Transaction loaded",
-          description: "Transaction details loaded successfully",
+          title: t("bettingTransactions.transactionLoaded"),
+          description: t("bettingTransactions.transactionDetailsLoadedSuccessfully"),
         })
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
         setError(errorMessage)
         toast({
-          title: "Failed to load transaction",
+          title: t("bettingTransactions.failedToLoadTransaction"),
           description: errorMessage,
           variant: "destructive",
         })
@@ -69,7 +71,7 @@ export default function BettingTransactionDetailsPage() {
     setProcessingCancellation(true)
     try {
       const payload = {
-        admin_notes: cancellationNotes || "Cancellation approved by admin"
+        admin_notes: cancellationNotes || t("bettingTransactions.cancellationApprovedByAdmin")
       }
       
       const response = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/transactions/${transaction.uid}/process_cancellation/`, {
@@ -79,8 +81,8 @@ export default function BettingTransactionDetailsPage() {
       })
       
       toast({
-        title: "Cancellation Processed",
-        description: response.message || "Transaction cancellation has been processed successfully",
+        title: t("bettingTransactions.cancellationProcessed"),
+        description: response.message || t("bettingTransactions.cancellationProcessedSuccessfully"),
       })
       
       // Update transaction data
@@ -91,7 +93,7 @@ export default function BettingTransactionDetailsPage() {
     } catch (err: any) {
       const errorMessage = extractErrorMessages(err)
       toast({
-        title: "Cancellation Failed",
+        title: t("bettingTransactions.cancellationFailed"),
         description: errorMessage,
         variant: "destructive",
       })
@@ -125,7 +127,7 @@ export default function BettingTransactionDetailsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <span className="text-lg font-semibold">Loading transaction details...</span>
+        <span className="text-lg font-semibold">{t("bettingTransactions.loadingTransactionDetails")}</span>
       </div>
     )
   }
@@ -135,7 +137,7 @@ export default function BettingTransactionDetailsPage() {
   }
 
   if (!transaction) {
-    return <ErrorDisplay error="Transaction not found" variant="full" showDismiss={false} />
+    return <ErrorDisplay error={t("bettingTransactions.transactionNotFound")} variant="full" showDismiss={false} />
   }
 
   return (
@@ -150,11 +152,11 @@ export default function BettingTransactionDetailsPage() {
               className="flex items-center gap-2"
             >
               <ArrowLeft className="h-4 w-4" />
-              Back to Transactions
+              {t("bettingTransactions.backToTransactions")}
             </Button>
             <div>
-              <h1 className="text-2xl font-bold">Transaction Details</h1>
-              <p className="text-muted-foreground">Betting transaction details and management</p>
+              <h1 className="text-2xl font-bold">{t("bettingTransactions.transactionDetailsTitle")}</h1>
+              <p className="text-muted-foreground">{t("bettingTransactions.transactionDetailsSubtitle")}</p>
             </div>
           </div>
           
@@ -165,7 +167,7 @@ export default function BettingTransactionDetailsPage() {
               className="flex items-center gap-2"
             >
               <ExternalLink className="h-4 w-4" />
-              Process Cancellation
+              {t("bettingTransactions.processCancellation")}
             </Button>
           )}
         </div>
@@ -175,13 +177,13 @@ export default function BettingTransactionDetailsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <DollarSign className="h-5 w-5" />
-              Transaction Overview
+              {t("bettingTransactions.transactionOverview")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Transaction UID</Label>
+                <Label className="text-sm font-medium">{t("bettingTransactions.transactionUid")}</Label>
                 <div className="flex items-center gap-2">
                   <code className="px-2 py-1 bg-muted rounded text-sm">{transaction.uid}</code>
                   <Button
@@ -190,7 +192,7 @@ export default function BettingTransactionDetailsPage() {
                     className="h-6 w-6"
                     onClick={() => {
                       navigator.clipboard.writeText(transaction.uid)
-                      toast({ title: "UID copied!" })
+                      toast({ title: t("common.uidCopied") })
                     }}
                   >
                     <CopyIcon className="h-3 w-3" />
@@ -199,7 +201,7 @@ export default function BettingTransactionDetailsPage() {
               </div>
               
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Reference</Label>
+                <Label className="text-sm font-medium">{t("bettingTransactions.reference")}</Label>
                 <div className="flex items-center gap-2">
                   <code className="px-2 py-1 bg-muted rounded text-sm">{transaction.reference}</code>
                   <Button
@@ -208,7 +210,7 @@ export default function BettingTransactionDetailsPage() {
                     className="h-6 w-6"
                     onClick={() => {
                       navigator.clipboard.writeText(transaction.reference)
-                      toast({ title: "Reference copied!" })
+                      toast({ title: t("bettingTransactions.referenceCopied") })
                     }}
                   >
                     <CopyIcon className="h-3 w-3" />
@@ -217,12 +219,12 @@ export default function BettingTransactionDetailsPage() {
               </div>
               
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Amount</Label>
-                <div className="text-2xl font-bold">${transaction.amount}</div>
+                <Label className="text-sm font-medium">{t("bettingTransactions.amount")}</Label>
+                <div className="text-2xl font-bold">{transaction.amount} XOF</div>
               </div>
               
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Status</Label>
+                <Label className="text-sm font-medium">{t("bettingTransactions.status")}</Label>
                 <div>{getStatusBadge(transaction.status)}</div>
               </div>
             </div>
@@ -233,52 +235,52 @@ export default function BettingTransactionDetailsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle>Partner Information</CardTitle>
+              <CardTitle>{t("bettingTransactions.partnerInformation")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-sm font-medium">Partner Name</span>
+                <span className="text-sm font-medium">{t("bettingTransactions.partnerName")}</span>
                 <span>{transaction.partner_name}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm font-medium">Platform Name</span>
+                <span className="text-sm font-medium">{t("bettingTransactions.platformName")}</span>
                 <span>{transaction.platform_name}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm font-medium">Transaction Type</span>
+                <span className="text-sm font-medium">{t("bettingTransactions.transactionType")}</span>
                 <span>{getTypeBadge(transaction.transaction_type)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm font-medium">Betting User ID</span>
-                <span>{transaction.betting_user_id || "N/A"}</span>
+                <span className="text-sm font-medium">{t("bettingTransactions.bettingUserId")}</span>
+                <span>{transaction.betting_user_id || t("bettingCommission.notApplicable")}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm font-medium">External Transaction ID</span>
-                <span>{transaction.external_transaction_id || "N/A"}</span>
+                <span className="text-sm font-medium">{t("bettingTransactions.externalTransactionId")}</span>
+                <span>{transaction.external_transaction_id || t("bettingCommission.notApplicable")}</span>
               </div>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>Commission Information</CardTitle>
+              <CardTitle>{t("bettingTransactions.commissionInformation")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex justify-between">
-                <span className="text-sm font-medium">Commission Rate</span>
+                <span className="text-sm font-medium">{t("bettingTransactions.commissionRate")}</span>
                 <span>{transaction.commission_rate}%</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm font-medium">Commission Amount</span>
-                <span className="font-medium">${transaction.commission_amount}</span>
+                <span className="text-sm font-medium">{t("bettingTransactions.commissionAmountDetail")}</span>
+                <span className="font-medium">{transaction.commission_amount} XOF</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm font-medium">Commission Paid</span>
-                <span>{transaction.commission_paid ? "Yes" : "No"}</span>
+                <span className="text-sm font-medium">{t("bettingTransactions.commissionPaid")}</span>
+                <span>{transaction.commission_paid ? t("common.yes") : t("common.no")}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm font-medium">Paid At</span>
-                <span>{transaction.commission_paid_at ? new Date(transaction.commission_paid_at).toLocaleString() : "Not paid"}</span>
+                <span className="text-sm font-medium">{t("bettingTransactions.paidAt")}</span>
+                <span>{transaction.commission_paid_at ? new Date(transaction.commission_paid_at).toLocaleString() : t("bettingTransactions.notPaid")}</span>
               </div>
             </CardContent>
           </Card>
@@ -287,17 +289,17 @@ export default function BettingTransactionDetailsPage() {
         {/* Partner Balance */}
         <Card>
           <CardHeader>
-            <CardTitle>Partner Balance Impact</CardTitle>
+            <CardTitle>{t("bettingTransactions.partnerBalanceImpact")}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Balance Before</Label>
-                <div className="text-xl font-semibold">${transaction.partner_balance_before}</div>
+                <Label className="text-sm font-medium">{t("bettingTransactions.balanceBeforeDetail")}</Label>
+                <div className="text-xl font-semibold">{transaction.partner_balance_before} XOF</div>
               </div>
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Balance After</Label>
-                <div className="text-xl font-semibold">${transaction.partner_balance_after}</div>
+                <Label className="text-sm font-medium">{t("bettingTransactions.balanceAfterDetail")}</Label>
+                <div className="text-xl font-semibold">{transaction.partner_balance_after} XOF</div>
               </div>
             </div>
           </CardContent>
@@ -306,26 +308,26 @@ export default function BettingTransactionDetailsPage() {
         {/* Timeline */}
         <Card>
           <CardHeader>
-            <CardTitle>Transaction Timeline</CardTitle>
+            <CardTitle>{t("bettingTransactions.transactionTimeline")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex justify-between">
-              <span className="text-sm font-medium">Created</span>
+              <span className="text-sm font-medium">{t("bettingTransactions.createdDetail")}</span>
               <span>{new Date(transaction.created_at).toLocaleString()}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm font-medium">Last Updated</span>
+              <span className="text-sm font-medium">{t("bettingTransactions.lastUpdatedDetail")}</span>
               <span>{new Date(transaction.updated_at).toLocaleString()}</span>
             </div>
             {transaction.cancellation_requested_at && (
               <div className="flex justify-between">
-                <span className="text-sm font-medium">Cancellation Requested</span>
+                <span className="text-sm font-medium">{t("bettingTransactions.cancellationRequested")}</span>
                 <span>{new Date(transaction.cancellation_requested_at).toLocaleString()}</span>
               </div>
             )}
             {transaction.cancelled_at && (
               <div className="flex justify-between">
-                <span className="text-sm font-medium">Cancelled</span>
+                <span className="text-sm font-medium">{t("bettingTransactions.cancelled")}</span>
                 <span>{new Date(transaction.cancelled_at).toLocaleString()}</span>
               </div>
             )}
@@ -336,7 +338,7 @@ export default function BettingTransactionDetailsPage() {
         {transaction.external_response && (
           <Card>
             <CardHeader>
-              <CardTitle>External Platform Response</CardTitle>
+              <CardTitle>{t("bettingTransactions.externalPlatformResponse")}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="bg-muted p-4 rounded-lg">
@@ -352,7 +354,7 @@ export default function BettingTransactionDetailsPage() {
         {transaction.notes && (
           <Card>
             <CardHeader>
-              <CardTitle>Notes</CardTitle>
+              <CardTitle>{t("bettingTransactions.notes")}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="bg-muted p-4 rounded-lg">
@@ -367,44 +369,43 @@ export default function BettingTransactionDetailsPage() {
       <AlertDialog open={pendingCancellation} onOpenChange={setPendingCancellation}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Process Transaction Cancellation</AlertDialogTitle>
+            <AlertDialogTitle>{t("bettingTransactions.processTransactionCancellation")}</AlertDialogTitle>
             <AlertDialogDescription>
-              You are about to approve the cancellation of transaction <strong>{transaction?.reference}</strong>. 
-              This will refund the partner and mark the transaction as cancelled.
+              {t("bettingTransactions.cancellationApprovalDescription")?.replace("{reference}", transaction?.reference || "")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium">Admin Notes (Optional)</label>
+              <label className="text-sm font-medium">{t("bettingTransactions.adminNotesOptional")}</label>
               <Textarea
                 value={cancellationNotes}
                 onChange={(e) => setCancellationNotes(e.target.value)}
-                placeholder="Add notes about the cancellation approval..."
+                placeholder={t("bettingTransactions.cancellationNotesPlaceholder")}
                 className="mt-1"
                 rows={3}
               />
             </div>
             
             <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded">
-              <h4 className="font-medium text-red-900 dark:text-red-100 mb-2">Transaction Information:</h4>
+              <h4 className="font-medium text-red-900 dark:text-red-100 mb-2">{t("bettingTransactions.transactionInformation")}:</h4>
               <div className="text-sm text-red-800 dark:text-red-200 space-y-1">
-                <div><strong>Amount:</strong> ${transaction?.amount}</div>
-                <div><strong>Partner:</strong> {transaction?.partner_name}</div>
-                <div><strong>Platform:</strong> {transaction?.platform_name}</div>
-                <div><strong>Commission Loss:</strong> ${transaction?.commission_amount}</div>
+                <div><strong>{t("bettingTransactions.amount")}:</strong> {transaction?.amount} XOF</div>
+                <div><strong>{t("bettingTransactions.partnerName")}:</strong> {transaction?.partner_name}</div>
+                <div><strong>{t("bettingTransactions.platformName")}:</strong> {transaction?.platform_name}</div>
+                <div><strong>{t("bettingTransactions.commissionLoss")}:</strong> {transaction?.commission_amount} XOF</div>
               </div>
             </div>
           </div>
           
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleProcessCancellation}
               disabled={processingCancellation}
               className="bg-red-600 hover:bg-red-700"
             >
-              {processingCancellation ? "Processing..." : "Approve Cancellation"}
+              {processingCancellation ? t("bettingTransactions.processing") : t("bettingTransactions.approveCancellation")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
