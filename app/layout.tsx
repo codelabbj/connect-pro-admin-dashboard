@@ -5,6 +5,7 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/providers/theme-provider"
 import { LanguageProvider } from "@/components/providers/language-provider"
 import { WebSocketProviderWrapper } from "@/components/providers/websocket-provider-wrapper"
+import { ToasterWrapper } from "@/components/toaster-wrapper"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -29,6 +30,7 @@ export default function RootLayout({
             </WebSocketProviderWrapper>
           </LanguageProvider>
         </ThemeProvider>
+        <ToasterWrapper />
       </body>
     </html>
   )

@@ -32,10 +32,7 @@ export default function CountryCreatePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nom, code, is_active: isActive })
       })
-      toast({
-        title: t("country.created"),
-        description: t("country.createdSuccessfully"),
-      })
+      // Success toast is automatically shown by useApi hook for non-GET requests
       router.push("/dashboard/country/list")
     } catch (err: any) {
       const errorMessage = extractErrorMessages(err) || t("country.failedToCreate")

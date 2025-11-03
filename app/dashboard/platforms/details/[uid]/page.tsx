@@ -54,10 +54,7 @@ export default function PlatformDetailsPage() {
           console.warn("Could not fetch platform statistics:", statsErr)
         }
         
-        toast({
-          title: t("platforms.platformDetailsLoaded"),
-          description: t("platforms.platformDetailsLoadedSuccessfully"),
-        })
+        // GET requests don't show success toasts automatically
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
         setError(errorMessage)
@@ -85,11 +82,7 @@ export default function PlatformDetailsPage() {
       })
       
       setPlatform(prev => prev ? { ...prev, is_active: data.is_active } : prev)
-      
-      toast({
-        title: t("platforms.platformStatusUpdated"),
-        description: data.message || (data.is_active ? t("platforms.platformActivated") : t("platforms.platformDeactivated")),
-      })
+      // Success toast is automatically shown by useApi hook for non-GET requests
     } catch (err: any) {
       toast({
         title: t("platforms.failedToUpdatePlatformStatus"),

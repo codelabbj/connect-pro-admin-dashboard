@@ -80,11 +80,7 @@ export default function PlatformCreatePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       })
-      
-      toast({
-        title: t("platforms.platformCreated"),
-        description: t("platforms.platformCreatedSuccessfully"),
-      })
+      // Success toast is automatically shown by useApi hook for non-GET requests
       
       router.push("/dashboard/platforms/list")
     } catch (err: any) {

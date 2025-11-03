@@ -3,9 +3,12 @@
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { getAccessToken, getRefreshToken, setTokens, clearTokens } from "./api";
+import { toast } from "@/hooks/use-toast";
+import { useLanguage } from "@/components/providers/language-provider";
 
 export function useApi() {
   const router = useRouter();
+  const { t } = useLanguage();
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
   const refreshAccessToken = useCallback(async () => {
@@ -109,8 +112,44 @@ export function useApi() {
       throw data;
     }
     
+    // Show success message for non-GET requests only
+    // Handle both Request object and string URL with RequestInit
+    let method = 'GET'; // Default to GET if no method is specified
+    if (typeof input === 'object' && 'method' in input && input.method) {
+      method = String(input.method).toUpperCase();
+    } else if (init.method) {
+      method = String(init.method).toUpperCase();
+    }
+    
+    // Only show toast for non-GET methods (POST, PUT, PATCH, DELETE, etc.)
+    if (method !== 'GET' && res.ok) {
+      // Determine success message based on HTTP method with translations
+      let successMessage = t("common.operationCompleted");
+      switch (method) {
+        case 'POST':
+          successMessage = t("common.createdSuccessfully");
+          break;
+        case 'PUT':
+        case 'PATCH':
+          successMessage = t("common.updatedSuccessfully");
+          break;
+        case 'DELETE':
+          successMessage = t("common.deletedSuccessfully");
+          break;
+        default:
+          successMessage = t("common.operationCompleted");
+      }
+      
+      // Show success toast with green variant
+      toast({
+        title: t("common.success"),
+        description: successMessage,
+        variant: "success",
+      });
+    }
+    
     return data;
-  }, [refreshAccessToken, clearAllAuth, router]);
+  }, [refreshAccessToken, clearAllAuth, router, t]);
 
   return apiFetch;
 }

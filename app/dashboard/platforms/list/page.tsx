@@ -120,10 +120,7 @@ export default function PlatformListPage() {
     try {
       const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/platforms/${platform.uid}/`)
       setSelectedPlatform(data)
-      toast({
-        title: t("platforms.platformDetailsLoaded"),
-        description: t("platforms.platformDetailsLoadedSuccessfully"),
-      })
+      // GET requests don't show success toasts automatically
     } catch (err: any) {
       toast({
         title: t("platforms.failedToLoadPlatform"),
@@ -143,10 +140,7 @@ export default function PlatformListPage() {
     try {
       const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/platforms/${platform.uid}/stats/`)
       setPlatformStats(data)
-      toast({
-        title: t("platforms.platformStatistics") || "Platform statistics loaded",
-        description: t("platforms.platformStatistics") + " " + t("common.success")?.toLowerCase() || "Platform statistics loaded successfully",
-      })
+      // GET requests don't show success toasts automatically
     } catch (err: any) {
       toast({
         title: t("platforms.failedToLoad") || "Failed to load platform statistics",
@@ -172,11 +166,7 @@ export default function PlatformListPage() {
           ? { ...p, is_active: data.is_active }
           : p
       ))
-      
-      toast({
-        title: t("platforms.platformStatusUpdated"),
-        description: data.message || (data.is_active ? t("platforms.platformActivated") : t("platforms.platformDeactivated")),
-      })
+      // Success toast is automatically shown by useApi hook for non-GET requests
     } catch (err: any) {
       toast({
         title: t("platforms.failedToUpdatePlatformStatus"),

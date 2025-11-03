@@ -97,10 +97,7 @@ export default function SmsLogsListPage() {
           })
         }
         
-        toast({
-          title: t("smsLogs.success"),
-          description: t("smsLogs.loadedSuccessfully"),
-        })
+        // GET requests don't show success toasts automatically
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err) || t("smsLogs.failedToLoad")
         setError(errorMessage)

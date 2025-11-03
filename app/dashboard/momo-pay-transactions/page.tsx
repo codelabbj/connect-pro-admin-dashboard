@@ -235,11 +235,7 @@ export default function MomoPayTransactionsPage() {
     try {
       const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/momo-pay-transactions/${cancelTransaction.uid}/cancel/`
       await apiFetch(endpoint, { method: "POST" })
-      
-      toast({ 
-        title: "Succès", 
-        description: "Transaction annulée avec succès" 
-      })
+      // Success toast is automatically shown by useApi hook for non-GET requests
       
       setCancelModalOpen(false)
       setCancelTransaction(null)

@@ -176,10 +176,7 @@ export default function WaveBusinessPage() {
     setDetailModalOpen(true)
     setDetailTransaction(transaction)
     setDetailError("")
-    toast({ 
-      title: "Détail chargé", 
-      description: "Détails de la transaction affichés avec succès" 
-    })
+    // GET requests don't show success toasts automatically
   }
 
   const handleCloseDetail = () => {

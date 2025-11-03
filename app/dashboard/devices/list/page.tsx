@@ -74,10 +74,7 @@ export default function DevicesListPage() {
         const data = await apiFetch(endpoint)
         console.log('Devices API response:', data)
         setDevices(Array.isArray(data) ? data : data.results || [])
-        toast({
-          title: t("devices.success"),
-          description: t("devices.loadedSuccessfully"),
-        })
+        // GET requests don't show success toasts automatically
       } catch (err: any) {
         console.log('Devices fetch error caught:', err)
         const errorMessage = extractErrorMessages(err) || t("devices.failedToLoad")

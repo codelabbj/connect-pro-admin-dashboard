@@ -249,7 +249,7 @@ export default function TransactionsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(pendingEditPayload),
       })
-      toast({ title: t("transactions.editSuccess"), description: t("transactions.transactionUpdatedSuccessfully") })
+      // Success toast is automatically shown by useApi hook for non-GET requests
       setShowEditConfirm(false)
       setPendingEditPayload(null)
       setEditModalOpen(false)
@@ -284,10 +284,7 @@ export default function TransactionsPage() {
     try {
       const endpoint = `${baseUrl}api/payments/transactions/${deleteUid}/`
       await apiFetch(endpoint, { method: "DELETE" })
-      toast({
-        title: t("transactions.deleteSuccess"),
-        description: t("transactions.transactionDeletedSuccessfully"),
-      })
+      // Success toast is automatically shown by useApi hook for non-GET requests
       setDeleteUid(null)
       // Refetch transactions
       setCurrentPage(1)
@@ -525,10 +522,7 @@ export default function TransactionsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reason: successReason.trim() }),
       })
-      toast({
-        title: t("transactions.successQueued") || "Success queued",
-        description: t("transactions.successRequested") || "Success update sent successfully.",
-      })
+      // Success toast is automatically shown by useApi hook for non-GET requests
       setSuccessModalOpen(false)
       setSuccessTransaction(null)
       setSuccessReason("")
@@ -566,10 +560,7 @@ export default function TransactionsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reason: failedReason.trim() }),
       })
-      toast({
-        title: t("transactions.failedQueued") || "Failed queued",
-        description: t("transactions.failedRequested") || "Failed update sent successfully.",
-      })
+      // Success toast is automatically shown by useApi hook for non-GET requests
       setFailedModalOpen(false)
       setFailedTransaction(null)
       setFailedReason("")

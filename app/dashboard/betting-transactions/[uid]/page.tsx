@@ -44,11 +44,7 @@ export default function BettingTransactionDetailsPage() {
         const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/transactions/${transactionUid}/`
         const data = await apiFetch(endpoint)
         setTransaction(data)
-        
-        toast({
-          title: t("bettingTransactions.transactionLoaded"),
-          description: t("bettingTransactions.transactionDetailsLoadedSuccessfully"),
-        })
+        // GET requests don't show success toasts automatically
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
         setError(errorMessage)
@@ -74,16 +70,12 @@ export default function BettingTransactionDetailsPage() {
         admin_notes: cancellationNotes || t("bettingTransactions.cancellationApprovedByAdmin")
       }
       
-      const response = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/transactions/${transaction.uid}/process_cancellation/`, {
+      const response =       await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/transactions/${transaction.uid}/process_cancellation/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       })
-      
-      toast({
-        title: t("bettingTransactions.cancellationProcessed"),
-        description: response.message || t("bettingTransactions.cancellationProcessedSuccessfully"),
-      })
+      // Success toast is automatically shown by useApi hook for non-GET requests
       
       // Update transaction data
       setTransaction(response.transaction || transaction)

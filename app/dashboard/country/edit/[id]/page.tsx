@@ -35,10 +35,7 @@ export default function CountryEditPage() {
         setNom(data.nom || "")
         setCode(data.code || "")
         setIsActive(data.is_active)
-        toast({
-          title: t("country.loaded"),
-          description: t("country.loadedSuccessfully"),
-        })
+        // GET requests don't show success toasts automatically
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err) || t("country.failedToLoad")
         setError(errorMessage)
@@ -65,10 +62,7 @@ export default function CountryEditPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nom, code, is_active: isActive })
       })
-      toast({
-        title: t("country.updated"),
-        description: t("country.updatedSuccessfully"),
-      })
+      // Success toast is automatically shown by useApi hook for non-GET requests
       router.push("/dashboard/country/list")
     } catch (err: any) {
       const errorMessage = extractErrorMessages(err) || t("country.failedToUpdate")

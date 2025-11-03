@@ -61,10 +61,7 @@ export default function ApiConfigEditPage() {
           setError(t("apiConfig.configurationNotFound"))
         }
         
-        toast({
-          title: t("apiConfig.configurationLoaded"),
-          description: t("apiConfig.configurationLoadedSuccessfully"),
-        })
+        // GET requests don't show success toasts automatically
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
         setError(errorMessage)
@@ -108,13 +105,7 @@ export default function ApiConfigEditPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       })
-
-
-      
-      toast({
-        title: t("apiConfig.configurationUpdated"),
-        description: t("apiConfig.configurationUpdatedSuccessfully"),
-      })
+      // Success toast is automatically shown by useApi hook for non-GET requests
       
       router.push("/dashboard/api-config/list")
     } catch (err: any) {

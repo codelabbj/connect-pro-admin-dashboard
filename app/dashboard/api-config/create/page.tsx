@@ -49,11 +49,7 @@ export default function ApiConfigCreatePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       })
-      
-      toast({
-        title: t("apiConfig.apiConfigurationCreated"),
-        description: t("apiConfig.apiConfigurationCreatedSuccessfully"),
-      })
+      // Success toast is automatically shown by useApi hook for non-GET requests
       
       router.push("/dashboard/api-config/list")
     } catch (err: any) {

@@ -71,10 +71,7 @@ function RemoteCommandCreatePage() {
         body: JSON.stringify({ command, device_id: deviceId, parameters: paramsObj, priority })
       })
       setSuccess(data.status || t("remoteCommand.commandSentSuccessfully"))
-      toast({
-        title: t("remoteCommand.success"),
-        description: data.status || t("remoteCommand.commandSentSuccessfully"),
-      })
+      // Success toast is automatically shown by useApi hook for non-GET requests
     } catch (err: any) {
       const backendError = extractErrorMessages(err) || t("remoteCommand.failedToCreate")
       setError(backendError)

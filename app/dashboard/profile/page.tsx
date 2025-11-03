@@ -9,7 +9,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
+import { useApi } from '@/lib/useApi';
 import { Loader2, Edit, Save, X } from 'lucide-react';
 
 interface UserProfile {
@@ -37,28 +38,12 @@ export default function ProfilePage() {
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState<Partial<UserProfile>>({});
   const { toast } = useToast();
-
-  // Get token from localStorage (same as sign-in-form and dashboard layout)
-  let token = "";
-  if (typeof window !== "undefined") {
-    token = localStorage.getItem("accessToken") || "";
-  }
+  const apiFetch = useApi();
 
   useEffect(() => {
-    // Redirect if not logged in (no token)
-    if (!token) {
-      router.push("/login");
-      return;
-    }
     const fetchProfile = async () => {
       try {
-        const response = await fetch(`${baseUrl}api/auth/profile/`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-        if (!response.ok) throw new Error('Failed to fetch profile');
-        const data = await response.json();
+        const data = await apiFetch(`${baseUrl}api/auth/profile/`);
         setProfile(data);
         setFormData({
           first_name: data.first_name,
@@ -79,7 +64,7 @@ export default function ProfilePage() {
     };
 
     fetchProfile();
-  }, [toast, router, token]);
+  }, [apiFetch, toast]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -94,25 +79,17 @@ export default function ProfilePage() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/auth/profile/', {
+      const updatedProfile = await apiFetch(`${baseUrl}api/auth/profile/`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(formData),
       });
 
-      if (!response.ok) throw new Error('Failed to update profile');
-
-      const updatedProfile = await response.json();
       setProfile(updatedProfile);
-
       setEditing(false);
-      toast({
-        title: 'Success',
-        description: 'Profile updated successfully',
-      });
+      // Success toast is automatically shown by useApi hook for non-GET requests
     } catch (error) {
       console.error('Error updating profile:', error);
       toast({

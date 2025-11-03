@@ -76,10 +76,7 @@ export default function PermissionEditPage() {
         setCanWithdraw(permission.can_withdraw)
         setIsActive(permission.is_active)
         
-        toast({
-          title: t("permissions.permissionLoaded"),
-          description: t("permissions.permissionDetailsLoadedSuccessfully"),
-        })
+        // GET requests don't show success toasts automatically
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
         setError(errorMessage)
@@ -113,11 +110,7 @@ export default function PermissionEditPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       })
-      
-      toast({
-        title: t("permissions.permissionUpdated"),
-        description: t("permissions.permissionUpdatedSuccessfully"),
-      })
+      // Success toast is automatically shown by useApi hook for non-GET requests
       
       router.push("/dashboard/permissions/list")
     } catch (err: any) {

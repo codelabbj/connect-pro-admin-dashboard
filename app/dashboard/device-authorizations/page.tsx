@@ -99,10 +99,7 @@ export default function DeviceAuthorizationsPage() {
       const data = await apiFetch(endpoint)
       console.log('Device Authorizations API response:', data)
       setAuthorizations(Array.isArray(data) ? data : data.results || [])
-      toast({
-        title: t("deviceAuthorizations.success"),
-        description: t("deviceAuthorizations.loadedSuccessfully"),
-      })
+      // GET requests don't show success toasts automatically
     } catch (err: any) {
       console.error('Device Authorizations fetch error:', err)
       // Show the full error object to user in error display
@@ -140,11 +137,7 @@ export default function DeviceAuthorizationsPage() {
         method: 'POST',
         body: JSON.stringify(formData)
       })
-      
-      toast({
-        title: t("deviceAuthorizations.success"),
-        description: t("deviceAuthorizations.createdSuccessfully"),
-      })
+      // Success toast is automatically shown by useApi hook for non-GET requests
       
       handleCloseCreateDialog()
       fetchAuthorizations()
@@ -179,11 +172,7 @@ export default function DeviceAuthorizationsPage() {
           notes: formData.notes
         })
       })
-      
-      toast({
-        title: t("deviceAuthorizations.success"),
-        description: t("deviceAuthorizations.updatedSuccessfully"),
-      })
+      // Success toast is automatically shown by useApi hook for non-GET requests
       
       setIsEditDialogOpen(false)
       setSelectedAuthorization(null)
@@ -217,11 +206,7 @@ export default function DeviceAuthorizationsPage() {
           notes: authorization.notes || ""
         })
       })
-      
-      toast({
-        title: t("deviceAuthorizations.success"),
-        description: t("deviceAuthorizations.toggledSuccessfully"),
-      })
+      // Success toast is automatically shown by useApi hook for non-GET requests
       
       fetchAuthorizations()
     } catch (err: any) {

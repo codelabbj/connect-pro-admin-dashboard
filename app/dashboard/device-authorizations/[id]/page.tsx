@@ -80,11 +80,7 @@ export default function DeviceAuthorizationDetailPage() {
           notes: formData.notes
         })
       })
-      
-      toast({
-        title: t("deviceAuthorizations.success"),
-        description: t("deviceAuthorizations.updatedSuccessfully"),
-      })
+      // Success toast is automatically shown by useApi hook for non-GET requests
       
       // Update local state
       setAuthorization({
@@ -122,11 +118,7 @@ export default function DeviceAuthorizationDetailPage() {
           notes: formData.notes || ""
         })
       })
-      
-      toast({
-        title: t("deviceAuthorizations.success"),
-        description: t("deviceAuthorizations.toggledSuccessfully"),
-      })
+      // Success toast is automatically shown by useApi hook for non-GET requests
       
       // Update local state
       const newActiveState = !authorization.is_active

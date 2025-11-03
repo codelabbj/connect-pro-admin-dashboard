@@ -51,10 +51,7 @@ export default function NetworkConfigCreatePage() {
       try {
         const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/networks/`)
         setNetworks(Array.isArray(data) ? data : data.results || [])
-        toast({
-          title: t("networkConfig.networksLoaded"),
-          description: t("networkConfig.networksLoadedSuccessfully"),
-        })
+        // GET requests don't show success toasts automatically
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err) || t("networkConfig.failedToLoadNetworks")
         setError(errorMessage)
@@ -102,11 +99,7 @@ export default function NetworkConfigCreatePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       })
-      
-      toast({
-        title: t("networkConfig.success"),
-        description: t("networkConfig.createdSuccessfully"),
-      })
+      // Success toast is automatically shown by useApi hook for non-GET requests
       router.push("/dashboard/network-config/list")
     } catch (err: any) {
       const errorMessage = extractErrorMessages(err) || t("networkConfig.failedToCreate")

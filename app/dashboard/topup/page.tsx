@@ -81,7 +81,7 @@ export default function TopupPage() {
 				setTopups(data.results || [])
 				setTotalCount(data.count || 0)
 				setTotalPages(Math.ceil((data.count || 0) / itemsPerPage))
-				toast({ title: t("topup.success"), description: t("topup.loadedSuccessfully") })
+				// GET requests don't show success toasts automatically
 			} catch (err: any) {
 				const errorMessage = extractErrorMessages(err)
 				setError(errorMessage)
@@ -117,7 +117,7 @@ export default function TopupPage() {
 			// For demo, just find in topups
 			const found = topups.find((t) => t.uid === uid)
 			setDetailTopup(found)
-			toast({ title: t("topup.detailLoaded"), description: t("topup.detailLoadedSuccessfully") })
+			// GET requests don't show success toasts automatically
 		} catch (err: any) {
 			setDetailError(extractErrorMessages(err))
 			toast({ title: t("topup.detailFailed"), description: extractErrorMessages(err), variant: "destructive" })

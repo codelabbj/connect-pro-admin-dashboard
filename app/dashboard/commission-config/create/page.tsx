@@ -43,11 +43,7 @@ export default function CommissionConfigCreatePage() {
         const endpoint = `${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/partners/?${params.toString()}`
         const data = await apiFetch(endpoint)
         setPartnerOptions(data.partners || [])
-        
-        toast({
-          title: "Partners loaded",
-          description: "Partners loaded successfully",
-        })
+        // GET requests don't show success toasts automatically
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
         setError(errorMessage)
@@ -91,11 +87,7 @@ export default function CommissionConfigCreatePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       })
-      
-      toast({
-        title: "Configuration Created",
-        description: "Commission configuration has been created successfully",
-      })
+      // Success toast is automatically shown by useApi hook for non-GET requests
       
       router.push("/dashboard/commission-config/list")
     } catch (err: any) {

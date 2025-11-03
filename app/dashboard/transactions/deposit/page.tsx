@@ -82,10 +82,7 @@ export default function DepositPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(pendingPayload),
       })
-      toast({
-        title: t("transactions.depositCreatedTitle") || "Deposit created",
-        description: t("transactions.transactionCreatedDesc") || "Transaction created successfully",
-      })
+      // Success toast is automatically shown by useApi hook for non-GET requests
       setShowConfirmModal(false)
       setPendingPayload(null)
       router.push("/dashboard/transactions")

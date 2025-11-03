@@ -44,11 +44,7 @@ export default function UserPlatformPermissionsPage() {
         setSummary(data.summary)
         setPlatformsWithPermissions(data.platforms_with_permissions || [])
         setPlatformsWithoutPermissions(data.platforms_without_permissions || [])
-        
-        toast({
-          title: "User permissions loaded",
-          description: "User platform permissions loaded successfully",
-        })
+        // GET requests don't show success toasts automatically
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
         setError(errorMessage)

@@ -50,11 +50,7 @@ export default function CommissionConfigEditPage() {
           setDepositCommissionRate(data.config.deposit_commission_rate || "")
           setWithdrawalCommissionRate(data.config.withdrawal_commission_rate || "")
         }
-        
-        toast({
-          title: "Partner config loaded",
-          description: "Partner commission configuration loaded successfully",
-        })
+        // GET requests don't show success toasts automatically
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
         setError(errorMessage)
@@ -107,11 +103,7 @@ export default function CommissionConfigEditPage() {
           body: JSON.stringify(payload),
         })
       }
-      
-      toast({
-        title: hasConfig ? "Config Updated" : "Config Created",
-        description: `Commission configuration ${hasConfig ? "updated" : "created"} successfully`,
-      })
+      // Success toast is automatically shown by useApi hook for non-GET requests
       
       router.push("/dashboard/commission-config/list")
     } catch (err: any) {

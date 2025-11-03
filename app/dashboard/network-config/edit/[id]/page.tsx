@@ -51,10 +51,7 @@ export default function NetworkConfigEditPage() {
       try {
         const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/networks/`)
         setNetworks(Array.isArray(data) ? data : data.results || [])
-        toast({
-          title: "Networks Loaded",
-          description: "Networks loaded successfully.",
-        })
+        // GET requests don't show success toasts automatically
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err) || "Failed to load networks"
         setError(errorMessage)
@@ -107,10 +104,7 @@ export default function NetworkConfigEditPage() {
           setMaxRetries(data.custom_settings.max_retries || 3)
           setAutoConfirm(data.custom_settings.auto_confirm || false)
         }
-        toast({
-          title: "Config Loaded",
-          description: "Network configuration loaded successfully.",
-        })
+        // GET requests don't show success toasts automatically
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err) || "Failed to load network configuration"
         setError(errorMessage)
@@ -159,10 +153,7 @@ export default function NetworkConfigEditPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       })
-      toast({
-        title: "Config Updated",
-        description: "Network configuration updated successfully.",
-      })
+      // Success toast is automatically shown by useApi hook for non-GET requests
       router.push("/dashboard/network-config/list")
     } catch (err: any) {
       const errorMessage = extractErrorMessages(err) || "Failed to update network configuration"

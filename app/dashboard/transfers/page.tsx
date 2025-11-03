@@ -85,10 +85,7 @@ export default function TransfersPage() {
       const data = await apiFetch(endpoint)
       setTransfers(data.results || [])
       setTotalCount(data.count || 0)
-      toast({
-        title: t("transfers.success") || "Success",
-        description: t("transfers.loadedSuccessfully") || "Transfers loaded successfully",
-      })
+      // GET requests don't show success toasts automatically
     } catch (err: any) {
       const errorMessage = extractErrorMessages(err) || t("transfers.failedToLoad") || "Failed to load transfers"
       setError(errorMessage)

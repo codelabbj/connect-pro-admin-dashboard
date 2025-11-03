@@ -128,11 +128,7 @@ export default function BettingTransactionsPage() {
         setTransactions(data.results || [])
         setTotalCount(data.count || 0)
         setTotalPages(Math.ceil((data.count || 0) / itemsPerPage))
-        
-        toast({
-          title: t("bettingTransactions.transactionsLoaded"),
-          description: t("bettingTransactions.transactionsLoadedSuccessfully"),
-        })
+        // GET requests don't show success toasts automatically
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
         setError(errorMessage)
@@ -219,11 +215,7 @@ export default function BettingTransactionsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       })
-      
-      toast({
-        title: t("bettingTransactions.cancellationProcessed"),
-        description: t("bettingTransactions.cancellationProcessedSuccessfully"),
-      })
+      // Success toast is automatically shown by useApi hook for non-GET requests
       
       // Refresh transactions
       setCancellationModalOpen(false)
@@ -438,7 +430,8 @@ export default function BettingTransactionsPage() {
                       </Button>
                     </TableHead>
                     <TableHead>{t("bettingTransactions.status")}</TableHead>
-                    <TableHead>{t("bettingTransactions.commissionStatus")}</TableHead>
+                    <TableHead>{t("bettingTransactions.bettingUserId") || "Betting User ID"}</TableHead>
+                    {/* <TableHead>{t("bettingTransactions.commissionStatus")}</TableHead> */}
                     <TableHead>
                       <Button variant="ghost" onClick={() => handleSort("created_at")} className="h-auto p-0 font-semibold">
                         {t("bettingTransactions.createdAt")}
@@ -478,13 +471,16 @@ export default function BettingTransactionsPage() {
                       <TableCell className="font-medium">{transaction.amount} XOF</TableCell>
                       <TableCell>{getStatusBadge(transaction.status)}</TableCell>
                       <TableCell>
+                        <code className="text-sm">{transaction.betting_user_id || "-"}</code>
+                      </TableCell>
+                      {/* <TableCell>
                         <div className="flex items-center gap-2">
                           <span>{transaction.commission_amount} XOF</span>
                           {!transaction.commission_paid && (
                             <Badge variant="outline" className="text-xs">{t("bettingTransactions.unpaid")}</Badge>
                           )}
                         </div>
-                      </TableCell>
+                      </TableCell> */}
                       <TableCell>
                         <div className="text-sm">
                           {new Date(transaction.created_at).toLocaleDateString()}

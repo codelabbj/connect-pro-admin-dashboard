@@ -55,11 +55,7 @@ export default function PlatformEditPage() {
         setMaxWithdrawalAmount(data.max_withdrawal_amount?.toString() || "")
         setDescription(data.description || "")
         setIsActive(data.is_active ?? true)
-        
-        toast({
-          title: t("platforms.platformLoaded"),
-          description: t("platforms.platformDetailsLoadedSuccessfully"),
-        })
+        // GET requests don't show success toasts automatically
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
         setError(errorMessage)
@@ -97,11 +93,7 @@ export default function PlatformEditPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       })
-      
-      toast({
-        title: t("platforms.platformUpdated"),
-        description: t("platforms.platformUpdatedSuccessfully"),
-      })
+      // Success toast is automatically shown by useApi hook for non-GET requests
       
       router.push("/dashboard/platforms/list")
     } catch (err: any) {

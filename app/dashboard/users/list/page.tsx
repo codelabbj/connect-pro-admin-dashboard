@@ -115,10 +115,7 @@ export default function UsersPage() {
         setUsers(data.users || []);
         setTotalCount(data.pagination?.total_count || 0);
         setTotalPages(data.pagination?.total_pages || 1);
-        toast({
-          title: t("users.success"),
-          description: t("users.loadedSuccessfully"),
-        });
+        // GET requests don't show success toasts automatically
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err);
         setError(errorMessage);
@@ -168,7 +165,7 @@ export default function UsersPage() {
       const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/${user.uid}/activate/`, {
         method: "PATCH",
       })
-      toast({ title: t("users.activated"), description: data.message || t("users.userActivatedSuccessfully") })
+      // Success toast is automatically shown by useApi hook for non-GET requests
       setUsers((prev) => prev.map((u) => (u.uid === user.uid ? { ...u, ...data.user } : u)))
     } catch (err: any) {
       toast({ title: t("users.activationFailed"), description: extractErrorMessages(err) || t("users.couldNotActivateUser"), variant: "destructive" })
@@ -185,7 +182,7 @@ export default function UsersPage() {
       const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/${user.uid}/deactivate/`, {
         method: "PATCH",
       })
-      toast({ title: t("users.deactivated"), description: data.message || t("users.userDeactivatedSuccessfully") })
+      // Success toast is automatically shown by useApi hook for non-GET requests
       setUsers((prev) => prev.map((u) => (u.uid === user.uid ? { ...u, ...data.user } : u)))
     } catch (err: any) {
       toast({ title: t("users.deactivationFailed"), description: extractErrorMessages(err) || t("users.couldNotDeactivateUser"), variant: "destructive" })
@@ -215,7 +212,7 @@ export default function UsersPage() {
         method: "POST",
         body: JSON.stringify({ action, user_ids: selectedUids }),
       })
-      toast({ title: t("users.bulkActionSuccess"), description: data.message || t("users.bulkActionCompleted") })
+      // Success toast is automatically shown by useApi hook for non-GET requests
       setUsers((prev) => prev.map((u) => selectedUids.includes(u.uid) ? { ...u, ...data.user } : u))
       setSelectedUids([])
       setCurrentPage(1)
@@ -235,7 +232,7 @@ export default function UsersPage() {
     try {
       const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/${uid}/`)
       setDetailUser(data)
-      toast({ title: t("users.detailLoaded"), description: t("users.userDetailLoadedSuccessfully") })
+      // GET requests don't show success toasts automatically
     } catch (err: any) {
       setDetailError(extractErrorMessages(err))
       toast({ title: t("users.detailFailed"), description: extractErrorMessages(err), variant: "destructive" })
@@ -261,7 +258,7 @@ export default function UsersPage() {
         body: JSON.stringify({ email_verified: true }),
       });
       setDetailUser((prev: any) => prev ? { ...prev, email_verified: true } : prev);
-      toast({ title: t("users.emailVerified"), description: t("users.emailVerifiedSuccessfully") });
+      // Success toast is automatically shown by useApi hook for non-GET requests
     } catch (err: any) {
       toast({ title: t("users.verificationFailed"), description: extractErrorMessages(err), variant: "destructive" });
     } finally {
@@ -280,7 +277,7 @@ export default function UsersPage() {
         body: JSON.stringify({ phone_verified: true }),
       });
       setDetailUser((prev: any) => prev ? { ...prev, phone_verified: true } : prev);
-      toast({ title: t("users.phoneVerified"), description: t("users.phoneVerifiedSuccessfully") });
+      // Success toast is automatically shown by useApi hook for non-GET requests
     } catch (err: any) {
       toast({ title: t("users.verificationFailed"), description: extractErrorMessages(err), variant: "destructive" });
     } finally {
@@ -299,7 +296,7 @@ export default function UsersPage() {
         body: JSON.stringify({ email_verified: verify }),
       });
       setDetailUser((prev: any) => prev ? { ...prev, email_verified: verify } : prev);
-      toast({ title: t("users.emailVerified"), description: verify ? t("users.emailVerifiedSuccessfully") : t("users.emailUnverifiedSuccessfully") });
+      // Success toast is automatically shown by useApi hook for non-GET requests
     } catch (err: any) {
       toast({ title: t("users.verificationFailed"), description: extractErrorMessages(err), variant: "destructive" });
     } finally {
@@ -318,7 +315,7 @@ export default function UsersPage() {
         body: JSON.stringify({ phone_verified: verify }),
       });
       setDetailUser((prev: any) => prev ? { ...prev, phone_verified: verify } : prev);
-      toast({ title: t("users.phoneVerified"), description: verify ? t("users.phoneVerifiedSuccessfully") : t("users.phoneUnverifiedSuccessfully") });
+      // Success toast is automatically shown by useApi hook for non-GET requests
     } catch (err: any) {
       toast({ title: t("users.verificationFailed"), description: extractErrorMessages(err), variant: "destructive" });
     } finally {
@@ -337,7 +334,7 @@ export default function UsersPage() {
         body: JSON.stringify({ is_partner: isPartner }),
       });
       setDetailUser((prev: any) => prev ? { ...prev, is_partner: isPartner } : prev);
-      toast({ title: t("users.partnerToggled"), description: isPartner ? t("users.partnerEnabledSuccessfully") : t("users.partnerDisabledSuccessfully") });
+      // Success toast is automatically shown by useApi hook for non-GET requests
     } catch (err: any) {
       toast({ title: t("users.partnerToggleFailed"), description: extractErrorMessages(err), variant: "destructive" });
     } finally {
@@ -356,7 +353,7 @@ export default function UsersPage() {
         body: JSON.stringify({ can_process_ussd_transaction: canProcess }),
       });
       setDetailUser((prev: any) => prev ? { ...prev, can_process_ussd_transaction: canProcess } : prev);
-      toast({ title: t("users.ussdToggled"), description: canProcess ? t("users.ussdEnabledSuccessfully") : t("users.ussdDisabledSuccessfully") });
+      // Success toast is automatically shown by useApi hook for non-GET requests
     } catch (err: any) {
       toast({ title: t("users.ussdToggleFailed"), description: extractErrorMessages(err), variant: "destructive" });
     } finally {

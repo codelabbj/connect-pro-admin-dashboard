@@ -87,10 +87,7 @@ export default function RegisterUserForm() {
         })
       } else {
         setSuccess(t("register.success"))
-        toast({
-          title: t("register.success"),
-          description: t("register.userRegisteredSuccessfully"),
-        })
+        // Success toast is automatically shown by useApi hook for non-GET requests
         setForm({
           first_name: "",
           last_name: "",

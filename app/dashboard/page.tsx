@@ -572,10 +572,7 @@ export default function DashboardPage() {
     try {
       const data = await apiFetch(`${baseUrl}api/auth/admin/notifications/stats/`);
       setStats(data);
-      toast({
-        title: t("dashboard.success"),
-        description: t("dashboard.statsLoadedSuccessfully"),
-      });
+      // GET requests don't show success toasts automatically
     } catch (err: any) {
       let backendError = extractErrorMessages(err) || t("dashboard.failedToLoadStats");
       // Detect authentication error (401 or token error)

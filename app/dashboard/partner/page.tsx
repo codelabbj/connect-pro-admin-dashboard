@@ -94,6 +94,18 @@ export default function PartnerPage() {
 	const [bettingCommissionPaymentLoading, setBettingCommissionPaymentLoading] = useState(false)
 	const [bettingCommissionPaymentError, setBettingCommissionPaymentError] = useState("")
 
+	// Account transactions states
+	const [accountTransactionsModalOpen, setAccountTransactionsModalOpen] = useState(false)
+	const [accountTransactionsPartner, setAccountTransactionsPartner] = useState<any | null>(null)
+	const [accountTransactions, setAccountTransactions] = useState<any[]>([])
+	const [accountTransactionsUserInfo, setAccountTransactionsUserInfo] = useState<any | null>(null)
+	const [accountTransactionsLoading, setAccountTransactionsLoading] = useState(false)
+	const [accountTransactionsError, setAccountTransactionsError] = useState("")
+	const [accountTransactionsPage, setAccountTransactionsPage] = useState(1)
+	const [accountTransactionsTotalCount, setAccountTransactionsTotalCount] = useState(0)
+	const [accountTransactionsNextPage, setAccountTransactionsNextPage] = useState<string | null>(null)
+	const [accountTransactionsPrevPage, setAccountTransactionsPrevPage] = useState<string | null>(null)
+
 	// Fetch partners from API (authenticated)
 	useEffect(() => {
 		const fetchPartners = async () => {
@@ -127,7 +139,7 @@ export default function PartnerPage() {
 				setPartners(data.partners || [])
 				setTotalCount(data.pagination?.total_count || 0)
 				setTotalPages(data.pagination?.total_pages || 1)
-				toast({ title: t("partners.success"), description: t("partners.loadedSuccessfully") })
+				// GET requests don't show success toasts automatically
 			} catch (err: any) {
 				const errorMessage = extractErrorMessages(err)
 				setError(errorMessage)
@@ -163,7 +175,7 @@ export default function PartnerPage() {
 			const endpoint = `${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/partners/${uid}/`
 			const data = await apiFetch(endpoint)
 			setDetailPartner(data)
-			toast({ title: t("partners.detailLoaded"), description: t("partners.partnerDetailLoadedSuccessfully") })
+			// GET requests don't show success toasts automatically
 		} catch (err: any) {
 			setDetailError(extractErrorMessages(err))
 			toast({ title: t("partners.detailFailed"), description: extractErrorMessages(err), variant: "destructive" })
@@ -356,8 +368,7 @@ export default function PartnerPage() {
 			const statsEndpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/commissions/partner_commission_stats/?partner_uid=${partner.uid}`
 			const statsData = await apiFetch(statsEndpoint)
 			setBettingCommissionStats(statsData)
-			
-			toast({ title: t("common.success"), description: t("bettingCommission.loadedSuccessfully") })
+			// GET requests don't show success toasts automatically
 		} catch (err: any) {
 			setBettingCommissionError(extractErrorMessages(err))
 			toast({ title: t("common.error"), description: extractErrorMessages(err), variant: "destructive" })
@@ -469,6 +480,77 @@ export default function PartnerPage() {
 			toast({ title: t("common.error"), description: extractErrorMessages(err), variant: "destructive" })
 		} finally {
 			setBettingCommissionPaymentLoading(false)
+		}
+	}
+
+	// Account transactions handlers
+	const handleOpenAccountTransactions = async (partner: any) => {
+		setAccountTransactionsPartner(partner)
+		setAccountTransactionsModalOpen(true)
+		setAccountTransactionsLoading(true)
+		setAccountTransactionsError("")
+		setAccountTransactions([])
+		setAccountTransactionsUserInfo(null)
+		setAccountTransactionsPage(1)
+		setAccountTransactionsTotalCount(0)
+		setAccountTransactionsNextPage(null)
+		setAccountTransactionsPrevPage(null)
+		
+		try {
+			const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/account-transactions/${partner.uid}/`
+			const data = await apiFetch(endpoint)
+			
+			setAccountTransactions(data.results || [])
+			setAccountTransactionsUserInfo(data.user_info || null)
+			setAccountTransactionsTotalCount(data.count || 0)
+			setAccountTransactionsNextPage(data.next || null)
+			setAccountTransactionsPrevPage(data.previous || null)
+			// GET requests don't show success toasts automatically
+		} catch (err: any) {
+			const errorMessage = extractErrorMessages(err)
+			setAccountTransactionsError(errorMessage)
+			toast({
+				title: t("common.error") || "Error",
+				description: errorMessage,
+				variant: "destructive",
+			})
+		} finally {
+			setAccountTransactionsLoading(false)
+		}
+	}
+
+	const handleAccountTransactionsPageChange = async (pageUrl: string) => {
+		if (!pageUrl) return
+		
+		setAccountTransactionsLoading(true)
+		setAccountTransactionsError("")
+		
+		try {
+			// Extract page number from URL or use direct URL
+			const data = await apiFetch(pageUrl)
+			
+			setAccountTransactions(data.results || [])
+			setAccountTransactionsTotalCount(data.count || 0)
+			setAccountTransactionsNextPage(data.next || null)
+			setAccountTransactionsPrevPage(data.previous || null)
+			
+			// Extract page number from URL for state
+			const urlObj = new URL(pageUrl)
+			const pageParam = urlObj.searchParams.get('page')
+			if (pageParam) {
+				setAccountTransactionsPage(parseInt(pageParam))
+			}
+			// GET requests don't show success toasts automatically
+		} catch (err: any) {
+			const errorMessage = extractErrorMessages(err)
+			setAccountTransactionsError(errorMessage)
+			toast({
+				title: t("common.error") || "Error",
+				description: errorMessage,
+				variant: "destructive",
+			})
+		} finally {
+			setAccountTransactionsLoading(false)
 		}
 	}
 
@@ -648,6 +730,12 @@ export default function PartnerPage() {
 												<DropdownMenuItem onClick={() => handleOpenDeviceAuth(partner)}>
 													<ShieldCheck className="h-4 w-4 mr-2" />
 													<span>{t("deviceAuthorizations.viewAuthorizations") || "View YapsonPress Device Authorizations"}</span>
+												</DropdownMenuItem>
+
+												{/* Account Transactions */}
+												<DropdownMenuItem onClick={() => handleOpenAccountTransactions(partner)}>
+													<CreditCard className="h-4 w-4 mr-2 text-purple-600" />
+													<span>{t("partners.viewAccountTransactions") || "View Account Transactions"}</span>
 												</DropdownMenuItem>
 											</DropdownMenuContent>
 										</DropdownMenu>
@@ -1207,6 +1295,185 @@ export default function PartnerPage() {
 							</DialogFooter>
 						</form>
 					)}
+				</DialogContent>
+			</Dialog>
+
+			{/* Account Transactions Modal */}
+			<Dialog open={accountTransactionsModalOpen} onOpenChange={setAccountTransactionsModalOpen}>
+				<DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+					<DialogHeader>
+						<DialogTitle>
+							{t("partners.accountTransactions") || "Account Transactions"} - {accountTransactionsPartner?.display_name || accountTransactionsPartner?.email}
+						</DialogTitle>
+					</DialogHeader>
+					
+					{accountTransactionsLoading ? (
+						<div className="flex items-center justify-center py-8">
+							<Loader className="animate-spin mr-2 h-6 w-6" />
+							<span>{t("common.loading")}</span>
+						</div>
+					) : accountTransactionsError ? (
+						<ErrorDisplay error={accountTransactionsError} variant="inline" className="mb-4" />
+					) : (
+						<div className="space-y-4">
+							{/* User Info */}
+							{accountTransactionsUserInfo && (
+								<Card>
+									<CardHeader>
+										<CardTitle className="text-lg">{t("partners.userInformation") || "User Information"}</CardTitle>
+									</CardHeader>
+									<CardContent>
+										<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+											<div>
+												<div className="text-sm text-muted-foreground">{t("common.uid") || "UID"}</div>
+												<div className="font-mono text-sm">{accountTransactionsUserInfo.uid}</div>
+											</div>
+											<div>
+												<div className="text-sm text-muted-foreground">{t("partners.name") || "Name"}</div>
+												<div className="font-medium">{accountTransactionsUserInfo.display_name}</div>
+											</div>
+											<div>
+												<div className="text-sm text-muted-foreground">{t("partners.email") || "Email"}</div>
+												<div>{accountTransactionsUserInfo.email || "-"}</div>
+											</div>
+											<div>
+												<div className="text-sm text-muted-foreground">{t("partners.phone") || "Phone"}</div>
+												<div>{accountTransactionsUserInfo.phone || "-"}</div>
+											</div>
+											<div>
+												<div className="text-sm text-muted-foreground">{t("partners.accountBalance") || "Current Balance"}</div>
+												<div className="text-lg font-bold text-green-600">
+													{accountTransactionsUserInfo.current_balance?.toLocaleString() || "0"} FCFA
+												</div>
+											</div>
+											<div>
+												<div className="text-sm text-muted-foreground">{t("partners.isPartner") || "Is Partner"}</div>
+												<div>
+													<Badge variant={accountTransactionsUserInfo.is_partner ? "default" : "secondary"}>
+														{accountTransactionsUserInfo.is_partner ? t("common.yes") : t("common.no")}
+													</Badge>
+												</div>
+											</div>
+										</div>
+									</CardContent>
+								</Card>
+							)}
+
+							{/* Transactions Table */}
+							<div className="space-y-2">
+								<div className="flex items-center justify-between">
+									<h3 className="font-semibold">{t("partners.transactions") || "Transactions"} ({accountTransactionsTotalCount})</h3>
+								</div>
+								{accountTransactions.length > 0 ? (
+									<div className="border rounded-lg">
+										<Table>
+											<TableHeader>
+												<TableRow>
+													<TableHead>{t("partners.reference") || "Reference"}</TableHead>
+													<TableHead>{t("partners.type") || "Type"}</TableHead>
+													<TableHead>{t("partners.amount") || "Amount"}</TableHead>
+													<TableHead>{t("partners.balanceBefore") || "Balance Before"}</TableHead>
+													<TableHead>{t("partners.balanceAfter") || "Balance After"}</TableHead>
+													<TableHead>{t("partners.description") || "Description"}</TableHead>
+													<TableHead>{t("partners.createdAt") || "Created At"}</TableHead>
+													<TableHead>{t("partners.relatedPayment") || "Related Payment"}</TableHead>
+												</TableRow>
+											</TableHeader>
+											<TableBody>
+												{accountTransactions.map((transaction: any) => (
+													<TableRow key={transaction.uid}>
+														<TableCell>
+															<code className="text-xs">{transaction.reference}</code>
+														</TableCell>
+														<TableCell>
+															<div className="space-y-1">
+																<Badge variant={transaction.is_credit ? "default" : transaction.is_debit ? "destructive" : "outline"}>
+																	{transaction.type_display || transaction.type}
+																</Badge>
+															</div>
+														</TableCell>
+														<TableCell className={`font-medium ${transaction.is_credit ? "text-green-600" : transaction.is_debit ? "text-red-600" : ""}`}>
+															{transaction.formatted_amount || `${transaction.is_credit ? "+" : transaction.is_debit ? "-" : ""}${transaction.amount} FCFA`}
+														</TableCell>
+														<TableCell>
+															{parseFloat(transaction.balance_before || 0).toLocaleString()} FCFA
+														</TableCell>
+														<TableCell className="font-medium">
+															{parseFloat(transaction.balance_after || 0).toLocaleString()} FCFA
+														</TableCell>
+														<TableCell className="max-w-xs truncate" title={transaction.description}>
+															{transaction.description || "-"}
+														</TableCell>
+														<TableCell className="text-sm">
+															{new Date(transaction.created_at).toLocaleString()}
+														</TableCell>
+														<TableCell>
+															<div className="space-y-1">
+																{transaction.related_payment_reference && (
+																	<div className="text-xs">
+																		<code>{transaction.related_payment_reference}</code>
+																	</div>
+																)}
+																{transaction.related_payment_recipient && (
+																	<div className="text-xs text-muted-foreground">
+																		{transaction.related_payment_recipient}
+																	</div>
+																)}
+																{transaction.metadata?.network && (
+																	<div className="text-xs">
+																		<Badge variant="outline">{transaction.metadata.network}</Badge>
+																	</div>
+																)}
+															</div>
+														</TableCell>
+													</TableRow>
+												))}
+											</TableBody>
+										</Table>
+									</div>
+								) : (
+									<div className="text-center py-8 text-muted-foreground">
+										<CreditCard className="mx-auto h-12 w-12 mb-4 opacity-50" />
+										<p>{t("partners.noAccountTransactions") || "No account transactions found"}</p>
+									</div>
+								)}
+
+								{/* Pagination */}
+								{(accountTransactionsNextPage || accountTransactionsPrevPage) && (
+									<div className="flex items-center justify-between pt-4 border-t">
+										<div className="text-sm text-muted-foreground">
+											{t("partners.showing") || "Showing"} {accountTransactions.length} {t("partners.of") || "of"} {accountTransactionsTotalCount} {t("partners.transactions") || "transactions"}
+										</div>
+										<div className="flex items-center space-x-2">
+											<Button
+												variant="outline"
+												size="sm"
+												onClick={() => accountTransactionsPrevPage && handleAccountTransactionsPageChange(accountTransactionsPrevPage)}
+												disabled={!accountTransactionsPrevPage || accountTransactionsLoading}
+											>
+												<ChevronLeft className="h-4 w-4 mr-1" />
+												{t("common.previous") || "Previous"}
+											</Button>
+											<Button
+												variant="outline"
+												size="sm"
+												onClick={() => accountTransactionsNextPage && handleAccountTransactionsPageChange(accountTransactionsNextPage)}
+												disabled={!accountTransactionsNextPage || accountTransactionsLoading}
+											>
+												{t("common.next") || "Next"}
+												<ChevronRight className="h-4 w-4 ml-1" />
+											</Button>
+										</div>
+									</div>
+								)}
+							</div>
+						</div>
+					)}
+					<DialogFooter>
+						<Button variant="outline" onClick={() => setAccountTransactionsModalOpen(false)}>
+							{t("common.close")}
+						</Button>
+					</DialogFooter>
 				</DialogContent>
 			</Dialog>
 		</>

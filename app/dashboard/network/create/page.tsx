@@ -35,10 +35,7 @@ export default function NetworkCreatePage() {
       try {
         const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/countries/`)
         setCountries(Array.isArray(data) ? data : data.results || [])
-        toast({
-          title: t("network.countriesLoaded"),
-          description: t("network.countriesLoadedSuccessfully"),
-        })
+        // GET requests don't show success toasts automatically
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err) || t("network.failedToLoadCountries")
         setCountries([])
@@ -70,10 +67,7 @@ export default function NetworkCreatePage() {
           sent_withdrawal_to_module: sentWithdrawalToModule
         })
       })
-      toast({
-        title: t("network.created"),
-        description: t("network.createdSuccessfully"),
-      })
+      // Success toast is automatically shown by useApi hook for non-GET requests
       router.push("/dashboard/network/list")
     } catch (err: any) {
       const errorMessage = extractErrorMessages(err) || t("network.failedToCreate")

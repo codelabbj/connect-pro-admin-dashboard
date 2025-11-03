@@ -62,10 +62,7 @@ function PermissionCreatePageContent() {
         const platformsData = await apiFetch(platformsEndpoint)
         setPlatformOptions(platformsData.results || [])
         
-        toast({
-          title: t("permissions.optionsLoaded"),
-          description: t("permissions.optionsLoadedSuccessfully"),
-        })
+        // GET requests don't show success toasts automatically
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
         setError(errorMessage)
@@ -88,10 +85,7 @@ function PermissionCreatePageContent() {
       const partnerExists = partnerOptions.some(p => p.uid === preselectedPartner)
       if (partnerExists) {
         setSelectedPartner(preselectedPartner)
-      toast({
-        title: t("permissions.partnerPreselected"),
-        description: t("permissions.partnerSelectedFromUrl"),
-      })
+      // No API call here, just UI state update
       }
     }
   }, [preselectedPartner, partnerOptions, selectedPartner, toast])
@@ -124,11 +118,7 @@ function PermissionCreatePageContent() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       })
-      
-      toast({
-        title: t("permissions.permissionGranted"),
-        description: t("permissions.grantedSuccessfully"),
-      })
+      // Success toast is automatically shown by useApi hook for non-GET requests
       
       router.push("/dashboard/permissions/list")
     } catch (err: any) {
