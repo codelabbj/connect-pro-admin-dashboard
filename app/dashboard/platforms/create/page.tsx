@@ -15,7 +15,7 @@ import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
-const yapsonUrl = "https://api.yapson.net/yapson/app_name"
+const yapsonUrl = "https://api.yapson.net/yapson/app_name?type=yapson"
 
 export default function PlatformCreatePage() {
   const [name, setName] = useState("")
