@@ -497,7 +497,7 @@ import { useToast } from "@/hooks/use-toast"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { ClipboardList, Users, KeyRound, Bell, Clock, TrendingUp, Loader, ServerCrash, DollarSign, RefreshCw, UserCheck } from "lucide-react";
+import { ClipboardList, Users, KeyRound, Bell, Clock, TrendingUp, Loader, ServerCrash, DollarSign, RefreshCw, UserCheck, Zap } from "lucide-react";
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
@@ -558,6 +558,11 @@ export default function DashboardPage() {
   const [waveBusinessStats, setWaveBusinessStats] = useState<any>(null);
   const [waveBusinessLoading, setWaveBusinessLoading] = useState(false);
   const [waveBusinessError, setWaveBusinessError] = useState("");
+
+  // Auto-recharge stats state
+  const [autoRechargeStats, setAutoRechargeStats] = useState<any>(null);
+  const [autoRechargeLoading, setAutoRechargeLoading] = useState(false);
+  const [autoRechargeError, setAutoRechargeError] = useState("");
 
   const apiFetch = useApi();
   const { t } = useLanguage();
@@ -714,6 +719,23 @@ export default function DashboardPage() {
       }
     };
     fetchWaveBusinessStats();
+  }, [apiFetch, baseUrl]);
+
+  // Fetch Auto-recharge stats
+  useEffect(() => {
+    const fetchAutoRechargeStats = async () => {
+      setAutoRechargeLoading(true);
+      setAutoRechargeError("");
+      try {
+        const res = await apiFetch(`${baseUrl}api/auto-recharge/admin/statistics/`);
+        setAutoRechargeStats(res);
+      } catch (err: any) {
+        setAutoRechargeError("Failed to load Auto Recharge stats");
+      } finally {
+        setAutoRechargeLoading(false);
+      }
+    };
+    fetchAutoRechargeStats();
   }, [apiFetch, baseUrl]);
 
   useEffect(() => {
@@ -947,7 +969,7 @@ export default function DashboardPage() {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* MoMo Pay Stats */}
           <Card className="hover:shadow-lg transition-shadow border-teal-100 dark:border-teal-900">
             <CardHeader className="flex flex-row items-center gap-3">
@@ -1119,6 +1141,105 @@ export default function DashboardPage() {
                         </span>
                         <Badge variant="destructive" className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
                           {waveBusinessStats.expired_count || 0}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-gray-500 text-center py-8">{t("dashboard.noData") || "No data available"}</div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Auto Recharge Stats */}
+          <Card className="hover:shadow-lg transition-shadow border-orange-100 dark:border-orange-900">
+            <CardHeader className="flex flex-row items-center gap-3">
+              <div className="bg-orange-100 dark:bg-orange-900 p-3 rounded-full">
+                <Zap className="text-orange-700 dark:text-orange-200 w-6 h-6" />
+              </div>
+              <div>
+                <CardTitle className="text-orange-700 dark:text-orange-200 text-xl">
+                  {t("dashboard.autoRechargeStats") || "Auto Recharge Statistics"}
+                </CardTitle>
+                <p className="text-sm text-orange-600 dark:text-orange-300">
+                  {t("dashboard.autoRechargeTransactions") || "Auto Recharge Transactions"}
+                </p>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {autoRechargeLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader className="animate-spin mr-2" /> {t("common.loading")}
+                </div>
+              ) : autoRechargeError ? (
+                <div className="text-red-600 text-center py-4">{autoRechargeError}</div>
+              ) : autoRechargeStats ? (
+                <div className="space-y-4">
+                  {/* Key Metrics */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-orange-50 dark:bg-orange-950 p-4 rounded-lg">
+                      <div className="text-sm font-medium text-orange-700 dark:text-orange-300">
+                        {t("autoRecharge.statistics.totalTransactions") || "Total Transactions"}
+                      </div>
+                      <div className="text-2xl font-bold text-orange-800 dark:text-orange-200">
+                        {autoRechargeStats.total_transactions?.toLocaleString() || 0}
+                      </div>
+                    </div>
+                    <div className="bg-amber-50 dark:bg-amber-950 p-4 rounded-lg">
+                      <div className="text-sm font-medium text-amber-700 dark:text-amber-300">
+                        {t("autoRecharge.statistics.totalAmount") || "Total Amount"}
+                      </div>
+                      <div className="text-2xl font-bold text-amber-800 dark:text-amber-200">
+                        {autoRechargeStats.total_amount || "0.00"}
+                      </div>
+                    </div>
+                    <div className="bg-yellow-50 dark:bg-yellow-950 p-4 rounded-lg">
+                      <div className="text-sm font-medium text-yellow-700 dark:text-yellow-300">
+                        {t("autoRecharge.statistics.totalFees") || "Total Fees"}
+                      </div>
+                      <div className="text-2xl font-bold text-yellow-800 dark:text-yellow-200">
+                        {autoRechargeStats.total_fees || "0.00"}
+                      </div>
+                    </div>
+                    <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg">
+                      <div className="text-sm font-medium text-green-700 dark:text-green-300">
+                        {t("autoRecharge.statistics.successRate") || "Success Rate"}
+                      </div>
+                      <div className="text-2xl font-bold text-green-800 dark:text-green-200">
+                        {autoRechargeStats.success_rate || "0.00"}%
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Status Breakdown */}
+                  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border">
+                    <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                      {t("dashboard.statusBreakdown") || "Status Breakdown"}
+                    </h4>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          {t("autoRecharge.statistics.completed") || "Completed"}
+                        </span>
+                        <Badge variant="default" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                          {autoRechargeStats.completed_transactions || 0}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          {t("autoRecharge.statistics.pending") || "Pending"}
+                        </span>
+                        <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                          {autoRechargeStats.pending_transactions || 0}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          {t("autoRecharge.statistics.failed") || "Failed"}
+                        </span>
+                        <Badge variant="destructive" className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                          {autoRechargeStats.failed_transactions || 0}
                         </Badge>
                       </div>
                     </div>

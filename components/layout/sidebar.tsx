@@ -67,6 +67,8 @@ export function Sidebar() {
 
   const isBettingTransactionsActive = pathname.startsWith("/dashboard/betting-transactions")
 
+  const isAutoRechargeActive = pathname === "/dashboard/auto-recharge" || pathname.startsWith("/dashboard/auto-recharge/")
+
   const isApiConfigActive = pathname.startsWith("/dashboard/api-config")
   const isApiConfigListActive = pathname === "/dashboard/api-config/list"
 
@@ -298,6 +300,19 @@ export function Sidebar() {
             >
               <ArrowRightLeft className="mr-3 h-6 w-6 flex-shrink-0" />
               {t("nav.partnerTransfers") || "Partner Transfers"}
+            </Link>
+            <Link
+              href="/dashboard/auto-recharge"
+              className={cn(
+                "group flex items-center px-2 py-2 text-sm font-medium rounded-md",
+                isAutoRechargeActive
+                  ? "bg-blue-100 text-blue-900 dark:bg-blue-900 dark:text-blue-100"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white",
+              )}
+              onClick={() => setSidebarOpen(false)}
+            >
+              <Zap className="mr-3 h-6 w-6 flex-shrink-0" />
+              {t("nav.autoRecharge") || "Auto Recharge"}
             </Link>
             <div>
               <button
@@ -887,6 +902,18 @@ export function Sidebar() {
             >
               <ArrowRightLeft className="mr-3 h-6 w-6 flex-shrink-0" />
               {t("nav.partnerTransfers") || "Partner Transfers"}
+            </Link>
+            <Link
+              href="/dashboard/auto-recharge"
+              className={cn(
+                "group flex items-center px-2 py-2 text-sm font-medium rounded-md",
+                pathname === "/dashboard/auto-recharge" || pathname.startsWith("/dashboard/auto-recharge/")
+                  ? "bg-blue-100 text-blue-900 dark:bg-blue-900 dark:text-blue-100"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white",
+              )}
+            >
+              <Zap className="mr-3 h-6 w-6 flex-shrink-0" />
+              {t("nav.autoRecharge") || "Auto Recharge"}
             </Link>
             <div>
               <button
