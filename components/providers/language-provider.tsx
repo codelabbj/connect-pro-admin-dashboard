@@ -691,6 +691,8 @@ const translations = {
     "network.errorLoading": "Error Loading Networks",
     "network.sentDepositToModule": "Send deposit to module",
     "network.sentWithdrawalToModule": "Send withdrawal to module",
+    "network.paymentLink": "Payment Link",
+    "network.paymentUssd": "Payment USSD",
 
     // Devices
     "devices.title": "Devices",
@@ -1612,7 +1614,6 @@ const translations = {
     "autoRecharge.mapping.maxAmount": "Maximum Amount",
     "autoRecharge.mapping.aggregatorNetworkCode": "Aggregator Network Code",
     "autoRecharge.mapping.aggregatorCountryCode": "Aggregator Country Code",
-    "autoRecharge.mapping.paymentLink": "Payment Link",
     "autoRecharge.mapping.creating": "Creating...",
     "autoRecharge.mapping.createMapping": "Create Mapping",
     "autoRecharge.mapping.updating": "Updating...",
@@ -2308,6 +2309,8 @@ const translations = {
     "network.errorLoading": "Erreur lors du chargement des réseaux",
     "network.sentDepositToModule": "Envoyer dépôt au module",
     "network.sentWithdrawalToModule": "Envoyer retrait au module",
+    "network.paymentLink": "Lien de paiement",
+    "network.paymentUssd": "USSD de paiement",
 
     // Devices
     "devices.title": "Appareils",
@@ -3231,7 +3234,6 @@ const translations = {
     "autoRecharge.mapping.maxAmount": "Montant Maximum",
     "autoRecharge.mapping.aggregatorNetworkCode": "Code Réseau Agrégateur",
     "autoRecharge.mapping.aggregatorCountryCode": "Code Pays Agrégateur",
-    "autoRecharge.mapping.paymentLink": "Lien de Paiement",
     "autoRecharge.mapping.creating": "Création...",
     "autoRecharge.mapping.createMapping": "Créer le Mappage",
     "autoRecharge.mapping.updating": "Mise à jour...",

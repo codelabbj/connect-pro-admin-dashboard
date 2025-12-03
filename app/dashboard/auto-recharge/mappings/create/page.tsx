@@ -33,7 +33,6 @@ export default function AutoRechargeMappingCreatePage() {
   const [maxAmount, setMaxAmount] = useState("1000000.00")
   const [aggregatorNetworkCode, setAggregatorNetworkCode] = useState("")
   const [aggregatorCountryCode, setAggregatorCountryCode] = useState("")
-  const [paymentLink, setPaymentLink] = useState("")
   
   const apiFetch = useApi()
   const { t } = useLanguage()
@@ -90,7 +89,6 @@ export default function AutoRechargeMappingCreatePage() {
         max_amount: maxAmount.trim(),
         aggregator_network_code: aggregatorNetworkCode.trim(),
         aggregator_country_code: aggregatorCountryCode.trim(),
-        payment_link: paymentLink.trim(),
       }
 
       await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auto-recharge/admin/mappings/create/`, {
@@ -255,18 +253,6 @@ export default function AutoRechargeMappingCreatePage() {
                 placeholder="BJ"
               />
             </div>
-          </div>
-
-          {/* Payment Link */}
-          <div className="space-y-2">
-            <Label htmlFor="payment_link">{t("autoRecharge.mapping.paymentLink")}</Label>
-            <Input
-              id="payment_link"
-              type="url"
-              value={paymentLink}
-              onChange={(e) => setPaymentLink(e.target.value)}
-              placeholder="https://example.com/payment"
-            />
           </div>
 
           {error && (

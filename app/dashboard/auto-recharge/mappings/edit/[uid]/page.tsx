@@ -37,7 +37,6 @@ export default function AutoRechargeMappingEditPage() {
   const [maxAmount, setMaxAmount] = useState("1000000.00")
   const [aggregatorNetworkCode, setAggregatorNetworkCode] = useState("")
   const [aggregatorCountryCode, setAggregatorCountryCode] = useState("")
-  const [paymentLink, setPaymentLink] = useState("")
   
   const apiFetch = useApi()
   const { t } = useLanguage()
@@ -64,7 +63,6 @@ export default function AutoRechargeMappingEditPage() {
           setMaxAmount(mapping.max_amount || "1000000.00")
           setAggregatorNetworkCode(mapping.aggregator_network_code || "")
           setAggregatorCountryCode(mapping.aggregator_country_code || "")
-          setPaymentLink(mapping.payment_link || "")
         } else {
           setError("Mapping not found")
         toast({
@@ -131,7 +129,6 @@ export default function AutoRechargeMappingEditPage() {
         max_amount: maxAmount.trim(),
         aggregator_network_code: aggregatorNetworkCode.trim(),
         aggregator_country_code: aggregatorCountryCode.trim(),
-        payment_link: paymentLink.trim(),
       }
 
       await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auto-recharge/admin/mappings/${mappingUid}/update/`, {
@@ -304,18 +301,6 @@ export default function AutoRechargeMappingEditPage() {
                 placeholder="BJ"
               />
             </div>
-          </div>
-
-          {/* Payment Link */}
-          <div className="space-y-2">
-            <Label htmlFor="payment_link">{t("autoRecharge.mapping.paymentLink")}</Label>
-            <Input
-              id="payment_link"
-              type="url"
-              value={paymentLink}
-              onChange={(e) => setPaymentLink(e.target.value)}
-              placeholder="https://example.com/payment"
-            />
           </div>
 
           {error && (

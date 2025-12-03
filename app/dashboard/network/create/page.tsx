@@ -19,6 +19,8 @@ export default function NetworkCreatePage() {
   const [code, setCode] = useState("")
   const [country, setCountry] = useState("")
   const [ussdBaseCode, setUssdBaseCode] = useState("")
+  const [paymentLink, setPaymentLink] = useState("")
+  const [paymentUssd, setPaymentUssd] = useState("")
   const [isActive, setIsActive] = useState(true)
   const [sentDepositToModule, setSentDepositToModule] = useState(false)
   const [sentWithdrawalToModule, setSentWithdrawalToModule] = useState(false)
@@ -57,11 +59,13 @@ export default function NetworkCreatePage() {
       await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/networks/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          nom, 
-          code, 
-          country, 
-          ussd_base_code: ussdBaseCode, 
+        body: JSON.stringify({
+          nom,
+          code,
+          country,
+          ussd_base_code: ussdBaseCode,
+          payment_link: paymentLink,
+          payment_ussd: paymentUssd,
           is_active: isActive,
           sent_deposit_to_module: sentDepositToModule,
           sent_withdrawal_to_module: sentWithdrawalToModule
@@ -133,6 +137,14 @@ export default function NetworkCreatePage() {
           <div>
             <label>{t("network.ussdBaseCode")}</label>
             <Input value={ussdBaseCode} onChange={e => setUssdBaseCode(e.target.value)} required />
+          </div>
+          <div>
+            <label>{t("network.paymentLink")}</label>
+            <Input value={paymentLink} onChange={e => setPaymentLink(e.target.value)} placeholder="https://example.com/pay" />
+          </div>
+          <div>
+            <label>{t("network.paymentUssd")}</label>
+            <Input value={paymentUssd} onChange={e => setPaymentUssd(e.target.value)} placeholder="*123#" />
           </div>
           <div>
             <label>{t("network.status")}</label>
