@@ -32,7 +32,7 @@ export default function AutoRechargeMappings() {
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc")
   
   const { t } = useLanguage()
-  const itemsPerPage = 20
+  const itemsPerPage = 100
   const apiFetch = useApi()
   const { toast } = useToast()
 

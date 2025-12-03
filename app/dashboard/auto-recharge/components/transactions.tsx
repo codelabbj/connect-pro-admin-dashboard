@@ -70,7 +70,7 @@ export default function AutoRechargeTransactions() {
         const endpoint = `${baseUrl.replace(/\/$/, "")}/api/auto-recharge/admin/transactions/?${params.toString()}`
         const data = await apiFetch(endpoint)
         
-        setTransactions(data.results || [])
+        setTransactions(data.transactions || [])
         setTotalCount(data.count || 0)
         setTotalPages(Math.ceil((data.count || 0) / itemsPerPage))
       } catch (err: any) {
@@ -104,6 +104,7 @@ export default function AutoRechargeTransactions() {
   const getStatusBadge = (status: string) => {
     const statusMap: Record<string, { labelKey: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
       completed: { labelKey: "autoRecharge.transactions.completed", variant: "default" },
+      initiated: { labelKey: "autoRecharge.transactions.pending", variant: "secondary" },
       pending: { labelKey: "autoRecharge.transactions.pending", variant: "secondary" },
       failed: { labelKey: "autoRecharge.transactions.failed", variant: "destructive" },
     }
@@ -137,6 +138,7 @@ export default function AutoRechargeTransactions() {
           <SelectContent>
             <SelectItem value="all">{t("autoRecharge.transactions.allStatus")}</SelectItem>
             <SelectItem value="completed">{t("autoRecharge.transactions.completed")}</SelectItem>
+            <SelectItem value="initiated">{t("autoRecharge.transactions.pending")}</SelectItem>
             <SelectItem value="pending">{t("autoRecharge.transactions.pending")}</SelectItem>
             <SelectItem value="failed">{t("autoRecharge.transactions.failed")}</SelectItem>
           </SelectContent>
@@ -239,11 +241,11 @@ export default function AutoRechargeTransactions() {
                 transactions.map((transaction) => (
                   <TableRow key={transaction.uid}>
                     <TableCell>{transaction.reference || "-"}</TableCell>
-                    <TableCell>{transaction.phone || "-"}</TableCell>
-                    <TableCell>{transaction.network_name || "-"}</TableCell>
-                    <TableCell>{transaction.aggregator_name || "-"}</TableCell>
-                    <TableCell>{transaction.amount || "0.00"}</TableCell>
-                    <TableCell>{transaction.fees || "0.00"}</TableCell>
+                    <TableCell>{transaction.phone_number || "-"}</TableCell>
+                    <TableCell>{transaction.network?.nom || "-"}</TableCell>
+                    <TableCell>{transaction.aggregator?.name || "-"}</TableCell>
+                    <TableCell>{transaction.formatted_amount || "0 FCFA"}</TableCell>
+                    <TableCell>{transaction.formatted_fees || "0 FCFA"}</TableCell>
                     <TableCell>{getStatusBadge(transaction.status)}</TableCell>
                     <TableCell>
                       {transaction.created_at ? new Date(transaction.created_at).toLocaleString() : "-"}
