@@ -1,0 +1,291 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import { useApi } from "@/lib/useApi"
+import { useLanguage } from "@/components/providers/language-provider"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Search, Filter, Loader, MoreHorizontal, Eye, ArrowUpRight, ArrowDownLeft, Calendar } from "lucide-react"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
+import { AggregatorTransaction } from "@/lib/aggregator-api"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+
+export default function AggregatorTransactionsPage() {
+    const [transactions, setTransactions] = useState<AggregatorTransaction[]>([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState("")
+    const [page, setPage] = useState(1)
+    const [filters, setFilters] = useState({
+        status: "",
+        type: "",
+        user: "",
+        date_from: "",
+        date_to: ""
+    })
+    const [selectedTx, setSelectedTx] = useState<AggregatorTransaction | null>(null)
+    const [showDetail, setShowDetail] = useState(false)
+    
+    const apiFetch = useApi()
+    const { t } = useLanguage()
+    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+
+    const fetchTransactions = async () => {
+        setLoading(true)
+        setError("")
+        const queryParams = new URLSearchParams()
+        if (filters.status) queryParams.append("status", filters.status)
+        if (filters.type) queryParams.append("type", filters.type)
+        if (filters.user) queryParams.append("user", filters.user)
+        if (filters.date_from) queryParams.append("date_from", filters.date_from)
+        if (filters.date_to) queryParams.append("date_to", filters.date_to)
+        
+        try {
+            const data = await apiFetch(`${baseUrl}api/aggregator/admin/transactions/?${queryParams.toString()}`)
+            setTransactions(data.results || [])
+        } catch (err: any) {
+            setError(extractErrorMessages(err) || "Failed to load transactions")
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    useEffect(() => {
+        fetchTransactions()
+    }, [apiFetch, filters])
+
+    const getStatusVariant = (status: string) => {
+        switch (status.toLowerCase()) {
+            case 'success': return 'success'
+            case 'failed': return 'destructive'
+            case 'pending': return 'warning'
+            case 'processing': return 'info'
+            case 'cancelled': return 'secondary'
+            default: return 'outline'
+        }
+    }
+
+    return (
+        <div className="space-y-6 px-4 py-8 max-w-7xl mx-auto">
+            <div>
+                <h1 className="text-3xl font-bold tracking-tight mb-1">Aggregator Transactions</h1>
+                <p className="text-muted-foreground text-slate-500">Monitor and manage all aggregator payment activities</p>
+            </div>
+
+            {/* Filters */}
+            <Card>
+                <CardContent className="pt-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-slate-500">Status</label>
+                            <Select onValueChange={(v) => setFilters({...filters, status: v === "all" ? "" : v})}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="All Statuses" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Statuses</SelectItem>
+                                    <SelectItem value="pending">Pending</SelectItem>
+                                    <SelectItem value="processing">Processing</SelectItem>
+                                    <SelectItem value="success">Success</SelectItem>
+                                    <SelectItem value="failed">Failed</SelectItem>
+                                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-slate-500">Transaction Type</label>
+                            <Select onValueChange={(v) => setFilters({...filters, type: v === "all" ? "" : v})}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="All Types" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Types</SelectItem>
+                                    <SelectItem value="payin">Payin</SelectItem>
+                                    <SelectItem value="payout">Payout</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-slate-500">From Date</label>
+                            <Input type="date" onChange={(e) => setFilters({...filters, date_from: e.target.value})} />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-slate-500">To Date</label>
+                            <Input type="date" onChange={(e) => setFilters({...filters, date_to: e.target.value})} />
+                        </div>
+                        <div className="flex items-end">
+                            <Button variant="outline" className="w-full flex gap-2" onClick={fetchTransactions}>
+                                <Filter size={18} /> Apply Filters
+                            </Button>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* Transactions Table */}
+            <Card>
+                <CardContent className="pt-6">
+                    {loading ? (
+                        <div className="flex items-center justify-center py-12">
+                            <Loader className="animate-spin mr-2 h-8 w-8 text-blue-600" />
+                            <span className="text-lg font-semibold">{t("common.loading")}</span>
+                        </div>
+                    ) : error ? (
+                        <ErrorDisplay error={error} onRetry={fetchTransactions} />
+                    ) : (
+                        <div className="rounded-md border">
+                            <Table>
+                                <TableHeader className="bg-slate-50">
+                                    <TableRow>
+                                        <TableHead>Reference</TableHead>
+                                        <TableHead>User / Network</TableHead>
+                                        <TableHead>Type</TableHead>
+                                        <TableHead>Amount</TableHead>
+                                        <TableHead>Status</TableHead>
+                                        <TableHead>Created At</TableHead>
+                                        <TableHead className="w-[80px]"></TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {transactions.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={7} className="text-center py-12 text-slate-400">
+                                                No transactions found matching your criteria
+                                            </TableCell>
+                                        </TableRow>
+                                    ) : (
+                                        transactions.map((tx) => (
+                                            <TableRow key={tx.uid}>
+                                                <TableCell className="font-mono text-xs">
+                                                    {tx.reference}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="font-medium text-sm">{tx.user_display_name}</div>
+                                                    <div className="text-xs text-slate-400">{tx.network_name}</div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="flex items-center gap-1">
+                                                        {tx.transaction_type === 'payout' ? (
+                                                            <ArrowDownLeft size={14} className="text-orange-500" />
+                                                        ) : (
+                                                            <ArrowUpRight size={14} className="text-green-500" />
+                                                        )}
+                                                        <span className="capitalize text-sm">{tx.transaction_type}</span>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="font-semibold">{parseFloat(tx.amount).toLocaleString()}</div>
+                                                    <div className="text-[10px] text-slate-400">Net: {parseFloat(tx.net_amount).toLocaleString()}</div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Badge variant={getStatusVariant(tx.status)}>
+                                                        {tx.status}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="text-xs text-slate-600">
+                                                        {new Date(tx.created_at).toLocaleString()}
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Button variant="ghost" size="icon" onClick={() => { setSelectedTx(tx); setShowDetail(true); }}>
+                                                        <Eye size={16} />
+                                                    </Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+
+            {/* Detail Modal */}
+            <Dialog open={showDetail} onOpenChange={setShowDetail}>
+                <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                        <DialogTitle>Transaction Details</DialogTitle>
+                        <DialogDescription>Full record for {selectedTx?.reference}</DialogDescription>
+                    </DialogHeader>
+                    {selectedTx && (
+                        <div className="grid grid-cols-2 gap-6 mt-4">
+                            <div className="space-y-4">
+                                <section>
+                                    <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Participant</h4>
+                                    <div className="bg-slate-50 p-3 rounded-lg">
+                                        <div className="font-medium">{selectedTx.user_display_name}</div>
+                                        <div className="text-xs text-slate-500">{selectedTx.user_email}</div>
+                                        <div className="text-xs text-slate-400 mt-1">Recipient: {selectedTx.recipient_phone}</div>
+                                    </div>
+                                </section>
+                                <section>
+                                    <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Network Layer</h4>
+                                    <div className="bg-slate-50 p-3 rounded-lg">
+                                        <div className="font-medium">{selectedTx.network_name}</div>
+                                        <div className="text-xs text-slate-500">Processor: {selectedTx.processor_type}</div>
+                                    </div>
+                                </section>
+                            </div>
+                            <div className="space-y-4">
+                                <section>
+                                    <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Financials</h4>
+                                    <div className="bg-slate-50 p-3 rounded-lg space-y-2 text-sm">
+                                        <div className="flex justify-between">
+                                            <span>Base Amount:</span>
+                                            <span className="font-semibold">{selectedTx.amount}</span>
+                                        </div>
+                                        <div className="flex justify-between text-orange-600">
+                                            <span>Network Fee:</span>
+                                            <span>-{selectedTx.network_fee_amount} ({selectedTx.network_fee_percent}%)</span>
+                                        </div>
+                                        <div className="flex justify-between text-blue-600">
+                                            <span>User Fee:</span>
+                                            <span>{selectedTx.user_fee_amount} ({selectedTx.user_fee_percent}%)</span>
+                                        </div>
+                                        <div className="border-t pt-2 flex justify-between font-bold text-slate-900">
+                                            <span>Net Amount:</span>
+                                            <span>{selectedTx.net_amount}</span>
+                                        </div>
+                                        <div className="flex justify-between text-pink-600 font-medium italic">
+                                            <span>Platform Profit:</span>
+                                            <span>{selectedTx.platform_profit}</span>
+                                        </div>
+                                    </div>
+                                </section>
+                                <section>
+                                    <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Status & Meta</h4>
+                                    <div className="bg-slate-50 p-3 rounded-lg space-y-1">
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-xs">Current Status:</span>
+                                            <Badge variant={getStatusVariant(selectedTx.status)}>{selectedTx.status}</Badge>
+                                        </div>
+                                        <div className="text-[10px] text-slate-400 mt-2">
+                                            Created: {new Date(selectedTx.created_at).toLocaleString()}
+                                        </div>
+                                        {selectedTx.completed_at && (
+                                            <div className="text-[10px] text-slate-400">
+                                                Completed: {new Date(selectedTx.completed_at).toLocaleString()}
+                                            </div>
+                                        )}
+                                    </div>
+                                </section>
+                            </div>
+                            {selectedTx.error_message && (
+                                <div className="col-span-2 bg-red-50 border border-red-100 p-3 rounded-lg">
+                                    <h4 className="text-xs font-semibold text-red-600 uppercase mb-1">Error Message</h4>
+                                    <p className="text-sm text-red-700">{selectedTx.error_message}</p>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
+        </div>
+    )
+}

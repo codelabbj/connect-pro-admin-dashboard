@@ -488,6 +488,7 @@
 import { useState, useEffect } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
 import { ChartContainer } from "@/components/ui/chart"
 import { useApi } from "@/lib/useApi"
 import { useLanguage } from "@/components/providers/language-provider"
@@ -497,7 +498,7 @@ import { useToast } from "@/hooks/use-toast"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { ClipboardList, Users, KeyRound, Bell, Clock, TrendingUp, Loader, ServerCrash, DollarSign, RefreshCw, UserCheck, Zap } from "lucide-react";
+import { ClipboardList, Users, KeyRound, Bell, Clock, TrendingUp, Loader, ServerCrash, DollarSign, RefreshCw, UserCheck, Zap, Share2 } from "lucide-react";
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
@@ -563,6 +564,12 @@ export default function DashboardPage() {
   const [autoRechargeStats, setAutoRechargeStats] = useState<any>(null);
   const [autoRechargeLoading, setAutoRechargeLoading] = useState(false);
   const [autoRechargeError, setAutoRechargeError] = useState("");
+
+  // Aggregator stats state
+  const [aggregatorStats, setAggregatorStats] = useState<any>(null);
+  const [aggregatorLoading, setAggregatorLoading] = useState(false);
+  const [aggregatorError, setAggregatorError] = useState("");
+
 
   const apiFetch = useApi();
   const { t } = useLanguage();
@@ -737,6 +744,24 @@ export default function DashboardPage() {
     };
     fetchAutoRechargeStats();
   }, [apiFetch, baseUrl]);
+
+  // Fetch Aggregator stats
+  useEffect(() => {
+    const fetchAggregatorStats = async () => {
+      setAggregatorLoading(true);
+      setAggregatorError("");
+      try {
+        const res = await apiFetch(`${baseUrl}api/aggregator/admin/dashboard/`);
+        setAggregatorStats(res);
+      } catch (err: any) {
+        setAggregatorError("Failed to load aggregator stats");
+      } finally {
+        setAggregatorLoading(false);
+      }
+    };
+    fetchAggregatorStats();
+  }, [apiFetch, baseUrl]);
+
 
   useEffect(() => {
     fetchStats();
@@ -1373,6 +1398,150 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
         </div>
+
+      {/* Aggregator Performance Card */}
+      <div className="mb-8">
+        <Card className="hover:shadow-xl transition-all border-blue-200 dark:border-blue-900 overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 border-b">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-3">
+                <div className="bg-blue-600 p-2 rounded-lg">
+                  <Share2 className="text-white w-6 h-6" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl font-bold text-blue-900 dark:text-blue-100">
+                    Aggregator Performance
+                  </CardTitle>
+                  <p className="text-sm text-blue-600 dark:text-blue-400 font-medium font-mono">Real-time Global Stats</p>
+                </div>
+              </div>
+              <Button onClick={() => router.push("/dashboard/aggregators/users")} variant="default" className="bg-blue-600 hover:bg-blue-700">
+                Manage Aggregators
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-6">
+            {aggregatorLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader className="animate-spin mr-2 h-8 w-8 text-blue-600" /> <span>Fetching aggregator data...</span>
+              </div>
+            ) : aggregatorError ? (
+              <div className="text-red-600 text-center py-8 bg-red-50 rounded-lg border border-red-100">{aggregatorError}</div>
+            ) : aggregatorStats ? (
+              <div className="space-y-8">
+                {/* Stats Summary Row */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800">
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Total Aggregators</p>
+                    <p className="text-3xl font-black text-slate-800 dark:text-slate-100">{aggregatorStats.users.total_aggregators}</p>
+                  </div>
+                  <div className="p-4 bg-green-50 dark:bg-green-950 rounded-xl border border-green-100 dark:border-green-900">
+                    <p className="text-xs font-bold text-green-600 uppercase tracking-wider mb-1">Active Today</p>
+                    <p className="text-3xl font-black text-green-700 dark:text-green-300">{aggregatorStats.users.active_today}</p>
+                  </div>
+                  <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-100 dark:border-blue-900">
+                    <p className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-1">Success Rate</p>
+                    <p className="text-3xl font-black text-blue-700 dark:text-blue-300">{aggregatorStats.transactions.success_rate}%</p>
+                  </div>
+                  <div className="p-4 bg-indigo-50 dark:bg-indigo-950 rounded-xl border border-indigo-100 dark:border-indigo-900">
+                    <p className="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-1">Total Profit</p>
+                    <div className="flex items-baseline gap-1">
+                      <p className="text-2xl font-black text-indigo-700 dark:text-indigo-300">
+                        {((aggregatorStats.payin.total_platform_profit || 0) + (aggregatorStats.payout.total_platform_profit || 0)).toLocaleString()}
+                      </p>
+                      <span className="text-xs font-bold text-indigo-400">XAF</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Charts Row */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                       <TrendingUp size={16} /> Transaction Distribution
+                    </h4>
+                    <div className="h-[250px] w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={[
+                              { name: 'Success', value: aggregatorStats.transactions.success_count },
+                              { name: 'Pending', value: aggregatorStats.transactions.pending_count },
+                              { name: 'Failed', value: aggregatorStats.transactions.failed_count },
+                              { name: 'Cancelled', value: aggregatorStats.transactions.cancelled_count },
+                              { name: 'Processing', value: aggregatorStats.transactions.processing_count },
+                            ].filter(d => d.value > 0)}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={60}
+                            outerRadius={80}
+                            paddingAngle={5}
+                            dataKey="value"
+                            label={({name, percent}) => `${name} ${(percent * 100).toFixed(0)}%`}
+                          >
+                            <Cell fill="#10b981" />
+                            <Cell fill="#f59e0b" />
+                            <Cell fill="#ef4444" />
+                            <Cell fill="#64748b" />
+                            <Cell fill="#3b82f6" />
+                          </Pie>
+                          <Tooltip 
+                            contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                       <Users size={16} /> Aggregator Onboarding
+                    </h4>
+                    <div className="h-[250px] w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart
+                          data={[
+                            { name: 'Active', value: aggregatorStats.users.active_aggregators },
+                            { name: 'Inactive', value: aggregatorStats.users.inactive_aggregators },
+                            { name: 'Active Today', value: aggregatorStats.users.active_today },
+                            { name: 'Active 7D', value: aggregatorStats.users.active_last_7_days },
+                          ]}
+                          margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
+                        >
+                          <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
+                          <YAxis fontSize={12} tickLine={false} axisLine={false} />
+                          <Tooltip 
+                            cursor={{fill: 'transparent'}}
+                            contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                          />
+                          <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                            {
+                              [1, 2, 3, 4].map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                              ))
+                            }
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footnote */}
+                <div className="pt-4 border-t flex justify-between items-center text-[10px] text-slate-400 italic">
+                  <span>Aggregation methods: Weighted Global Average</span>
+                  <div className="flex items-center gap-1">
+                    <RefreshCw size={10} className="animate-spin-slow" />
+                    Last updated: {new Date().toLocaleTimeString()}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="text-gray-500 text-center py-8">No aggregator data available</div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
         {/* All Stats Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
