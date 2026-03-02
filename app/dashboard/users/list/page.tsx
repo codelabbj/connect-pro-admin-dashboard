@@ -54,12 +54,14 @@ export default function UsersPage() {
   const [verifyingPhone, setVerifyingPhone] = useState(false);
   const [verifyingPartner, setVerifyingPartner] = useState(false);
   const [verifyingUssd, setVerifyingUssd] = useState(false);
+  const [verifyingAggregator, setVerifyingAggregator] = useState(false);
 
   // Add state for confirmation modals
   const [confirmEmailToggle, setConfirmEmailToggle] = useState<null | boolean>(null);
   const [confirmPhoneToggle, setConfirmPhoneToggle] = useState<null | boolean>(null);
   const [confirmPartnerToggle, setConfirmPartnerToggle] = useState<null | boolean>(null);
   const [confirmUssdToggle, setConfirmUssdToggle] = useState<null | boolean>(null);
+  const [confirmAggregatorToggle, setConfirmAggregatorToggle] = useState<null | boolean>(null);
 
   const [confirmActionUser, setConfirmActionUser] = useState<any | null>(null);
   const [confirmActionType, setConfirmActionType] = useState<"activate" | "deactivate" | null>(null);
@@ -358,6 +360,24 @@ export default function UsersPage() {
       toast({ title: t("users.ussdToggleFailed"), description: extractErrorMessages(err), variant: "destructive" });
     } finally {
       setVerifyingUssd(false);
+    }
+  };
+
+  const handleToggleAggregator = async (isAggregator: boolean) => {
+    if (!detailUser?.uid) return;
+    setVerifyingAggregator(true);
+    try {
+      const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/${detailUser.uid}/update/`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_aggregator: isAggregator }),
+      });
+      setDetailUser((prev: any) => prev ? { ...prev, is_aggregator: isAggregator } : prev);
+      // Success toast is automatically shown by useApi hook for non-GET requests
+    } catch (err: any) {
+      toast({ title: t("users.aggregatorToggleFailed"), description: extractErrorMessages(err), variant: "destructive" });
+    } finally {
+      setVerifyingAggregator(false);
     }
   };
 
@@ -724,6 +744,14 @@ export default function UsersPage() {
                     className="ml-2"
                   />
                 </div>
+                <div><b>{t("users.isAggregator") || "Is Aggregator"}:</b> {detailUser.is_aggregator ? t("common.yes") : t("common.no")}
+                  <Switch
+                    checked={detailUser.is_aggregator}
+                    disabled={detailLoading || verifyingAggregator}
+                    onCheckedChange={() => setConfirmAggregatorToggle(!detailUser.is_aggregator)}
+                    className="ml-2"
+                  />
+                </div>
                 <div><b>{t("users.createdAt")}:</b> {detailUser.created_at ? detailUser.created_at.split("T")[0] : "-"}</div>
                 <div><b>{t("users.lastLogin")}:</b> {detailUser.last_login_at ? detailUser.last_login_at.split("T")[0] : "-"}</div>
             </div>
@@ -796,6 +824,40 @@ export default function UsersPage() {
               className="w-full mt-2"
               onClick={() => setConfirmPartnerToggle(null)}
               disabled={verifyingPartner}
+            >
+              {t("common.cancel")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Aggregator Toggle Confirmation Modal */}
+      <Dialog open={confirmAggregatorToggle !== null} onOpenChange={(open) => { if (!open) setConfirmAggregatorToggle(null) }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{confirmAggregatorToggle ? t("users.enableAggregator") || "Enable Aggregator" : t("users.disableAggregator") || "Disable Aggregator"}</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 text-center">
+            {confirmAggregatorToggle
+              ? t("users.confirmEnableAggregator") || "Are you sure you want to designate this user as an aggregator?"
+              : t("users.confirmDisableAggregator") || "Are you sure you want to remove aggregator status from this user?"}
+          </div>
+          <DialogFooter>
+            <Button
+              className="w-full"
+              onClick={async () => {
+                await handleToggleAggregator(!!confirmAggregatorToggle);
+                setConfirmAggregatorToggle(null);
+              }}
+              disabled={verifyingAggregator}
+            >
+              {verifyingAggregator ? t("users.verifying") : t("common.ok")}
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full mt-2"
+              onClick={() => setConfirmAggregatorToggle(null)}
+              disabled={verifyingAggregator}
             >
               {t("common.cancel")}
             </Button>

@@ -8,6 +8,7 @@ import { useLanguage } from "@/components/providers/language-provider"
 import { useApi } from "@/lib/useApi"
 import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
+import { Eye, EyeOff } from "lucide-react"
 
 export default function RegisterUserForm() {
   const [form, setForm] = useState({
@@ -18,10 +19,13 @@ export default function RegisterUserForm() {
     password_confirm: "",
       is_partner: false,
       can_process_ussd_transaction: false,
+      is_aggregator: false,
     })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
+  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false)
 
   const { t } = useLanguage();
   const apiFetch = useApi();
@@ -71,6 +75,7 @@ export default function RegisterUserForm() {
           password_confirm: form.password_confirm,
           is_partner: form.is_partner,
           can_process_ussd_transaction: form.can_process_ussd_transaction,
+          is_aggregator: form.is_aggregator,
         }
       const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/register/`, {
         method: "POST",
@@ -96,6 +101,7 @@ export default function RegisterUserForm() {
           password_confirm: "",
           is_partner: false,
           can_process_ussd_transaction: false,
+          is_aggregator: false,
         })
       }
     } catch (err: any) {
@@ -151,22 +157,44 @@ export default function RegisterUserForm() {
             required
           />
           <div className="flex gap-4">
-            <Input
-              name="password"
-              type="password"
-              placeholder={t("register.password")}
-              value={form.password}
-              onChange={handleChange}
-              required
-            />
-            <Input
-              name="password_confirm"
-              type="password"
-              placeholder={t("register.passwordConfirm")}
-              value={form.password_confirm}
-              onChange={handleChange}
-              required
-            />
+            <div className="relative flex-1">
+              <Input
+                name="password"
+                type={showPassword ? "text" : "password"}
+                placeholder={t("register.password")}
+                value={form.password}
+                onChange={handleChange}
+                required
+                className="pr-10"
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                onClick={() => setShowPassword(!showPassword)}
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+            <div className="relative flex-1">
+              <Input
+                name="password_confirm"
+                type={showPasswordConfirm ? "text" : "password"}
+                placeholder={t("register.passwordConfirm")}
+                value={form.password_confirm}
+                onChange={handleChange}
+                required
+                className="pr-10"
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                onClick={() => setShowPasswordConfirm(!showPasswordConfirm)}
+                tabIndex={-1}
+              >
+                {showPasswordConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
           <div className="flex items-center mb-2">
             <input
@@ -189,6 +217,17 @@ export default function RegisterUserForm() {
               className="mr-2"
             />
             <label htmlFor="can_process_ussd_transaction">{t("register.allowTransaction") || "Allow Transaction"}</label>
+          </div>
+          <div className="flex items-center mb-2">
+            <input
+              type="checkbox"
+              name="is_aggregator"
+              checked={form.is_aggregator}
+              onChange={handleChange}
+              id="is_aggregator"
+              className="mr-2"
+            />
+            <label htmlFor="is_aggregator">{t("users.isAggregator") || "Is Aggregator"}</label>
           </div>
           {error && (
             <ErrorDisplay

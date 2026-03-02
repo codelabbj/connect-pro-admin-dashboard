@@ -40,7 +40,11 @@ export default function AggregatorUsersPage() {
 
     const handleToggleStatus = async (uid: string, currentStatus: boolean) => {
         const action = currentStatus ? "deactivate" : "activate"
-        if (!confirm(`Are you sure you want to ${action} this aggregator?`)) return
+        const confirmMsg = currentStatus 
+            ? t("aggregators.confirmDeactivate") || "Are you sure you want to deactivate this aggregator?" 
+            : t("aggregators.confirmActivate") || "Are you sure you want to activate this aggregator?"
+            
+        if (!confirm(confirmMsg)) return
         
         try {
             await apiFetch(`${baseUrl}api/auth/admin/users/aggregators/${uid}/`, {
@@ -48,14 +52,14 @@ export default function AggregatorUsersPage() {
                 body: JSON.stringify({ is_active: !currentStatus })
             })
             toast({
-                title: "Success",
-                description: `Aggregator ${action}d successfully`
+                title: t("common.success"),
+                description: t("aggregators.successToggle")
             })
             fetchAggregators()
         } catch (err: any) {
             toast({
-                title: "Error",
-                description: extractErrorMessages(err) || `Failed to ${action} aggregator`,
+                title: t("common.error"),
+                description: extractErrorMessages(err) || t("aggregators.failedToggle"),
                 variant: "destructive"
             })
         }
@@ -79,8 +83,8 @@ export default function AggregatorUsersPage() {
         <div className="space-y-6 px-4 py-8 max-w-7xl mx-auto">
             <div className="flex justify-between items-end">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight mb-1">Aggregator Users</h1>
-                    <p className="text-muted-foreground text-slate-500">Manage all registered aggregators and their accounts</p>
+                    <h1 className="text-3xl font-bold tracking-tight mb-1">{t("aggregators.usersTitle")}</h1>
+                    <p className="text-muted-foreground text-slate-500">{t("aggregators.usersSub")}</p>
                 </div>
             </div>
 
@@ -90,7 +94,7 @@ export default function AggregatorUsersPage() {
                     <Card>
                         <CardContent className="pt-6">
                             <div className="flex items-center justify-between">
-                                <span className="text-sm font-medium text-slate-500">Total Aggregators</span>
+                                <span className="text-sm font-medium text-slate-500">{t("aggregators.totalAggregators")}</span>
                                 <Users size={16} className="text-blue-600" />
                             </div>
                             <div className="text-2xl font-bold mt-2">{data.stats.total_aggregators}</div>
@@ -99,7 +103,7 @@ export default function AggregatorUsersPage() {
                     <Card>
                         <CardContent className="pt-6">
                             <div className="flex items-center justify-between">
-                                <span className="text-sm font-medium text-slate-500">Active Aggregators</span>
+                                <span className="text-sm font-medium text-slate-500">{t("aggregators.activeAggregators")}</span>
                                 <div className="h-2 w-2 rounded-full bg-green-500" />
                             </div>
                             <div className="text-2xl font-bold mt-2 text-green-600">{data.stats.active_aggregators}</div>
@@ -108,7 +112,7 @@ export default function AggregatorUsersPage() {
                     <Card>
                         <CardContent className="pt-6">
                             <div className="flex items-center justify-between">
-                                <span className="text-sm font-medium text-slate-500">Inactive Aggregators</span>
+                                <span className="text-sm font-medium text-slate-500">{t("aggregators.inactiveAggregators")}</span>
                                 <div className="h-2 w-2 rounded-full bg-slate-300" />
                             </div>
                             <div className="text-2xl font-bold mt-2 text-slate-400">{data.stats.active_aggregators}</div>
@@ -124,14 +128,14 @@ export default function AggregatorUsersPage() {
                         <div className="relative w-full md:w-96">
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" size={18} />
                             <Input 
-                                placeholder="Search by name or email..." 
+                                placeholder={t("aggregators.searchPlaceholder") || "Search by name or email..."} 
                                 className="pl-10"
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                             />
                         </div>
                         <Button variant="outline" className="flex items-center gap-2">
-                            <Filter size={18} /> Filters
+                            <Filter size={18} /> {t("dashboard.filters") || "Filters"}
                         </Button>
                     </div>
                 </CardHeader>
@@ -143,11 +147,11 @@ export default function AggregatorUsersPage() {
                             <Table>
                                 <TableHeader className="bg-slate-50">
                                     <TableRow>
-                                        <TableHead>User</TableHead>
-                                        <TableHead>Contact</TableHead>
-                                        <TableHead>Balance</TableHead>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead>Created At</TableHead>
+                                        <TableHead>{t("common.user")}</TableHead>
+                                        <TableHead>{t("common.contact") || "Contact"}</TableHead>
+                                        <TableHead>{t("common.balance") || "Balance"}</TableHead>
+                                        <TableHead>{t("common.status")}</TableHead>
+                                        <TableHead>{t("common.createdAt")}</TableHead>
                                         <TableHead className="w-[100px]"></TableHead>
                                     </TableRow>
                                 </TableHeader>
@@ -155,7 +159,7 @@ export default function AggregatorUsersPage() {
                                     {data?.aggregators.length === 0 ? (
                                         <TableRow>
                                             <TableCell colSpan={6} className="text-center py-12 text-slate-400">
-                                                No aggregators found
+                                                {t("aggregators.noAggregatorsFound")}
                                             </TableCell>
                                         </TableRow>
                                     ) : (
@@ -172,7 +176,7 @@ export default function AggregatorUsersPage() {
                                                 </TableCell>
                                                 <TableCell>
                                                     <div className="text-sm">{agg.email}</div>
-                                                    <div className="text-xs text-slate-400">{agg.phone || "No phone"}</div>
+                                                    <div className="text-xs text-slate-400">{agg.phone || t("aggregators.hasNoPhone")}</div>
                                                 </TableCell>
                                                 <TableCell>
                                                     <div className="font-semibold text-blue-600">
@@ -181,7 +185,7 @@ export default function AggregatorUsersPage() {
                                                 </TableCell>
                                                 <TableCell>
                                                     <Badge variant={agg.is_active ? "success" : "secondary"}>
-                                                        {agg.is_active ? "Active" : "Inactive"}
+                                                        {agg.is_active ? t("common.active") : t("common.inactive")}
                                                     </Badge>
                                                 </TableCell>
                                                 <TableCell className="text-sm text-slate-500">
@@ -195,10 +199,10 @@ export default function AggregatorUsersPage() {
                                                             </Button>
                                                         </DropdownMenuTrigger>
                                                         <DropdownMenuContent align="end">
-                                                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                            <DropdownMenuLabel>{t("common.actions")}</DropdownMenuLabel>
                                                             <DropdownMenuItem asChild>
                                                                 <Link href={`/dashboard/aggregators/users/${agg.uid}/stats`} className="flex items-center gap-2">
-                                                                    <Eye size={14} className="mr-2" /> View Details
+                                                                    <Eye size={14} className="mr-2" /> {t("common.viewDetails")}
                                                                 </Link>
                                                             </DropdownMenuItem>
                                                             <DropdownMenuSeparator />
@@ -206,7 +210,7 @@ export default function AggregatorUsersPage() {
                                                                 className={agg.is_active ? "text-red-600" : "text-green-600"}
                                                                 onClick={() => handleToggleStatus(agg.uid, agg.is_active)}
                                                             >
-                                                                <Shield size={14} className="mr-2" /> {agg.is_active ? "Deactivate Aggregator" : "Activate Aggregator"}
+                                                                <Shield size={14} className="mr-2" /> {agg.is_active ? t("aggregators.deactivateAggregator") : t("aggregators.activateAggregator")}
                                                             </DropdownMenuItem>
 
                                                         </DropdownMenuContent>
@@ -224,7 +228,10 @@ export default function AggregatorUsersPage() {
                     {data?.pagination && data.pagination.total_pages > 1 && (
                         <div className="flex items-center justify-between mt-6">
                             <div className="text-sm text-slate-500">
-                                Showing {data.pagination.start_index} to {data.pagination.end_index} of {data.pagination.total_count} aggregators
+                                {t("aggregators.showingXofY")
+                                    .replace("{start}", data.pagination.start_index.toString())
+                                    .replace("{end}", data.pagination.end_index.toString())
+                                    .replace("{total}", data.pagination.total_count.toString())}
                             </div>
                             <div className="flex gap-2">
                                 <Button 
@@ -233,7 +240,7 @@ export default function AggregatorUsersPage() {
                                     disabled={!data.pagination.has_previous}
                                     onClick={() => setPage(page - 1)}
                                 >
-                                    Previous
+                                    {t("common.previous") || "Previous"}
                                 </Button>
                                 <Button 
                                     variant="outline" 
@@ -241,7 +248,7 @@ export default function AggregatorUsersPage() {
                                     disabled={!data.pagination.has_next}
                                     onClick={() => setPage(page + 1)}
                                 >
-                                    Next
+                                    {t("common.next") || "Next"}
                                 </Button>
                             </div>
                         </div>

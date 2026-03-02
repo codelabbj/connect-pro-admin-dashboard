@@ -11,7 +11,7 @@ import { useApi } from "@/lib/useApi"
 import { useLanguage } from "@/components/providers/language-provider"
 import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
-import { Settings } from "lucide-react"
+import { Settings, Eye, EyeOff } from "lucide-react"
 
 export default function ApiConfigEditPage() {
   const params = useParams()
@@ -31,6 +31,7 @@ export default function ApiConfigEditPage() {
   const [loading, setLoading] = useState(false)
   const [fetching, setFetching] = useState(true)
   const [error, setError] = useState("")
+  const [showSecretKey, setShowSecretKey] = useState(false)
   const [originalConfig, setOriginalConfig] = useState<any | null>(null)
 
   // Fetch API configuration
@@ -206,13 +207,24 @@ export default function ApiConfigEditPage() {
 
             <div className="space-y-2">
               <Label htmlFor="secret_key">{t("apiConfig.secretKey")}</Label>
-              <Input
-                id="secret_key"
-                type="password"
-                value={secretKey}
-                onChange={(e) => setSecretKey(e.target.value)}
-                placeholder={originalConfig?.secret_key ? t("apiConfig.leaveBlankToKeepExistingKeySecret") : t("apiConfig.secretKeyPlaceholder")}
-              />
+              <div className="relative">
+                <Input
+                  id="secret_key"
+                  type={showSecretKey ? "text" : "password"}
+                  value={secretKey}
+                  onChange={(e) => setSecretKey(e.target.value)}
+                  placeholder={originalConfig?.secret_key ? t("apiConfig.leaveBlankToKeepExistingKeySecret") : t("apiConfig.secretKeyPlaceholder")}
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  onClick={() => setShowSecretKey(!showSecretKey)}
+                  tabIndex={-1}
+                >
+                  {showSecretKey ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
               <p className="text-sm text-muted-foreground">
                 {originalConfig?.secret_key ? t("apiConfig.leaveBlankToKeepExistingKeySecret") : t("apiConfig.secretKeyDescription")}
               </p>

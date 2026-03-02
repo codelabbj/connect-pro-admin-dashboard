@@ -48,7 +48,7 @@ export default function AggregatorTransactionsPage() {
             const data = await apiFetch(`${baseUrl}api/aggregator/admin/transactions/?${queryParams.toString()}`)
             setTransactions(data.results || [])
         } catch (err: any) {
-            setError(extractErrorMessages(err) || "Failed to load transactions")
+            setError(extractErrorMessages(err) || t("aggregators.noTransactionsFound"))
         } finally {
             setLoading(false)
         }
@@ -72,8 +72,8 @@ export default function AggregatorTransactionsPage() {
     return (
         <div className="space-y-6 px-4 py-8 max-w-7xl mx-auto">
             <div>
-                <h1 className="text-3xl font-bold tracking-tight mb-1">Aggregator Transactions</h1>
-                <p className="text-muted-foreground text-slate-500">Monitor and manage all aggregator payment activities</p>
+                <h1 className="text-3xl font-bold tracking-tight mb-1">{t("aggregators.transactionsTitle")}</h1>
+                <p className="text-muted-foreground text-slate-500">{t("aggregators.transactionsSub")}</p>
             </div>
 
             {/* Filters */}
@@ -81,45 +81,45 @@ export default function AggregatorTransactionsPage() {
                 <CardContent className="pt-6">
                     <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-500">Status</label>
+                            <label className="text-sm font-medium text-slate-500">{t("common.status")}</label>
                             <Select onValueChange={(v) => setFilters({...filters, status: v === "all" ? "" : v})}>
                                 <SelectTrigger>
-                                    <SelectValue placeholder="All Statuses" />
+                                    <SelectValue placeholder={t("common.allStatuses") || "All Statuses"} />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="all">All Statuses</SelectItem>
-                                    <SelectItem value="pending">Pending</SelectItem>
-                                    <SelectItem value="processing">Processing</SelectItem>
-                                    <SelectItem value="success">Success</SelectItem>
-                                    <SelectItem value="failed">Failed</SelectItem>
-                                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                                    <SelectItem value="all">{t("common.allStatuses") || "All Statuses"}</SelectItem>
+                                    <SelectItem value="pending">{t("common.pending")}</SelectItem>
+                                    <SelectItem value="processing">{t("common.processing")}</SelectItem>
+                                    <SelectItem value="success">{t("common.success")}</SelectItem>
+                                    <SelectItem value="failed">{t("common.failed")}</SelectItem>
+                                    <SelectItem value="cancelled">{t("common.cancelled")}</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-500">Transaction Type</label>
+                            <label className="text-sm font-medium text-slate-500">{t("common.type")}</label>
                             <Select onValueChange={(v) => setFilters({...filters, type: v === "all" ? "" : v})}>
                                 <SelectTrigger>
-                                    <SelectValue placeholder="All Types" />
+                                    <SelectValue placeholder={t("common.allTypes") || "All Types"} />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="all">All Types</SelectItem>
-                                    <SelectItem value="payin">Payin</SelectItem>
-                                    <SelectItem value="payout">Payout</SelectItem>
+                                    <SelectItem value="all">{t("common.allTypes") || "All Types"}</SelectItem>
+                                    <SelectItem value="payin">{t("common.payin") || "Payin"}</SelectItem>
+                                    <SelectItem value="payout">{t("common.payout") || "Payout"}</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-500">From Date</label>
+                            <label className="text-sm font-medium text-slate-500">{t("common.fromDate") || "From Date"}</label>
                             <Input type="date" onChange={(e) => setFilters({...filters, date_from: e.target.value})} />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-500">To Date</label>
+                            <label className="text-sm font-medium text-slate-500">{t("common.toDate") || "To Date"}</label>
                             <Input type="date" onChange={(e) => setFilters({...filters, date_to: e.target.value})} />
                         </div>
                         <div className="flex items-end">
                             <Button variant="outline" className="w-full flex gap-2" onClick={fetchTransactions}>
-                                <Filter size={18} /> Apply Filters
+                                <Filter size={18} /> {t("common.applyFilters")}
                             </Button>
                         </div>
                     </div>
@@ -141,12 +141,12 @@ export default function AggregatorTransactionsPage() {
                             <Table>
                                 <TableHeader className="bg-slate-50">
                                     <TableRow>
-                                        <TableHead>Reference</TableHead>
-                                        <TableHead>User / Network</TableHead>
-                                        <TableHead>Type</TableHead>
-                                        <TableHead>Amount</TableHead>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead>Created At</TableHead>
+                                        <TableHead>{t("common.reference")}</TableHead>
+                                        <TableHead>{t("common.user") + " / " + t("common.network")}</TableHead>
+                                        <TableHead>{t("common.type")}</TableHead>
+                                        <TableHead>{t("common.amount")}</TableHead>
+                                        <TableHead>{t("common.status")}</TableHead>
+                                        <TableHead>{t("common.createdAt")}</TableHead>
                                         <TableHead className="w-[80px]"></TableHead>
                                     </TableRow>
                                 </TableHeader>
@@ -154,7 +154,7 @@ export default function AggregatorTransactionsPage() {
                                     {transactions.length === 0 ? (
                                         <TableRow>
                                             <TableCell colSpan={7} className="text-center py-12 text-slate-400">
-                                                No transactions found matching your criteria
+                                                {t("aggregators.noTransactionsMatch")}
                                             </TableCell>
                                         </TableRow>
                                     ) : (
@@ -179,7 +179,7 @@ export default function AggregatorTransactionsPage() {
                                                 </TableCell>
                                                 <TableCell>
                                                     <div className="font-semibold">{parseFloat(tx.amount).toLocaleString()}</div>
-                                                    <div className="text-[10px] text-slate-400">Net: {parseFloat(tx.net_amount).toLocaleString()}</div>
+                                                    <div className="text-[10px] text-slate-400">{t("common.netAmount")}: {parseFloat(tx.net_amount).toLocaleString()}</div>
                                                 </TableCell>
                                                 <TableCell>
                                                     <Badge variant={getStatusVariant(tx.status)}>
@@ -210,67 +210,67 @@ export default function AggregatorTransactionsPage() {
             <Dialog open={showDetail} onOpenChange={setShowDetail}>
                 <DialogContent className="max-w-2xl">
                     <DialogHeader>
-                        <DialogTitle>Transaction Details</DialogTitle>
-                        <DialogDescription>Full record for {selectedTx?.reference}</DialogDescription>
+                        <DialogTitle>{t("common.transactionDetails")}</DialogTitle>
+                        <DialogDescription>{t("aggregators.fullRecordFor", { reference: selectedTx?.reference || "" })}</DialogDescription>
                     </DialogHeader>
                     {selectedTx && (
                         <div className="grid grid-cols-2 gap-6 mt-4">
                             <div className="space-y-4">
                                 <section>
-                                    <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Participant</h4>
+                                    <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">{t("common.participant")}</h4>
                                     <div className="bg-slate-50 p-3 rounded-lg">
                                         <div className="font-medium">{selectedTx.user_display_name}</div>
                                         <div className="text-xs text-slate-500">{selectedTx.user_email}</div>
-                                        <div className="text-xs text-slate-400 mt-1">Recipient: {selectedTx.recipient_phone}</div>
+                                        <div className="text-xs text-slate-400 mt-1">{t("common.recipient")}: {selectedTx.recipient_phone}</div>
                                     </div>
                                 </section>
                                 <section>
-                                    <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Network Layer</h4>
+                                    <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">{t("common.networkLayer")}</h4>
                                     <div className="bg-slate-50 p-3 rounded-lg">
                                         <div className="font-medium">{selectedTx.network_name}</div>
-                                        <div className="text-xs text-slate-500">Processor: {selectedTx.processor_type}</div>
+                                        <div className="text-xs text-slate-500">{t("aggregators.processor")}: {selectedTx.processor_type}</div>
                                     </div>
                                 </section>
                             </div>
                             <div className="space-y-4">
                                 <section>
-                                    <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Financials</h4>
+                                    <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">{t("common.financials")}</h4>
                                     <div className="bg-slate-50 p-3 rounded-lg space-y-2 text-sm">
                                         <div className="flex justify-between">
-                                            <span>Base Amount:</span>
+                                            <span>{t("common.baseAmount")}:</span>
                                             <span className="font-semibold">{selectedTx.amount}</span>
                                         </div>
                                         <div className="flex justify-between text-orange-600">
-                                            <span>Network Fee:</span>
+                                            <span>{t("common.networkFee")}:</span>
                                             <span>-{selectedTx.network_fee_amount} ({selectedTx.network_fee_percent}%)</span>
                                         </div>
                                         <div className="flex justify-between text-blue-600">
-                                            <span>User Fee:</span>
+                                            <span>{t("common.userFee")}:</span>
                                             <span>{selectedTx.user_fee_amount} ({selectedTx.user_fee_percent}%)</span>
                                         </div>
                                         <div className="border-t pt-2 flex justify-between font-bold text-slate-900">
-                                            <span>Net Amount:</span>
+                                            <span>{t("common.netAmount")}:</span>
                                             <span>{selectedTx.net_amount}</span>
                                         </div>
                                         <div className="flex justify-between text-pink-600 font-medium italic">
-                                            <span>Platform Profit:</span>
+                                            <span>{t("aggregators.platformProfit")}:</span>
                                             <span>{selectedTx.platform_profit}</span>
                                         </div>
                                     </div>
                                 </section>
                                 <section>
-                                    <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Status & Meta</h4>
+                                    <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">{t("common.statusAndMeta")}</h4>
                                     <div className="bg-slate-50 p-3 rounded-lg space-y-1">
                                         <div className="flex justify-between items-center">
-                                            <span className="text-xs">Current Status:</span>
+                                            <span className="text-xs">{t("common.currentStatus")}:</span>
                                             <Badge variant={getStatusVariant(selectedTx.status)}>{selectedTx.status}</Badge>
                                         </div>
                                         <div className="text-[10px] text-slate-400 mt-2">
-                                            Created: {new Date(selectedTx.created_at).toLocaleString()}
+                                            {t("common.createdAt")}: {new Date(selectedTx.created_at).toLocaleString()}
                                         </div>
                                         {selectedTx.completed_at && (
                                             <div className="text-[10px] text-slate-400">
-                                                Completed: {new Date(selectedTx.completed_at).toLocaleString()}
+                                                {t("common.completed")}: {new Date(selectedTx.completed_at).toLocaleString()}
                                             </div>
                                         )}
                                     </div>
@@ -278,7 +278,7 @@ export default function AggregatorTransactionsPage() {
                             </div>
                             {selectedTx.error_message && (
                                 <div className="col-span-2 bg-red-50 border border-red-100 p-3 rounded-lg">
-                                    <h4 className="text-xs font-semibold text-red-600 uppercase mb-1">Error Message</h4>
+                                    <h4 className="text-xs font-semibold text-red-600 uppercase mb-1">{t("common.errorMessage")}</h4>
                                     <p className="text-sm text-red-700">{selectedTx.error_message}</p>
                                 </div>
                             )}

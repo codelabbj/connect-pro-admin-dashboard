@@ -1410,20 +1410,20 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <CardTitle className="text-xl font-bold text-blue-900 dark:text-blue-100">
-                    Aggregator Performance
+                    {t("dashboard.aggregatorPerformance")}
                   </CardTitle>
-                  <p className="text-sm text-blue-600 dark:text-blue-400 font-medium font-mono">Real-time Global Stats</p>
+                  <p className="text-sm text-blue-600 dark:text-blue-400 font-medium font-mono">{t("dashboard.aggregatorRealTime")}</p>
                 </div>
               </div>
               <Button onClick={() => router.push("/dashboard/aggregators/users")} variant="default" className="bg-blue-600 hover:bg-blue-700">
-                Manage Aggregators
+                {t("dashboard.manageAggregators")}
               </Button>
             </div>
           </CardHeader>
           <CardContent className="pt-6">
             {aggregatorLoading ? (
               <div className="flex items-center justify-center py-12">
-                <Loader className="animate-spin mr-2 h-8 w-8 text-blue-600" /> <span>Fetching aggregator data...</span>
+                <Loader className="animate-spin mr-2 h-8 w-8 text-blue-600" /> <span>{t("dashboard.fetchingAggregatorData")}</span>
               </div>
             ) : aggregatorError ? (
               <div className="text-red-600 text-center py-8 bg-red-50 rounded-lg border border-red-100">{aggregatorError}</div>
@@ -1432,19 +1432,19 @@ export default function DashboardPage() {
                 {/* Stats Summary Row */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800">
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Total Aggregators</p>
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{t("dashboard.totalAggregators")}</p>
                     <p className="text-3xl font-black text-slate-800 dark:text-slate-100">{aggregatorStats.users.total_aggregators}</p>
                   </div>
                   <div className="p-4 bg-green-50 dark:bg-green-950 rounded-xl border border-green-100 dark:border-green-900">
-                    <p className="text-xs font-bold text-green-600 uppercase tracking-wider mb-1">Active Today</p>
+                    <p className="text-xs font-bold text-green-600 uppercase tracking-wider mb-1">{t("dashboard.activeToday")}</p>
                     <p className="text-3xl font-black text-green-700 dark:text-green-300">{aggregatorStats.users.active_today}</p>
                   </div>
                   <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-100 dark:border-blue-900">
-                    <p className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-1">Success Rate</p>
+                    <p className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-1">{t("dashboard.successRate")}</p>
                     <p className="text-3xl font-black text-blue-700 dark:text-blue-300">{aggregatorStats.transactions.success_rate}%</p>
                   </div>
                   <div className="p-4 bg-indigo-50 dark:bg-indigo-950 rounded-xl border border-indigo-100 dark:border-indigo-900">
-                    <p className="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-1">Total Profit</p>
+                    <p className="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-1">{t("dashboard.totalProfit")}</p>
                     <div className="flex items-baseline gap-1">
                       <p className="text-2xl font-black text-indigo-700 dark:text-indigo-300">
                         {((aggregatorStats.payin.total_platform_profit || 0) + (aggregatorStats.payout.total_platform_profit || 0)).toLocaleString()}
@@ -1458,18 +1458,18 @@ export default function DashboardPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   <div className="space-y-4">
                     <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
-                       <TrendingUp size={16} /> Transaction Distribution
+                       <TrendingUp size={16} /> {t("dashboard.transactionDistribution")}
                     </h4>
                     <div className="h-[250px] w-full">
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                           <Pie
                             data={[
-                              { name: 'Success', value: aggregatorStats.transactions.success_count },
-                              { name: 'Pending', value: aggregatorStats.transactions.pending_count },
-                              { name: 'Failed', value: aggregatorStats.transactions.failed_count },
-                              { name: 'Cancelled', value: aggregatorStats.transactions.cancelled_count },
-                              { name: 'Processing', value: aggregatorStats.transactions.processing_count },
+                              { name: t("dashboard.success"), value: aggregatorStats.transactions.success_count },
+                              { name: t("dashboard.pending"), value: aggregatorStats.transactions.pending_count },
+                              { name: t("transactions.failed"), value: aggregatorStats.transactions.failed_count },
+                              { name: t("dashboard.cancelled"), value: aggregatorStats.transactions.cancelled_count },
+                              { name: t("dashboard.processingTransactions"), value: aggregatorStats.transactions.processing_count },
                             ].filter(d => d.value > 0)}
                             cx="50%"
                             cy="50%"
@@ -1495,16 +1495,16 @@ export default function DashboardPage() {
 
                   <div className="space-y-4">
                     <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
-                       <Users size={16} /> Aggregator Onboarding
+                       <Users size={16} /> {t("dashboard.aggregatorOnboarding")}
                     </h4>
                     <div className="h-[250px] w-full">
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart
                           data={[
-                            { name: 'Active', value: aggregatorStats.users.active_aggregators },
-                            { name: 'Inactive', value: aggregatorStats.users.inactive_aggregators },
-                            { name: 'Active Today', value: aggregatorStats.users.active_today },
-                            { name: 'Active 7D', value: aggregatorStats.users.active_last_7_days },
+                            { name: t("common.active"), value: aggregatorStats.users.active_aggregators },
+                            { name: t("common.inactive"), value: aggregatorStats.users.inactive_aggregators },
+                            { name: t("dashboard.activeToday"), value: aggregatorStats.users.active_today },
+                            { name: t("dashboard.active7D"), value: aggregatorStats.users.active_last_7_days },
                           ]}
                           margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
                         >
@@ -1529,15 +1529,15 @@ export default function DashboardPage() {
 
                 {/* Footnote */}
                 <div className="pt-4 border-t flex justify-between items-center text-[10px] text-slate-400 italic">
-                  <span>Aggregation methods: Weighted Global Average</span>
+                  <span>{t("dashboard.aggregationMethods")}</span>
                   <div className="flex items-center gap-1">
                     <RefreshCw size={10} className="animate-spin-slow" />
-                    Last updated: {new Date().toLocaleTimeString()}
+                    {t("dashboard.lastUpdated")}: {new Date().toLocaleTimeString()}
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="text-gray-500 text-center py-8">No aggregator data available</div>
+              <div className="text-gray-500 text-center py-8">{t("dashboard.noAggregatorData")}</div>
             )}
           </CardContent>
         </Card>

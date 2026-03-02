@@ -1,5 +1,5 @@
-"use client";
 import { useState, useEffect } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 interface PasswordResetModalProps {
   open: boolean;
@@ -17,6 +17,7 @@ export default function PasswordResetModal({ open, onOpenChange, initialIdentifi
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [taskId, setTaskId] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   // Simulate API call
   const fakeApi = (payload: any, response: any, delay = 800) => new Promise(res => setTimeout(() => res(response), delay));
@@ -117,14 +118,24 @@ export default function PasswordResetModal({ open, onOpenChange, initialIdentifi
               onChange={e => setCode(e.target.value)}
               required
             />
-            <input
-              className="w-full p-2 border rounded"
-              placeholder="New Password"
-              type="password"
-              value={newPassword}
-              onChange={e => setNewPassword(e.target.value)}
-              required
-            />
+            <div className="relative">
+              <input
+                className="w-full p-2 border rounded pr-10"
+                placeholder="New Password"
+                type={showPassword ? "text" : "password"}
+                value={newPassword}
+                onChange={e => setNewPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                onClick={() => setShowPassword(!showPassword)}
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
             <button type="submit" className="w-full bg-green-600 text-white py-2 rounded" disabled={loading}>
               {loading ? "Resetting..." : "Reset Password"}
             </button>

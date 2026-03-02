@@ -63,7 +63,7 @@ export default function AggregatorAuthorizationsPage() {
             setUsers(userData.aggregators || [])
             setNetworks(networkData.results || [])
         } catch (err: any) {
-            setError(extractErrorMessages(err) || "Failed to load authorization data")
+            setError(extractErrorMessages(err) || t("aggregators.noAuthorizationsFound"))
         } finally {
             setLoading(false)
         }
@@ -83,7 +83,7 @@ export default function AggregatorAuthorizationsPage() {
             })
             setIsCreateModalOpen(false)
             fetchData()
-            toast({ title: "Success", description: "Authorization created successfully" })
+            toast({ title: t("common.success"), description: t("aggregators.authorizationCreated") })
         } catch (err: any) {
             toast({ title: "Error", description: extractErrorMessages(err), variant: "destructive" })
         } finally {
@@ -102,7 +102,7 @@ export default function AggregatorAuthorizationsPage() {
             })
             setIsEditModalOpen(false)
             fetchData()
-            toast({ title: "Success", description: "Authorization updated successfully" })
+            toast({ title: t("common.success"), description: t("aggregators.authorizationUpdated") })
         } catch (err: any) {
             toast({ title: "Error", description: extractErrorMessages(err), variant: "destructive" })
         } finally {
@@ -123,21 +123,21 @@ export default function AggregatorAuthorizationsPage() {
     }
 
     const handleDelete = async (uid: string) => {
-        if (!confirm("Are you sure you want to revoke this authorization?")) return
+        if (!confirm(t("aggregators.confirmRevoke") || "Are you sure you want to revoke this authorization?")) return
         
         try {
             await apiFetch(`${baseUrl}api/aggregator/admin/user-authorizations/${uid}/`, {
                 method: 'DELETE'
             })
             toast({
-                title: "Success",
-                description: "Authorization revoked successfully"
+                title: t("common.success"),
+                description: t("aggregators.revokeSuccess")
             })
             fetchData()
         } catch (err: any) {
             toast({
-                title: "Error",
-                description: extractErrorMessages(err) || "Failed to revoke authorization",
+                title: t("common.error"),
+                description: extractErrorMessages(err) || t("aggregators.revokeFailed"),
                 variant: "destructive"
             })
         }
@@ -154,8 +154,8 @@ export default function AggregatorAuthorizationsPage() {
         <div className="space-y-6 px-4 py-8 max-w-7xl mx-auto">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight mb-1">Aggregator Authorizations</h1>
-                    <p className="text-muted-foreground text-slate-500">Grant and manage network access for specific aggregators</p>
+                    <h1 className="text-3xl font-bold tracking-tight mb-1">{t("aggregators.authorizationsTitle")}</h1>
+                    <p className="text-muted-foreground text-slate-500">{t("aggregators.authorizationsSub")}</p>
                 </div>
                 <Button onClick={() => {
                     setFormData({
@@ -167,7 +167,7 @@ export default function AggregatorAuthorizationsPage() {
                     })
                     setIsCreateModalOpen(true)
                 }} className="flex gap-2">
-                    <Plus size={18} /> New Authorization
+                    <Plus size={18} /> {t("aggregators.newAuthorization")}
                 </Button>
             </div>
 
@@ -176,13 +176,13 @@ export default function AggregatorAuthorizationsPage() {
                 <CardContent className="pt-6">
                     <div className="flex flex-col md:flex-row gap-4 items-end">
                         <div className="flex-1 space-y-2">
-                            <label className="text-sm font-medium text-slate-500">Filter by Aggregator</label>
+                            <label className="text-sm font-medium text-slate-500">{t("aggregators.filterByAggregator")}</label>
                             <Select value={filterUser} onValueChange={setFilterUser}>
                                 <SelectTrigger>
-                                    <SelectValue placeholder="All Aggregators" />
+                                    <SelectValue placeholder={t("aggregators.allAggregators") || "All Aggregators"} />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="all">All Aggregators</SelectItem>
+                                    <SelectItem value="all">{t("aggregators.allAggregators")}</SelectItem>
                                     {users.map(u => (
                                         <SelectItem key={u.uid} value={u.uid}>{u.display_name} ({u.email})</SelectItem>
                                     ))}
@@ -191,7 +191,7 @@ export default function AggregatorAuthorizationsPage() {
                         </div>
                         <Button variant="outline" onClick={() => setFilterUser("all")} className="flex gap-2">
 
-                            <X size={16} /> Clear
+                            <X size={16} /> {t("common.clear")}
                         </Button>
                     </div>
                 </CardContent>
@@ -212,12 +212,12 @@ export default function AggregatorAuthorizationsPage() {
                             <Table>
                                 <TableHeader className="bg-slate-50">
                                     <TableRow>
-                                        <TableHead>Aggregator</TableHead>
-                                        <TableHead>Network</TableHead>
-                                        <TableHead className="text-center">Payin Fee</TableHead>
-                                        <TableHead className="text-center">Payout Fee</TableHead>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead>Updated At</TableHead>
+                                        <TableHead>{t("aggregators.aggregatorUser") || "Aggregator"}</TableHead>
+                                        <TableHead>{t("common.network")}</TableHead>
+                                        <TableHead className="text-center">{t("common.payinFee") || "Payin Fee"}</TableHead>
+                                        <TableHead className="text-center">{t("common.payoutFee") || "Payout Fee"}</TableHead>
+                                        <TableHead>{t("common.status")}</TableHead>
+                                        <TableHead>{t("common.updatedAt") || "Updated At"}</TableHead>
                                         <TableHead className="w-[100px]"></TableHead>
                                     </TableRow>
                                 </TableHeader>
@@ -225,7 +225,7 @@ export default function AggregatorAuthorizationsPage() {
                                     {authorizations.length === 0 ? (
                                         <TableRow>
                                             <TableCell colSpan={7} className="text-center py-12 text-slate-400">
-                                                No authorizations found
+                                                {t("aggregators.noAuthorizationsFound")}
                                             </TableCell>
                                         </TableRow>
                                     ) : (
@@ -249,7 +249,7 @@ export default function AggregatorAuthorizationsPage() {
                                                 </TableCell>
                                                 <TableCell>
                                                     <Badge variant={auth.is_active ? "success" : "secondary"}>
-                                                        {auth.is_active ? "Active" : "Inactive"}
+                                                        {auth.is_active ? t("common.active") : t("common.inactive")}
                                                     </Badge>
                                                 </TableCell>
                                                 <TableCell className="text-xs text-slate-400">
@@ -263,19 +263,19 @@ export default function AggregatorAuthorizationsPage() {
                                                             </Button>
                                                         </DropdownMenuTrigger>
                                                         <DropdownMenuContent align="end">
-                                                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                            <DropdownMenuLabel>{t("common.actions")}</DropdownMenuLabel>
                                                             <DropdownMenuItem onClick={() => openDetails(auth)}>
-                                                                <Eye size={14} className="mr-2" /> View Details
+                                                                <Eye size={14} className="mr-2" /> {t("common.viewDetails")}
                                                             </DropdownMenuItem>
                                                             <DropdownMenuItem onClick={() => openEdit(auth)}>
-                                                                <Edit2 size={14} className="mr-2" /> Edit Configuration
+                                                                <Edit2 size={14} className="mr-2" /> {t("common.edit")}
                                                             </DropdownMenuItem>
                                                             <DropdownMenuSeparator />
                                                             <DropdownMenuItem 
                                                                 className="text-red-600"
                                                                 onClick={() => handleDelete(auth.uid)}
                                                             >
-                                                                <Trash2 size={14} className="mr-2" /> Revoke Access
+                                                                <Trash2 size={14} className="mr-2" /> {t("aggregators.revokeAccess")}
                                                             </DropdownMenuItem>
                                                         </DropdownMenuContent>
                                                     </DropdownMenu>
@@ -295,17 +295,17 @@ export default function AggregatorAuthorizationsPage() {
             <Dialog open={isCreateModalOpen || isEditModalOpen} onOpenChange={(v) => v ? null : (setIsCreateModalOpen(false) || setIsEditModalOpen(false))}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>{isCreateModalOpen ? "New Authorization" : "Edit Authorization"}</DialogTitle>
-                        <DialogDescription>Assign network fees and permissions to this aggregator</DialogDescription>
+                        <DialogTitle>{isCreateModalOpen ? t("aggregators.newAuthorization") : t("aggregators.editAuthorization")}</DialogTitle>
+                        <DialogDescription>{t("aggregators.assignLabel")}</DialogDescription>
                     </DialogHeader>
                     
                     <form onSubmit={isCreateModalOpen ? handleCreate : handleUpdate} className="space-y-6 py-4">
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Aggregator User</label>
+                                <label className="text-sm font-medium">{t("aggregators.aggregatorUser")}</label>
                                 <Select disabled={isEditModalOpen} value={formData.user} onValueChange={(v) => setFormData({...formData, user: v})}>
                                     <SelectTrigger>
-                                        <SelectValue placeholder="Select an aggregator" />
+                                        <SelectValue placeholder={t("aggregators.selectAggregator") || "Select an aggregator"} />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {users.map(u => (
@@ -316,10 +316,10 @@ export default function AggregatorAuthorizationsPage() {
                             </div>
                             
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Network</label>
+                                <label className="text-sm font-medium">{t("common.network")}</label>
                                 <Select disabled={isEditModalOpen} value={formData.network} onValueChange={(v) => setFormData({...formData, network: v})}>
                                     <SelectTrigger>
-                                        <SelectValue placeholder="Select a network" />
+                                        <SelectValue placeholder={t("aggregators.selectNetwork") || "Select a network"} />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {networks.map(n => (
@@ -332,26 +332,26 @@ export default function AggregatorAuthorizationsPage() {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium text-green-700">Payin Fee (%)</label>
+                                    <label className="text-sm font-medium text-green-700">{t("aggregators.payinFeePercent")}</label>
                                     <Input type="number" step="0.01" value={formData.user_payin_fee_percent} onChange={(e) => setFormData({...formData, user_payin_fee_percent: parseFloat(e.target.value)})} />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium text-blue-700">Payout Fee (%)</label>
+                                    <label className="text-sm font-medium text-blue-700">{t("aggregators.payoutFeePercent")}</label>
                                     <Input type="number" step="0.01" value={formData.user_payout_fee_percent} onChange={(e) => setFormData({...formData, user_payout_fee_percent: parseFloat(e.target.value)})} />
                                 </div>
                             </div>
 
                             <div className="flex items-center gap-2 pt-2">
                                 <Switch checked={formData.is_active} onCheckedChange={(v) => setFormData({...formData, is_active: v})} />
-                                <span className="text-sm font-medium">Access Enabled</span>
+                                <span className="text-sm font-medium">{t("aggregators.accessEnabled")}</span>
                             </div>
                         </div>
 
                         <DialogFooter>
-                            <Button type="button" variant="ghost" onClick={() => (setIsCreateModalOpen(false) || setIsEditModalOpen(false))}>Cancel</Button>
+                            <Button type="button" variant="ghost" onClick={() => (setIsCreateModalOpen(false) || setIsEditModalOpen(false))}>{t("common.cancel")}</Button>
                             <Button type="submit" disabled={formLoading} className="bg-blue-600 hover:bg-blue-700">
                                 {formLoading && <Loader className="animate-spin mr-2 h-4 w-4" />}
-                                {isCreateModalOpen ? "Grant Access" : "Update Authorization"}
+                                {isCreateModalOpen ? t("aggregators.grantAccess") : t("aggregators.updateAuthorization")}
                             </Button>
                         </DialogFooter>
                     </form>
@@ -362,18 +362,18 @@ export default function AggregatorAuthorizationsPage() {
             <Dialog open={isDetailModalOpen} onOpenChange={setIsDetailModalOpen}>
                 <DialogContent className="max-w-md">
                     <DialogHeader>
-                        <DialogTitle>Authorization Details</DialogTitle>
+                        <DialogTitle>{t("aggregators.authorizationDetails")}</DialogTitle>
                     </DialogHeader>
                     {selectedAuth && (
                         <div className="space-y-4 py-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">User</p>
+                                    <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">{t("common.user")}</p>
                                     <p className="font-semibold">{selectedAuth.user_display_name}</p>
                                     <p className="text-sm text-slate-400">{selectedAuth.user_email}</p>
                                 </div>
                                 <div>
-                                    <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">Network</p>
+                                    <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">{t("common.network")}</p>
                                     <p className="font-semibold">{selectedAuth.network_name}</p>
                                 </div>
                             </div>
@@ -388,9 +388,9 @@ export default function AggregatorAuthorizationsPage() {
                                     <span className="font-medium">{selectedAuth.user_payout_fee_percent}%</span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                    <span className="text-sm text-slate-500">Status:</span>
+                                    <span className="text-sm text-slate-500">{t("common.status")}:</span>
                                     <Badge variant={selectedAuth.is_active ? "success" : "secondary"}>
-                                        {selectedAuth.is_active ? "Active" : "Inactive"}
+                                        {selectedAuth.is_active ? t("common.active") : t("common.inactive")}
                                     </Badge>
                                 </div>
                             </div>
@@ -403,7 +403,7 @@ export default function AggregatorAuthorizationsPage() {
                         </div>
                     )}
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setIsDetailModalOpen(false)}>Close</Button>
+                        <Button variant="outline" onClick={() => setIsDetailModalOpen(false)}>{t("common.ok") || "Close"}</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

@@ -25,7 +25,7 @@ export default function AggregatorDashboardPage() {
             const data = await apiFetch(`${baseUrl}api/aggregator/admin/dashboard/`)
             setDashboard(data)
         } catch (err: any) {
-            setError(extractErrorMessages(err) || "Failed to load aggregator dashboard")
+            setError(extractErrorMessages(err) || t("aggregators.noAggregatorData"))
         } finally {
             setLoading(false)
         }
@@ -58,11 +58,11 @@ export default function AggregatorDashboardPage() {
         <div className="space-y-8 px-4 py-8 max-w-7xl mx-auto">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight mb-1">Aggregator Dashboard</h1>
-                    <p className="text-muted-foreground text-lg text-slate-500">Global aggregator performance and statistics</p>
+                    <h1 className="text-3xl font-bold tracking-tight mb-1">{t("aggregators.dashboard")}</h1>
+                    <p className="text-muted-foreground text-lg text-slate-500">{t("aggregators.dashboardSub")}</p>
                 </div>
                 <div className="text-sm text-slate-400">
-                    Last updated: {new Date(dashboard.meta.generated_at).toLocaleString()}
+                    {t("aggregators.lastUpdated")}: {new Date(dashboard.meta.generated_at).toLocaleString()}
                 </div>
             </div>
 
@@ -71,14 +71,14 @@ export default function AggregatorDashboardPage() {
                 <Card className="hover:shadow-md transition-shadow">
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium text-slate-500 flex items-center gap-2">
-                            <Users size={16} /> Total Aggregators
+                            <Users size={16} /> {t("aggregators.totalAggregators")}
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{dashboard.users.total_aggregators}</div>
                         <div className="flex gap-2 mt-1">
-                            <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50">{dashboard.users.active_aggregators} Active</Badge>
-                            <Badge variant="outline" className="text-slate-400 border-slate-200">{dashboard.users.inactive_aggregators} Inactive</Badge>
+                            <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50">{dashboard.users.active_aggregators} {t("common.active")}</Badge>
+                            <Badge variant="outline" className="text-slate-400 border-slate-200">{dashboard.users.inactive_aggregators} {t("common.inactive")}</Badge>
                         </div>
                     </CardContent>
                 </Card>
@@ -86,15 +86,15 @@ export default function AggregatorDashboardPage() {
                 <Card className="hover:shadow-md transition-shadow">
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium text-slate-500 flex items-center gap-2">
-                            <CreditCard size={16} /> Total Transactions
+                            <CreditCard size={16} /> {t("dashboard.totalTransactions")}
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{dashboard.transactions.total_count}</div>
                         <div className="flex gap-2 mt-1 text-xs">
-                            <span className="text-green-600 font-medium">{dashboard.transactions.success_count} Success</span>
+                            <span className="text-green-600 font-medium">{dashboard.transactions.success_count} {t("dashboard.success")}</span>
                             <span className="text-slate-300">|</span>
-                            <span className="text-blue-600 font-medium">{dashboard.transactions.success_rate}% Rate</span>
+                            <span className="text-blue-600 font-medium">{dashboard.transactions.success_rate}% {t("dashboard.approvalRate") || "Rate"}</span>
                         </div>
                     </CardContent>
                 </Card>
@@ -102,24 +102,24 @@ export default function AggregatorDashboardPage() {
                 <Card className="hover:shadow-md transition-shadow">
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium text-slate-500 flex items-center gap-2">
-                            <DollarSign size={16} /> Total Payin
+                            <DollarSign size={16} /> {t("aggregators.totalPayin")}
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{dashboard.payin.total_amount.toLocaleString()} <span className="text-sm font-normal text-slate-400">XOF</span></div>
-                        <div className="text-xs text-slate-500 mt-1">Profit: {dashboard.payin.total_platform_profit.toLocaleString()} XOF</div>
+                        <div className="text-xs text-slate-500 mt-1">{t("aggregators.platformProfit")}: {dashboard.payin.total_platform_profit.toLocaleString()} XOF</div>
                     </CardContent>
                 </Card>
 
                 <Card className="hover:shadow-md transition-shadow">
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium text-slate-500 flex items-center gap-2">
-                            <Zap size={16} /> Total Payout
+                            <Zap size={16} /> {t("aggregators.totalPayout")}
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{dashboard.payout.total_amount.toLocaleString()} <span className="text-sm font-normal text-slate-400">XOF</span></div>
-                        <div className="text-xs text-slate-500 mt-1">Profit: {dashboard.payout.total_platform_profit.toLocaleString()} XOF</div>
+                        <div className="text-xs text-slate-500 mt-1">{t("aggregators.platformProfit")}: {dashboard.payout.total_platform_profit.toLocaleString()} XOF</div>
                     </CardContent>
                 </Card>
             </div>
@@ -128,23 +128,23 @@ export default function AggregatorDashboardPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <Card className="col-span-1">
                     <CardHeader>
-                        <CardTitle className="text-lg flex items-center gap-2"><Clock size={18} /> Today</CardTitle>
+                        <CardTitle className="text-lg flex items-center gap-2"><Clock size={18} /> {t("aggregators.performanceToday")}</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg">
-                            <span className="text-sm text-slate-600">Total Count</span>
+                            <span className="text-sm text-slate-600">{t("aggregators.totalProcessed")}</span>
                             <span className="font-bold">{dashboard.today.total_count}</span>
                         </div>
                         <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg">
-                            <span className="text-sm text-slate-600">Success Count</span>
+                            <span className="text-sm text-slate-600">{t("dashboard.successTransactions") || "Success Count"}</span>
                             <span className="font-bold text-green-600">{dashboard.today.success_count}</span>
                         </div>
                         <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg">
-                            <span className="text-sm text-slate-600">Total Amount</span>
+                            <span className="text-sm text-slate-600">{t("common.totalAmount")}</span>
                             <span className="font-bold">{dashboard.today.total_amount.toLocaleString()}</span>
                         </div>
                         <div className="flex justify-between items-center bg-blue-50 p-3 rounded-lg">
-                            <span className="text-sm text-blue-700">Platform Profit</span>
+                            <span className="text-sm text-blue-700">{t("aggregators.platformProfit")}</span>
                             <span className="font-bold text-blue-700">{dashboard.today.total_platform_profit.toLocaleString()}</span>
                         </div>
                     </CardContent>
@@ -152,7 +152,7 @@ export default function AggregatorDashboardPage() {
 
                 <Card className="col-span-1">
                     <CardHeader>
-                        <CardTitle className="text-lg flex items-center gap-2"><TrendingUp size={18} /> Last 7 Days</CardTitle>
+                        <CardTitle className="text-lg flex items-center gap-2"><TrendingUp size={18} /> {t("aggregators.performance7D")}</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg">
@@ -176,7 +176,7 @@ export default function AggregatorDashboardPage() {
 
                 <Card className="col-span-1">
                     <CardHeader>
-                        <CardTitle className="text-lg flex items-center gap-2"><TrendingUp size={18} /> Last 30 Days</CardTitle>
+                        <CardTitle className="text-lg flex items-center gap-2"><TrendingUp size={18} /> {t("aggregators.performance30D")}</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg">
@@ -202,18 +202,18 @@ export default function AggregatorDashboardPage() {
             {/* Network Stats Table */}
             <Card>
                 <CardHeader>
-                    <CardTitle className="text-xl">Network Performance</CardTitle>
+                    <CardTitle className="text-xl">{t("aggregators.networkPerformance")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="rounded-md border">
                         <Table>
                             <TableHeader className="bg-slate-50">
                                 <TableRow>
-                                    <TableHead>Network</TableHead>
-                                    <TableHead className="text-right">Total Count</TableHead>
-                                    <TableHead className="text-right">Success Count</TableHead>
-                                    <TableHead className="text-right">Total Amount (XOF)</TableHead>
-                                    <TableHead className="text-right">Total Profit (XOF)</TableHead>
+                                    <TableHead>{t("common.network")}</TableHead>
+                                    <TableHead className="text-right">{t("aggregators.totalProcessed")}</TableHead>
+                                    <TableHead className="text-right">{t("dashboard.successTransactions") || "Success Count"}</TableHead>
+                                    <TableHead className="text-right">{t("common.totalAmount")}</TableHead>
+                                    <TableHead className="text-right">{t("aggregators.platformProfit")}</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -229,7 +229,7 @@ export default function AggregatorDashboardPage() {
                                     ))
                                 ) : (
                                     <TableRow>
-                                        <TableCell colSpan={5} className="text-center py-8 text-slate-400">No network data available</TableCell>
+                                        <TableCell colSpan={5} className="text-center py-8 text-slate-400">{t("dashboard.noData")}</TableCell>
                                     </TableRow>
                                 )}
                             </TableBody>
@@ -242,10 +242,10 @@ export default function AggregatorDashboardPage() {
             {dashboard.top_aggregators.length > 0 && (
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-xl">Top Aggregators</CardTitle>
+                        <CardTitle className="text-xl">{t("aggregators.topAggregators")}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                         <div className="text-slate-400 italic">Top aggregators list view coming soon...</div>
+                         <div className="text-slate-400 italic">{t("aggregators.comingSoon")}</div>
                     </CardContent>
                 </Card>
             )}
