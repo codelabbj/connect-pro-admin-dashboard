@@ -72,6 +72,9 @@ export interface AggregatorUser {
     is_partner: boolean;
     can_process_ussd_transaction: boolean;
     is_aggregator: boolean;
+    can_process_momo: boolean;
+    can_process_mobcash: boolean;
+    can_process_bulk_payment: boolean;
     webhook_url: string | null;
     account_balance: number;
     account_currency: string;

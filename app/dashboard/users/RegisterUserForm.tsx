@@ -17,10 +17,13 @@ export default function RegisterUserForm() {
     identifier: "",
     password: "",
     password_confirm: "",
-      is_partner: false,
-      can_process_ussd_transaction: false,
-      is_aggregator: false,
-    })
+    is_partner: false,
+    can_process_ussd_transaction: false,
+    is_aggregator: false,
+    can_process_momo: true,
+    can_process_mobcash: true,
+    can_process_bulk_payment: true,
+  })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
@@ -36,11 +39,11 @@ export default function RegisterUserForm() {
   const apiToken = process.env.NEXT_PUBLIC_API_TOKEN || ""
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { name, type, checked, value } = e.target;
-      setForm({
-        ...form,
-        [name]: type === "checkbox" ? checked : value,
-      });
+    const { name, type, checked, value } = e.target;
+    setForm({
+      ...form,
+      [name]: type === "checkbox" ? checked : value,
+    });
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -66,17 +69,20 @@ export default function RegisterUserForm() {
       }
       // Map identifier to email or phone for backend compatibility
       const isEmail = /@/.test(form.identifier)
-        const submitBody = {
-          first_name: form.first_name,
-          last_name: form.last_name,
-          email: isEmail ? form.identifier : null,
-          phone: isEmail ? null : form.identifier,
-          password: form.password,
-          password_confirm: form.password_confirm,
-          is_partner: form.is_partner,
-          can_process_ussd_transaction: form.can_process_ussd_transaction,
-          is_aggregator: form.is_aggregator,
-        }
+      const submitBody = {
+        first_name: form.first_name,
+        last_name: form.last_name,
+        email: isEmail ? form.identifier : null,
+        phone: isEmail ? null : form.identifier,
+        password: form.password,
+        password_confirm: form.password_confirm,
+        is_partner: form.is_partner,
+        can_process_ussd_transaction: form.can_process_ussd_transaction,
+        is_aggregator: form.is_aggregator,
+        can_process_momo: form.can_process_momo,
+        can_process_mobcash: form.can_process_mobcash,
+        can_process_bulk_payment: form.can_process_bulk_payment,
+      }
       const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/register/`, {
         method: "POST",
         headers,
@@ -102,6 +108,9 @@ export default function RegisterUserForm() {
           is_partner: false,
           can_process_ussd_transaction: false,
           is_aggregator: false,
+          can_process_momo: true,
+          can_process_mobcash: true,
+          can_process_bulk_payment: true,
         })
       }
     } catch (err: any) {
@@ -228,6 +237,39 @@ export default function RegisterUserForm() {
               className="mr-2"
             />
             <label htmlFor="is_aggregator">{t("users.isAggregator") || "Is Aggregator"}</label>
+          </div>
+          <div className="flex items-center mb-2">
+            <input
+              type="checkbox"
+              name="can_process_momo"
+              checked={form.can_process_momo}
+              onChange={handleChange}
+              id="can_process_momo"
+              className="mr-2"
+            />
+            <label htmlFor="can_process_momo">{t("register.canProcessMomo") || "Can Process MoMo"}</label>
+          </div>
+          <div className="flex items-center mb-2">
+            <input
+              type="checkbox"
+              name="can_process_mobcash"
+              checked={form.can_process_mobcash}
+              onChange={handleChange}
+              id="can_process_mobcash"
+              className="mr-2"
+            />
+            <label htmlFor="can_process_mobcash">{t("register.canProcessMobcash") || "Can Process MobCash"}</label>
+          </div>
+          <div className="flex items-center mb-2">
+            <input
+              type="checkbox"
+              name="can_process_bulk_payment"
+              checked={form.can_process_bulk_payment}
+              onChange={handleChange}
+              id="can_process_bulk_payment"
+              className="mr-2"
+            />
+            <label htmlFor="can_process_bulk_payment">{t("register.canProcessBulkPayment") || "Can Process Bulk Payment"}</label>
           </div>
           {error && (
             <ErrorDisplay

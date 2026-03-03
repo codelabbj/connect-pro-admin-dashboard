@@ -48,13 +48,16 @@ export default function UsersPage() {
   const [detailUser, setDetailUser] = useState<any | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
   const [detailError, setDetailError] = useState("")
-  
+
   // Add state for loading email/phone/partner verification
   const [verifyingEmail, setVerifyingEmail] = useState(false);
   const [verifyingPhone, setVerifyingPhone] = useState(false);
   const [verifyingPartner, setVerifyingPartner] = useState(false);
   const [verifyingUssd, setVerifyingUssd] = useState(false);
   const [verifyingAggregator, setVerifyingAggregator] = useState(false);
+  const [verifyingMomo, setVerifyingMomo] = useState(false);
+  const [verifyingMobcash, setVerifyingMobcash] = useState(false);
+  const [verifyingBulkPayment, setVerifyingBulkPayment] = useState(false);
 
   // Add state for confirmation modals
   const [confirmEmailToggle, setConfirmEmailToggle] = useState<null | boolean>(null);
@@ -62,6 +65,9 @@ export default function UsersPage() {
   const [confirmPartnerToggle, setConfirmPartnerToggle] = useState<null | boolean>(null);
   const [confirmUssdToggle, setConfirmUssdToggle] = useState<null | boolean>(null);
   const [confirmAggregatorToggle, setConfirmAggregatorToggle] = useState<null | boolean>(null);
+  const [confirmMomoToggle, setConfirmMomoToggle] = useState<null | boolean>(null);
+  const [confirmMobcashToggle, setConfirmMobcashToggle] = useState<null | boolean>(null);
+  const [confirmBulkPaymentToggle, setConfirmBulkPaymentToggle] = useState<null | boolean>(null);
 
   const [confirmActionUser, setConfirmActionUser] = useState<any | null>(null);
   const [confirmActionType, setConfirmActionType] = useState<"activate" | "deactivate" | null>(null);
@@ -114,7 +120,13 @@ export default function UsersPage() {
         }
         console.log("User API endpoint:", endpoint);
         const data = await apiFetch(endpoint);
-        setUsers(data.users || []);
+        const usersWithDefaults = (data.users || []).map((u: any) => ({
+          ...u,
+          can_process_momo: u.can_process_momo !== undefined ? u.can_process_momo : true,
+          can_process_mobcash: u.can_process_mobcash !== undefined ? u.can_process_mobcash : true,
+          can_process_bulk_payment: u.can_process_bulk_payment !== undefined ? u.can_process_bulk_payment : true,
+        }));
+        setUsers(usersWithDefaults);
         setTotalCount(data.pagination?.total_count || 0);
         setTotalPages(data.pagination?.total_pages || 1);
         // GET requests don't show success toasts automatically
@@ -233,7 +245,15 @@ export default function UsersPage() {
     setDetailUser(null)
     try {
       const data = await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/${uid}/`)
-      setDetailUser(data)
+      const userWithDefaults = {
+        ...data,
+        can_process_momo: data.can_process_momo !== undefined ? data.can_process_momo : true,
+        can_process_mobcash: data.can_process_mobcash !== undefined ? data.can_process_mobcash : true,
+        can_process_bulk_payment: data.can_process_bulk_payment !== undefined ? data.can_process_bulk_payment : true,
+      };
+      setDetailUser(userWithDefaults);
+      // Update the user in the list as well if it's there
+      setUsers((prev) => prev.map((u) => u.uid === uid ? userWithDefaults : u));
       // GET requests don't show success toasts automatically
     } catch (err: any) {
       setDetailError(extractErrorMessages(err))
@@ -381,6 +401,60 @@ export default function UsersPage() {
     }
   };
 
+  const handleToggleMomo = async (canProcess: boolean) => {
+    if (!detailUser?.uid) return;
+    setVerifyingMomo(true);
+    try {
+      await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/${detailUser.uid}/update/`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ can_process_momo: canProcess }),
+      });
+      setDetailUser((prev: any) => prev ? { ...prev, can_process_momo: canProcess } : prev);
+      setUsers((prev) => prev.map((u) => (u.uid === detailUser.uid ? { ...u, can_process_momo: canProcess } : u)));
+    } catch (err: any) {
+      toast({ title: t("users.momoToggleFailed"), description: extractErrorMessages(err), variant: "destructive" });
+    } finally {
+      setVerifyingMomo(false);
+    }
+  };
+
+  const handleToggleMobcash = async (canProcess: boolean) => {
+    if (!detailUser?.uid) return;
+    setVerifyingMobcash(true);
+    try {
+      await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/${detailUser.uid}/update/`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ can_process_mobcash: canProcess }),
+      });
+      setDetailUser((prev: any) => prev ? { ...prev, can_process_mobcash: canProcess } : prev);
+      setUsers((prev) => prev.map((u) => (u.uid === detailUser.uid ? { ...u, can_process_mobcash: canProcess } : u)));
+    } catch (err: any) {
+      toast({ title: t("users.mobcashToggleFailed"), description: extractErrorMessages(err), variant: "destructive" });
+    } finally {
+      setVerifyingMobcash(false);
+    }
+  };
+
+  const handleToggleBulkPayment = async (canProcess: boolean) => {
+    if (!detailUser?.uid) return;
+    setVerifyingBulkPayment(true);
+    try {
+      await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/auth/admin/users/${detailUser.uid}/update/`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ can_process_bulk_payment: canProcess }),
+      });
+      setDetailUser((prev: any) => prev ? { ...prev, can_process_bulk_payment: canProcess } : prev);
+      setUsers((prev) => prev.map((u) => (u.uid === detailUser.uid ? { ...u, can_process_bulk_payment: canProcess } : u)));
+    } catch (err: any) {
+      toast({ title: t("users.bulkPaymentToggleFailed"), description: extractErrorMessages(err), variant: "destructive" });
+    } finally {
+      setVerifyingBulkPayment(false);
+    }
+  };
+
   return (
     <>
       <Card>
@@ -401,7 +475,7 @@ export default function UsersPage() {
             </div>
             <Select value={viewType} onValueChange={setViewType}>
               <SelectTrigger className="w-full sm:w-48">
-                <SelectValue placeholder={t("users.viewType")}/>
+                <SelectValue placeholder={t("users.viewType")} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="pending">{t("users.pendingUsers")}</SelectItem>
@@ -420,7 +494,7 @@ export default function UsersPage() {
               </SelectContent>
             </Select>
           </div>
-          
+
           {/* Date Filters */}
           <div className="flex flex-col lg:flex-row gap-4 mb-6">
             <div className="flex flex-col lg:flex-row gap-4 flex-1">
@@ -532,7 +606,7 @@ export default function UsersPage() {
                         <ArrowUpDown className="ml-2 h-4 w-4" />
                       </Button>
                     </TableHead>
-                        <TableHead>{t("common.actions")}</TableHead>
+                    <TableHead>{t("common.actions")}</TableHead>
                     <TableHead>{t("users.details")}</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -578,11 +652,11 @@ export default function UsersPage() {
                       <TableCell>
                         {user.is_active ? (
                           // <span className="inline-flex items-center justify-center rounded-full bg-green-100 text-green-700 p-1">
-                            <img src="/icon-yes.svg" alt="Active" className="h-4 w-4" />
+                          <img src="/icon-yes.svg" alt="Active" className="h-4 w-4" />
                           // </span>
                         ) : (
                           // <span className="inline-flex items-center justify-center rounded-full bg-red-100 text-red-700 p-1">
-                            <img src="/icon-no.svg" alt="Active" className="h-4 w-4" />
+                          <img src="/icon-no.svg" alt="Active" className="h-4 w-4" />
                           // </span>
                         )}
                       </TableCell>
@@ -614,11 +688,11 @@ export default function UsersPage() {
                             size="sm"
                             variant="outline"
                             disabled={activatingUid === user.uid}
-                            onClick={() => { 
-                                  setConfirmActionUser(user);
-                                  setConfirmActionType("activate");
-                                }}
-                              >
+                            onClick={() => {
+                              setConfirmActionUser(user);
+                              setConfirmActionType("activate");
+                            }}
+                          >
                             {activatingUid === user.uid ? (
                               <span className="flex items-center">
                                 <svg className="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
@@ -692,68 +766,92 @@ export default function UsersPage() {
             />
           ) : detailUser ? (
             <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <b>{t("users.uid")}:</b> {detailUser.uid}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-5 w-5"
-                    onClick={() => {
-                      navigator.clipboard.writeText(detailUser.uid);
-                      toast({ title: t("users.copiedUid") || "UID copied!" });
-                    }}
-                    aria-label={t("users.copyUid") || "Copy UID"}
-                  >
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                </div>
-                <div><b>{t("users.name")}:</b> {detailUser.display_name || `${detailUser.first_name || ""} ${detailUser.last_name || ""}`}</div>
-                <div><b>{t("users.email")}:</b> {detailUser.email}</div>
-                <div><b>{t("users.phone")}:</b> {detailUser.phone}</div>
-                <div><b>{t("users.status")}:</b> {detailUser.is_active ? t("users.active") : t("users.inactive")}</div>
-                <div><b>{t("users.emailVerified")}:</b> {detailUser.email_verified ? t("common.yes") : t("common.no")}
-  <Switch
-    checked={detailUser.email_verified}
-    disabled={detailLoading || verifyingEmail}
-    onCheckedChange={() => setConfirmEmailToggle(!detailUser.email_verified)}
-    className="ml-2"
-  />
-</div>
-<div><b>{t("users.phoneVerified")}:</b> {detailUser.phone_verified ? t("common.yes") : t("common.no")}
-  <Switch
-    checked={detailUser.phone_verified}
-    disabled={detailLoading || verifyingPhone}
-    onCheckedChange={() => setConfirmPhoneToggle(!detailUser.phone_verified)}
-    className="ml-2"
-  />
-</div>
-                <div><b>{t("users.contactMethod")}:</b> {detailUser.contact_method}</div>
-                <div><b>{t("users.isPartner") || "Partner"}:</b> {detailUser.is_partner ? t("common.yes") : t("common.no")}
-                  <Switch
-                    checked={detailUser.is_partner}
-                    disabled={detailLoading || verifyingPartner}
-                    onCheckedChange={() => setConfirmPartnerToggle(!detailUser.is_partner)}
-                    className="ml-2"
-                  />
-                </div>
-                <div><b>{t("users.canProcessUssdTransaction") || "Can Process USSD Transaction"}:</b> {detailUser.can_process_ussd_transaction ? t("common.yes") : t("common.no")}
-                  <Switch
-                    checked={detailUser.can_process_ussd_transaction}
-                    disabled={detailLoading || verifyingUssd}
-                    onCheckedChange={() => setConfirmUssdToggle(!detailUser.can_process_ussd_transaction)}
-                    className="ml-2"
-                  />
-                </div>
-                <div><b>{t("users.isAggregator") || "Is Aggregator"}:</b> {detailUser.is_aggregator ? t("common.yes") : t("common.no")}
-                  <Switch
-                    checked={detailUser.is_aggregator}
-                    disabled={detailLoading || verifyingAggregator}
-                    onCheckedChange={() => setConfirmAggregatorToggle(!detailUser.is_aggregator)}
-                    className="ml-2"
-                  />
-                </div>
-                <div><b>{t("users.createdAt")}:</b> {detailUser.created_at ? detailUser.created_at.split("T")[0] : "-"}</div>
-                <div><b>{t("users.lastLogin")}:</b> {detailUser.last_login_at ? detailUser.last_login_at.split("T")[0] : "-"}</div>
+              <div className="flex items-center gap-2">
+                <b>{t("users.uid")}:</b> {detailUser.uid}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-5 w-5"
+                  onClick={() => {
+                    navigator.clipboard.writeText(detailUser.uid);
+                    toast({ title: t("users.copiedUid") || "UID copied!" });
+                  }}
+                  aria-label={t("users.copyUid") || "Copy UID"}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
+              <div><b>{t("users.name")}:</b> {detailUser.display_name || `${detailUser.first_name || ""} ${detailUser.last_name || ""}`}</div>
+              <div><b>{t("users.email")}:</b> {detailUser.email}</div>
+              <div><b>{t("users.phone")}:</b> {detailUser.phone}</div>
+              <div><b>{t("users.status")}:</b> {detailUser.is_active ? t("users.active") : t("users.inactive")}</div>
+              <div><b>{t("users.emailVerified")}:</b> {detailUser.email_verified ? t("common.yes") : t("common.no")}
+                <Switch
+                  checked={detailUser.email_verified}
+                  disabled={detailLoading || verifyingEmail}
+                  onCheckedChange={() => setConfirmEmailToggle(!detailUser.email_verified)}
+                  className="ml-2"
+                />
+              </div>
+              <div><b>{t("users.phoneVerified")}:</b> {detailUser.phone_verified ? t("common.yes") : t("common.no")}
+                <Switch
+                  checked={detailUser.phone_verified}
+                  disabled={detailLoading || verifyingPhone}
+                  onCheckedChange={() => setConfirmPhoneToggle(!detailUser.phone_verified)}
+                  className="ml-2"
+                />
+              </div>
+              <div><b>{t("users.contactMethod")}:</b> {detailUser.contact_method}</div>
+              <div><b>{t("users.isPartner") || "Partner"}:</b> {detailUser.is_partner ? t("common.yes") : t("common.no")}
+                <Switch
+                  checked={detailUser.is_partner}
+                  disabled={detailLoading || verifyingPartner}
+                  onCheckedChange={() => setConfirmPartnerToggle(!detailUser.is_partner)}
+                  className="ml-2"
+                />
+              </div>
+              <div><b>{t("users.canProcessUssdTransaction") || "Can Process USSD Transaction"}:</b> {detailUser.can_process_ussd_transaction ? t("common.yes") : t("common.no")}
+                <Switch
+                  checked={detailUser.can_process_ussd_transaction}
+                  disabled={detailLoading || verifyingUssd}
+                  onCheckedChange={() => setConfirmUssdToggle(!detailUser.can_process_ussd_transaction)}
+                  className="ml-2"
+                />
+              </div>
+              <div><b>{t("users.isAggregator") || "Is Aggregator"}:</b> {detailUser.is_aggregator ? t("common.yes") : t("common.no")}
+                <Switch
+                  checked={detailUser.is_aggregator}
+                  disabled={detailLoading || verifyingAggregator}
+                  onCheckedChange={() => setConfirmAggregatorToggle(!detailUser.is_aggregator)}
+                  className="ml-2"
+                />
+              </div>
+              <div><b>{t("users.canProcessMomo") || "Can Process MoMo"}:</b> {detailUser.can_process_momo ? t("common.yes") : t("common.no")}
+                <Switch
+                  checked={detailUser.can_process_momo}
+                  disabled={detailLoading || verifyingMomo}
+                  onCheckedChange={() => setConfirmMomoToggle(!detailUser.can_process_momo)}
+                  className="ml-2"
+                />
+              </div>
+              <div><b>{t("users.canProcessMobcash") || "Can Process MobCash"}:</b> {detailUser.can_process_mobcash ? t("common.yes") : t("common.no")}
+                <Switch
+                  checked={detailUser.can_process_mobcash}
+                  disabled={detailLoading || verifyingMobcash}
+                  onCheckedChange={() => setConfirmMobcashToggle(!detailUser.can_process_mobcash)}
+                  className="ml-2"
+                />
+              </div>
+              <div><b>{t("users.canProcessBulkPayment") || "Can Process Bulk Payment"}:</b> {detailUser.can_process_bulk_payment ? t("common.yes") : t("common.no")}
+                <Switch
+                  checked={detailUser.can_process_bulk_payment}
+                  disabled={detailLoading || verifyingBulkPayment}
+                  onCheckedChange={() => setConfirmBulkPaymentToggle(!detailUser.can_process_bulk_payment)}
+                  className="ml-2"
+                />
+              </div>
+              <div><b>{t("users.createdAt")}:</b> {detailUser.created_at ? detailUser.created_at.split("T")[0] : "-"}</div>
+              <div><b>{t("users.lastLogin")}:</b> {detailUser.last_login_at ? detailUser.last_login_at.split("T")[0] : "-"}</div>
             </div>
           ) : null}
           <DialogClose asChild>
@@ -762,7 +860,7 @@ export default function UsersPage() {
         </DialogContent>
       </Dialog>
 
-  {/* Email Verification Confirmation Modal */}
+      {/* Email Verification Confirmation Modal */}
       <Dialog open={confirmEmailToggle !== null} onOpenChange={(open) => { if (!open) setConfirmEmailToggle(null) }}>
         <DialogContent>
           <DialogHeader>
@@ -796,7 +894,7 @@ export default function UsersPage() {
         </DialogContent>
       </Dialog>
 
-  {/* Phone Verification Confirmation Modal */}
+      {/* Phone Verification Confirmation Modal */}
       {/* Partner Toggle Confirmation Modal */}
       <Dialog open={confirmPartnerToggle !== null} onOpenChange={(open) => { if (!open) setConfirmPartnerToggle(null) }}>
         <DialogContent>
@@ -897,51 +995,51 @@ export default function UsersPage() {
         </DialogContent>
       </Dialog>
       <Dialog open={!!confirmActionType} onOpenChange={(open) => { if (!open) { setConfirmActionType(null); setConfirmActionUser(null); } }}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {confirmActionType === "activate"
+                ? t("users.confirmActivateTitle") || "Activate User"
+                : t("users.confirmDeactivateTitle") || "Deactivate User"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4 text-center">
             {confirmActionType === "activate"
-              ? t("users.confirmActivateTitle") || "Activate User"
-              : t("users.confirmDeactivateTitle") || "Deactivate User"}
-          </DialogTitle>
-        </DialogHeader>
-        <div className="py-4 text-center">
-          {confirmActionType === "activate"
-            ? t("users.confirmActivateText") || "Are you sure that you want to activate user?"
-            : t("users.confirmDeactivateText") || "Are you sure that you want to deactivate user?"}
-        </div>
-        <DialogFooter>
-          <Button
-            className="w-full"
-            onClick={async () => {
-              if (confirmActionUser) {
-                if (confirmActionType === "activate") {
-                  await handleActivate(confirmActionUser);
-                } else {
-                  await handleDeactivate(confirmActionUser);
+              ? t("users.confirmActivateText") || "Are you sure that you want to activate user?"
+              : t("users.confirmDeactivateText") || "Are you sure that you want to deactivate user?"}
+          </div>
+          <DialogFooter>
+            <Button
+              className="w-full"
+              onClick={async () => {
+                if (confirmActionUser) {
+                  if (confirmActionType === "activate") {
+                    await handleActivate(confirmActionUser);
+                  } else {
+                    await handleDeactivate(confirmActionUser);
+                  }
                 }
-              }
-              setConfirmActionType(null);
-              setConfirmActionUser(null);
-            }}
-            disabled={activatingUid === confirmActionUser?.uid || deactivatingUid === confirmActionUser?.uid}
-          >
-            {confirmActionType === "activate"
-              ? t("users.activate")
-              : t("users.deactivate")}
-          </Button>
-          <Button
-            variant="outline"
-            className="w-full mt-2"
-            onClick={() => {
-              setConfirmActionType(null);
-              setConfirmActionUser(null);
-            }}
-            disabled={activatingUid === confirmActionUser?.uid || deactivatingUid === confirmActionUser?.uid}
-          >
-            {t("common.cancel")}
-          </Button>
-        </DialogFooter>
+                setConfirmActionType(null);
+                setConfirmActionUser(null);
+              }}
+              disabled={activatingUid === confirmActionUser?.uid || deactivatingUid === confirmActionUser?.uid}
+            >
+              {confirmActionType === "activate"
+                ? t("users.activate")
+                : t("users.deactivate")}
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full mt-2"
+              onClick={() => {
+                setConfirmActionType(null);
+                setConfirmActionUser(null);
+              }}
+              disabled={activatingUid === confirmActionUser?.uid || deactivatingUid === confirmActionUser?.uid}
+            >
+              {t("common.cancel")}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -972,6 +1070,108 @@ export default function UsersPage() {
               className="w-full mt-2"
               onClick={() => setConfirmUssdToggle(null)}
               disabled={verifyingUssd}
+            >
+              {t("common.cancel")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* MoMo Toggle Confirmation Modal */}
+      <Dialog open={confirmMomoToggle !== null} onOpenChange={(open) => { if (!open) setConfirmMomoToggle(null) }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{confirmMomoToggle ? t("users.enableMomo") || "Enable MoMo" : t("users.disableMomo") || "Disable MoMo"}</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 text-center">
+            {confirmMomoToggle
+              ? t("users.confirmEnableMomo") || "Are you sure you want to enable MoMo processing for this user?"
+              : t("users.confirmDisableMomo") || "Are you sure you want to disable MoMo processing for this user?"}
+          </div>
+          <DialogFooter>
+            <Button
+              className="w-full"
+              onClick={async () => {
+                await handleToggleMomo(!!confirmMomoToggle);
+                setConfirmMomoToggle(null);
+              }}
+              disabled={verifyingMomo}
+            >
+              {verifyingMomo ? t("users.verifying") : t("common.ok")}
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full mt-2"
+              onClick={() => setConfirmMomoToggle(null)}
+              disabled={verifyingMomo}
+            >
+              {t("common.cancel")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* MobCash Toggle Confirmation Modal */}
+      <Dialog open={confirmMobcashToggle !== null} onOpenChange={(open) => { if (!open) setConfirmMobcashToggle(null) }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{confirmMobcashToggle ? t("users.enableMobcash") || "Enable MobCash" : t("users.disableMobcash") || "Disable MobCash"}</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 text-center">
+            {confirmMobcashToggle
+              ? t("users.confirmEnableMobcash") || "Are you sure you want to enable MobCash processing for this user?"
+              : t("users.confirmDisableMobcash") || "Are you sure you want to disable MobCash processing for this user?"}
+          </div>
+          <DialogFooter>
+            <Button
+              className="w-full"
+              onClick={async () => {
+                await handleToggleMobcash(!!confirmMobcashToggle);
+                setConfirmMobcashToggle(null);
+              }}
+              disabled={verifyingMobcash}
+            >
+              {verifyingMobcash ? t("users.verifying") : t("common.ok")}
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full mt-2"
+              onClick={() => setConfirmMobcashToggle(null)}
+              disabled={verifyingMobcash}
+            >
+              {t("common.cancel")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk Payment Toggle Confirmation Modal */}
+      <Dialog open={confirmBulkPaymentToggle !== null} onOpenChange={(open) => { if (!open) setConfirmBulkPaymentToggle(null) }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{confirmBulkPaymentToggle ? t("users.enableBulkPayment") || "Enable Bulk Payment" : t("users.disableBulkPayment") || "Disable Bulk Payment"}</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 text-center">
+            {confirmBulkPaymentToggle
+              ? t("users.confirmEnableBulkPayment") || "Are you sure you want to enable bulk payment processing for this user?"
+              : t("users.confirmDisableBulkPayment") || "Are you sure you want to disable bulk payment processing for this user?"}
+          </div>
+          <DialogFooter>
+            <Button
+              className="w-full"
+              onClick={async () => {
+                await handleToggleBulkPayment(!!confirmBulkPaymentToggle);
+                setConfirmBulkPaymentToggle(null);
+              }}
+              disabled={verifyingBulkPayment}
+            >
+              {verifyingBulkPayment ? t("users.verifying") : t("common.ok")}
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full mt-2"
+              onClick={() => setConfirmBulkPaymentToggle(null)}
+              disabled={verifyingBulkPayment}
             >
               {t("common.cancel")}
             </Button>
