@@ -29,6 +29,39 @@ const translations = {
     "auth.loggingIn": "Logging in...",
     "auth.loginFailed": "Login failed.",
     "auth.notAllowed": "You are not allowed to access this page.",
+    "auth.loginSuccess": "Login successful!",
+    "auth.loggedInSuccessfully": "You have been logged in successfully.",
+    "auth.networkError": "A network error occurred. Please try again.",
+    // Forgot Password
+    "auth.forgotPasswordTitle": "Forgot Password",
+    "auth.forgotPasswordSubtitle": "Enter your email or username and we'll send you a reset code.",
+    "auth.identifier": "Email or Username",
+    "auth.identifierPlaceholder": "name@company.com",
+    "auth.sendResetCode": "Send Reset Code",
+    "auth.sendingCode": "Sending...",
+    "auth.backToLogin": "Back to Login",
+    "auth.resetCodeSent": "Reset code sent!",
+    "auth.resetCodeSentDesc": "Check your email or phone for the reset code.",
+    "auth.enterCodeAndNewPassword": "Enter the code you received and choose a new password.",
+    "auth.resetCode": "Reset Code",
+    "auth.resetCodePlaceholder": "123456",
+    "auth.newPassword": "New Password",
+    "auth.confirmNewPassword": "Confirm New Password",
+    "auth.resetPassword": "Reset Password",
+    "auth.resettingPassword": "Resetting...",
+    "auth.passwordResetSuccess": "Password reset successfully!",
+    "auth.passwordResetSuccessDesc": "You can now log in with your new password.",
+    "auth.goToLogin": "Go to Login",
+    // Update Password
+    "updatePassword.title": "Update Password",
+    "updatePassword.subtitle": "Change your current password.",
+    "updatePassword.oldPassword": "Current Password",
+    "updatePassword.newPassword": "New Password",
+    "updatePassword.confirmPassword": "Confirm New Password",
+    "updatePassword.submit": "Update Password",
+    "updatePassword.submitting": "Updating...",
+    "updatePassword.success": "Password updated successfully!",
+    "updatePassword.passwordsDoNotMatch": "New password and confirmation do not match.",
 
     // Navigation
     "nav.dashboard": "Dashboard",
@@ -197,7 +230,7 @@ const translations = {
     "dashboard.active7D": "Active 7D",
     "dashboard.aggregationMethods": "Aggregation methods: Weighted Global Average",
     "dashboard.noAggregatorData": "No aggregator data available",
-    
+
     // Payment Transaction Stats
     "dashboard.paymentTransactionStats": "Payment Transaction Statistics",
     "dashboard.paymentTransactionStatsDescription": "Real-time statistics for MoMo Pay and Wave Business transactions",
@@ -212,7 +245,7 @@ const translations = {
     "dashboard.confirmed": "Confirmed",
     "dashboard.cancelled": "Cancelled",
     "dashboard.expired": "Expired",
-    
+
     // (Optional, currently commented in UI)
     // "dashboard.userTaskActivity": "User & Task Activity",
     // "dashboard.users": "Users",
@@ -389,11 +422,9 @@ const translations = {
     "aggregators.mappingCreated": "Network mapping created successfully",
     "aggregators.mappingUpdated": "Network mapping updated successfully",
     "aggregators.transactionsTitle": "Aggregator Transactions",
-    "aggregators.transactionsSub": "Monitor and manage all aggregator payment activities",
     "aggregators.fullRecordFor": "Full record for {reference}",
     "aggregators.noTransactionsMatch": "No transactions found matching your criteria",
-    "aggregators.payinFeePercent": "Payin Fee (%)",
-    "aggregators.payoutFeePercent": "Payout Fee (%)",
+
 
     // Transactions
     "transactions.title": "Transactions",
@@ -508,12 +539,12 @@ const translations = {
     "transactionLogs.empty": "No transaction logs found.",
     "transactions.cancelled": "Cancelled",
     "transactions.createdByName": "Created By Name",
-    "transactions.createdByEmail": "Created By Email", 
+    "transactions.createdByEmail": "Created By Email",
     "transactions.createdByPhone": "Created By Phone",
     "transactions.markFailed": "Mark as Failed",
     "transactions.enterFailedReason": "Provide a reason for marking this transaction as failed.",
     "transactions.failedTransaction": "Mark Transaction as Failed",
-    
+
 
     // Partner List
     "partners.title": "Partners",
@@ -533,7 +564,7 @@ const translations = {
     "partners.createdAt": "Created At",
     "partners.details": "Details",
     "partners.status": "Status",
-   
+
     "partner.actions": "Actions",
     "partners.active": "Active",
     "partners.inactive": "Inactive",
@@ -596,7 +627,7 @@ const translations = {
     "topup.status": "Status",
     "topup.createdAt": "Created At",
     "topup.actions": "Actions",
-    
+
     "topup.transactionDate": "Transaction Date",
     "topup.proofImage": "Proof Image",
     "topup.viewProof": "View Image",
@@ -1465,7 +1496,7 @@ const translations = {
     "platforms.title": "Platform Management",
     "platforms.add": "Add Platform",
     "platforms.search": "Search platforms...",
-    "platforms.filterByStatus": "Filter by status", 
+    "platforms.filterByStatus": "Filter by status",
     "platforms.allStatus": "All Status",
     "platforms.active": "Active",
     "platforms.inactive": "Inactive",
@@ -1499,7 +1530,7 @@ const translations = {
 
     // Permissions List
     "permissions.list.title": "User Permissions",
-    "permissions.list.grantPermission": "Grant Permission", 
+    "permissions.list.grantPermission": "Grant Permission",
     "permissions.list.search": "Search permissions...",
     "permissions.list.filterByPlatform": "Filter by Platform",
     "permissions.list.allPlatforms": "All Platforms",
@@ -1534,7 +1565,7 @@ const translations = {
     "bettingTransactions.filterByCommission": "Filter by Commission",
     "bettingTransactions.clearDates": "Clear Dates",
     "bettingTransactions.allStatus": "All Status",
-    "bettingTransactions.allTypes": "All Types", 
+    "bettingTransactions.allTypes": "All Types",
     "bettingTransactions.allPlatforms": "All Platforms",
     "bettingTransactions.allCommission": "All",
     "bettingTransactions.successful": "Successful",
@@ -1638,7 +1669,7 @@ const translations = {
     "autoRecharge.tabs.aggregators": "Aggregators",
     "autoRecharge.tabs.mappings": "Mappings",
     "autoRecharge.loading": "Loading...",
-    
+
     // Transactions
     "autoRecharge.transactions.search": "Search transactions...",
     "autoRecharge.transactions.filterByStatus": "Filter by status",
@@ -1664,7 +1695,7 @@ const translations = {
     "autoRecharge.transactions.page": "Page",
     "autoRecharge.transactions.previous": "Previous",
     "autoRecharge.transactions.next": "Next",
-    
+
     // Statistics
     "autoRecharge.statistics.loading": "Loading statistics...",
     "autoRecharge.statistics.failedToLoad": "Failed to load statistics",
@@ -1677,7 +1708,7 @@ const translations = {
     "autoRecharge.statistics.failed": "Failed",
     "autoRecharge.statistics.byAggregator": "Statistics by Aggregator",
     "autoRecharge.statistics.aggregator": "Aggregator",
-    
+
     // Aggregators
     "autoRecharge.aggregators.search": "Search aggregators...",
     "autoRecharge.aggregators.filterByStatus": "Filter by status",
@@ -1694,7 +1725,7 @@ const translations = {
     "autoRecharge.aggregators.createdAt": "Created At",
     "autoRecharge.aggregators.noAggregators": "No aggregators found",
     "autoRecharge.aggregators.failedToLoad": "Failed to load aggregators",
-    
+
     // Mappings
     "autoRecharge.mappings.title": "Mappings",
     "autoRecharge.mappings.createMapping": "Create Mapping",
@@ -1718,7 +1749,7 @@ const translations = {
     "autoRecharge.mappings.edit": "Edit",
     "autoRecharge.mappings.noMappings": "No mappings found",
     "autoRecharge.mappings.failedToLoad": "Failed to load mappings",
-    
+
     // Mapping Create/Edit
     "autoRecharge.mapping.create": "Create Auto Recharge Mapping",
     "autoRecharge.mapping.edit": "Edit Auto Recharge Mapping",
@@ -1926,7 +1957,7 @@ const translations = {
     "dashboard.active7D": "Actifs (7 jours)",
     "dashboard.aggregationMethods": "Méthodes d'agrégation : Moyenne globale pondérée",
     "dashboard.noAggregatorData": "Aucune donnée d'agrégateur disponible",
-    
+
     // Payment Transaction Stats
     "dashboard.paymentTransactionStats": "Statistiques des Transactions de Paiement",
     "dashboard.paymentTransactionStatsDescription": "Statistiques en temps réel pour les transactions MoMo Pay et Wave Business",
@@ -1941,7 +1972,7 @@ const translations = {
     "dashboard.confirmed": "Confirmé",
     "dashboard.cancelled": "Annulé",
     "dashboard.expired": "Expiré",
-    
+
     // "dashboard.totalRequests": "Total des demandes",
     // "dashboard.totalRechargeRequests": "Demandes de recharge totales",
     // "dashboard.rechargeRequestsStats": "Statistiques des demandes de recharge",
@@ -1991,7 +2022,7 @@ const translations = {
     "users.sending": "Envoi...",
     "users.verifying": "Vérification...",
 
-    
+
 
     // Activation/Deactivation
     "users.activate": "Activer",
@@ -2123,11 +2154,9 @@ const translations = {
     "aggregators.mappingCreated": "Correspondance réseau créée avec succès",
     "aggregators.mappingUpdated": "Correspondance réseau mise à jour avec succès",
     "aggregators.transactionsTitle": "Transactions des agrégateurs",
-    "aggregators.transactionsSub": "Surveiller et gérer toutes les activités de paiement des agrégateurs",
     "aggregators.fullRecordFor": "Enregistrement complet pour {reference}",
     "aggregators.noTransactionsMatch": "Aucune transaction trouvée correspondant à vos critères",
-    "aggregators.payinFeePercent": "Frais de dépôt (%)",
-    "aggregators.payoutFeePercent": "Frais de retrait (%)",
+
 
     // Transactions
     "transactions.title": "Transactions",
@@ -2337,7 +2366,7 @@ const translations = {
     "topup.status": "Statut",
     "topup.createdAt": "Créé le",
     "topup.actions": "Actions",
-    
+
     "topup.transactionDate": "Date de transaction",
     "topup.proofImage": "Image de preuve",
     "topup.viewProof": "Voir l'image",
@@ -3378,7 +3407,7 @@ const translations = {
     "autoRecharge.tabs.aggregators": "Agrégateurs",
     "autoRecharge.tabs.mappings": "Mappages",
     "autoRecharge.loading": "Chargement...",
-    
+
     // Transactions
     "autoRecharge.transactions.search": "Rechercher des transactions...",
     "autoRecharge.transactions.filterByStatus": "Filtrer par statut",
@@ -3404,7 +3433,7 @@ const translations = {
     "autoRecharge.transactions.page": "Page",
     "autoRecharge.transactions.previous": "Précédent",
     "autoRecharge.transactions.next": "Suivant",
-    
+
     // Statistics
     "autoRecharge.statistics.loading": "Chargement des statistiques...",
     "autoRecharge.statistics.failedToLoad": "Échec du chargement des statistiques",
@@ -3417,7 +3446,7 @@ const translations = {
     "autoRecharge.statistics.failed": "Échoué",
     "autoRecharge.statistics.byAggregator": "Statistiques par Agrégateur",
     "autoRecharge.statistics.aggregator": "Agrégateur",
-    
+
     // Aggregators
     "autoRecharge.aggregators.search": "Rechercher des agrégateurs...",
     "autoRecharge.aggregators.filterByStatus": "Filtrer par statut",
@@ -3434,7 +3463,7 @@ const translations = {
     "autoRecharge.aggregators.createdAt": "Créé le",
     "autoRecharge.aggregators.noAggregators": "Aucun agrégateur trouvé",
     "autoRecharge.aggregators.failedToLoad": "Échec du chargement des agrégateurs",
-    
+
     // Mappings
     "autoRecharge.mappings.title": "Mappages",
     "autoRecharge.mappings.createMapping": "Créer un Mappage",
@@ -3458,7 +3487,7 @@ const translations = {
     "autoRecharge.mappings.edit": "Modifier",
     "autoRecharge.mappings.noMappings": "Aucun mappage trouvé",
     "autoRecharge.mappings.failedToLoad": "Échec du chargement des mappages",
-    
+
     // Mapping Create/Edit
     "autoRecharge.mapping.create": "Créer un Mappage de Recharge Automatique",
     "autoRecharge.mapping.edit": "Modifier le Mappage de Recharge Automatique",
@@ -3484,6 +3513,40 @@ const translations = {
     "autoRecharge.mapping.failedToLoad": "Échec du chargement du mappage",
     "autoRecharge.mapping.loading": "Chargement du mappage...",
     "autoRecharge.mapping.notFound": "Mappage non trouvé",
+    // Auth - added
+    "auth.loginSuccess": "Connexion réussie !",
+    "auth.loggedInSuccessfully": "Vous avez été connecté avec succès.",
+    "auth.networkError": "Une erreur réseau s'est produite. Veuillez réessayer.",
+    // Forgot Password FR
+    "auth.forgotPasswordTitle": "Mot de passe oublié",
+    "auth.forgotPasswordSubtitle": "Entrez votre email ou nom d'utilisateur et nous vous enverrons un code de réinitialisation.",
+    "auth.identifier": "Email ou nom d'utilisateur",
+    "auth.identifierPlaceholder": "nom@entreprise.com",
+    "auth.sendResetCode": "Envoyer le code",
+    "auth.sendingCode": "Envoi...",
+    "auth.backToLogin": "Retour à la connexion",
+    "auth.resetCodeSent": "Code envoyé !",
+    "auth.resetCodeSentDesc": "Vérifiez votre email ou téléphone pour le code de réinitialisation.",
+    "auth.enterCodeAndNewPassword": "Entrez le code reçu et choisissez un nouveau mot de passe.",
+    "auth.resetCode": "Code de réinitialisation",
+    "auth.resetCodePlaceholder": "123456",
+    "auth.newPassword": "Nouveau mot de passe",
+    "auth.confirmNewPassword": "Confirmer le nouveau mot de passe",
+    "auth.resetPassword": "Réinitialiser le mot de passe",
+    "auth.resettingPassword": "Réinitialisation...",
+    "auth.passwordResetSuccess": "Mot de passe réinitialisé avec succès !",
+    "auth.passwordResetSuccessDesc": "Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.",
+    "auth.goToLogin": "Aller à la connexion",
+    // Update Password FR
+    "updatePassword.title": "Modifier le mot de passe",
+    "updatePassword.subtitle": "Changer votre mot de passe actuel.",
+    "updatePassword.oldPassword": "Mot de passe actuel",
+    "updatePassword.newPassword": "Nouveau mot de passe",
+    "updatePassword.confirmPassword": "Confirmer le nouveau mot de passe",
+    "updatePassword.submit": "Modifier le mot de passe",
+    "updatePassword.submitting": "Modification...",
+    "updatePassword.success": "Mot de passe modifié avec succès !",
+    "updatePassword.passwordsDoNotMatch": "Le nouveau mot de passe et la confirmation ne correspondent pas.",
   },
 }
 

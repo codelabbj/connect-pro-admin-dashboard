@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -11,7 +11,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useApi } from '@/lib/useApi';
-import { Loader2, Edit, Save, X } from 'lucide-react';
+import { useLanguage } from '@/components/providers/language-provider';
+import { Loader2, Edit, Save, X, Eye, EyeOff, KeyRound } from 'lucide-react';
+import { extractErrorMessages } from '@/components/ui/error-display';
 
 interface UserProfile {
   uid: string;
@@ -39,6 +41,16 @@ export default function ProfilePage() {
   const [formData, setFormData] = useState<Partial<UserProfile>>({});
   const { toast } = useToast();
   const apiFetch = useApi();
+  const { t } = useLanguage();
+
+  // Update Password state
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showOld, setShowOld] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [pwLoading, setPwLoading] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -102,6 +114,32 @@ export default function ProfilePage() {
     }
   };
 
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPassword !== confirmPassword) {
+      toast({ title: t('updatePassword.passwordsDoNotMatch'), variant: 'destructive' });
+      return;
+    }
+    setPwLoading(true);
+    try {
+      await apiFetch(`${baseUrl}api/auth/password-update/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ old_password: oldPassword, new_password: newPassword }),
+      });
+      // useApi shows generic success toast; show a custom one too
+      toast({ title: t('updatePassword.success') });
+      setOldPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (err: any) {
+      const msg = extractErrorMessages(err) || 'Failed to update password';
+      toast({ title: 'Error', description: msg, variant: 'destructive' });
+    } finally {
+      setPwLoading(false);
+    }
+  };
+
   if (loading && !profile) {
     return (
       <div className="container mx-auto py-8">
@@ -142,16 +180,16 @@ export default function ProfilePage() {
           </Button>
         ) : (
           <div className="space-x-2">
-            <Button 
-              onClick={() => setEditing(false)} 
-              variant="outline" 
+            <Button
+              onClick={() => setEditing(false)}
+              variant="outline"
               disabled={loading}
             >
               <X className="mr-2 h-4 w-4" />
               Cancel
             </Button>
-            <Button 
-              onClick={handleSubmit} 
+            <Button
+              onClick={handleSubmit}
               disabled={loading}
             >
               {loading ? (
@@ -293,6 +331,103 @@ export default function ProfilePage() {
           </div>
         </CardContent>
       </Card>
-       </div>
+
+      {/* ── Update Password Card ── */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <KeyRound className="h-5 w-5" />
+            {t('updatePassword.title')}
+          </CardTitle>
+          <CardDescription>{t('updatePassword.subtitle')}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleUpdatePassword} className="space-y-4 max-w-md">
+            {/* Current Password */}
+            <div className="space-y-2">
+              <Label htmlFor="old-password">{t('updatePassword.oldPassword')}</Label>
+              <div className="relative">
+                <Input
+                  id="old-password"
+                  type={showOld ? 'text' : 'password'}
+                  value={oldPassword}
+                  onChange={(e) => setOldPassword(e.target.value)}
+                  required
+                  className="pr-10"
+                  autoComplete="current-password"
+                />
+                <button
+                  type="button"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  onClick={() => setShowOld((v) => !v)}
+                  tabIndex={-1}
+                  aria-label={showOld ? 'Hide password' : 'Show password'}
+                >
+                  {showOld ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+            </div>
+
+            {/* New Password */}
+            <div className="space-y-2">
+              <Label htmlFor="new-password">{t('updatePassword.newPassword')}</Label>
+              <div className="relative">
+                <Input
+                  id="new-password"
+                  type={showNew ? 'text' : 'password'}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                  className="pr-10"
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  onClick={() => setShowNew((v) => !v)}
+                  tabIndex={-1}
+                  aria-label={showNew ? 'Hide password' : 'Show password'}
+                >
+                  {showNew ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Confirm New Password */}
+            <div className="space-y-2">
+              <Label htmlFor="confirm-password">{t('updatePassword.confirmPassword')}</Label>
+              <div className="relative">
+                <Input
+                  id="confirm-password"
+                  type={showConfirm ? 'text' : 'password'}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  className="pr-10"
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  onClick={() => setShowConfirm((v) => !v)}
+                  tabIndex={-1}
+                  aria-label={showConfirm ? 'Hide password' : 'Show password'}
+                >
+                  {showConfirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+            </div>
+
+            <Button type="submit" disabled={pwLoading}>
+              {pwLoading ? (
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" />{t('updatePassword.submitting')}</>
+              ) : (
+                t('updatePassword.submit')
+              )}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

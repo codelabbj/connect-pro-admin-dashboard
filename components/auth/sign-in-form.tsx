@@ -172,7 +172,7 @@ export function SignInForm() {
                   {t("auth.rememberMe")}
                 </Label>
               </div>
-              <Button variant="link" className="px-0 text-sm">
+              <Button type="button" variant="link" className="px-0 text-sm" onClick={() => router.push("/forgot-password")}>
                 {t("auth.forgotPassword")}
               </Button>
             </div>
