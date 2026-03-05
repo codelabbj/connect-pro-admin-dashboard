@@ -83,6 +83,8 @@ export function Sidebar() {
   const isAggregatorMappingsActive = pathname.startsWith("/dashboard/aggregators/network-mappings")
   const isAggregatorAuthorizationsActive = pathname.startsWith("/dashboard/aggregators/authorizations")
 
+  const isBulkDepositNetworkActive = pathname.startsWith("/dashboard/bulk-deposit-networks")
+
 
   const handleLogout = () => {
     clearTokens();
@@ -323,6 +325,19 @@ export function Sidebar() {
             >
               <Zap className="mr-3 h-6 w-6 flex-shrink-0" />
               {t("nav.autoRecharge") || "Auto Recharge"}
+            </Link>
+            <Link
+              href="/dashboard/bulk-deposit-networks"
+              className={cn(
+                "group flex items-center px-2 py-2 text-sm font-medium rounded-md",
+                isBulkDepositNetworkActive
+                  ? "bg-blue-100 text-blue-900 dark:bg-blue-900 dark:text-blue-100"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white",
+              )}
+              onClick={() => setSidebarOpen(false)}
+            >
+              <Share2 className="mr-3 h-6 w-6 flex-shrink-0" />
+              {t("nav.bulkDepositNetworks") || "Bulk Deposit Networks"}
             </Link>
             <div>
               <button
@@ -1003,6 +1018,18 @@ export function Sidebar() {
             >
               <Zap className="mr-3 h-6 w-6 flex-shrink-0" />
               {t("nav.autoRecharge") || "Auto Recharge"}
+            </Link>
+            <Link
+              href="/dashboard/bulk-deposit-networks"
+              className={cn(
+                "group flex items-center px-2 py-2 text-sm font-medium rounded-md",
+                isBulkDepositNetworkActive
+                  ? "bg-blue-100 text-blue-900 dark:bg-blue-900 dark:text-blue-100"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white",
+              )}
+            >
+              <Share2 className="mr-3 h-6 w-6 flex-shrink-0" />
+              {t("nav.bulkDepositNetworks") || "Bulk Deposit Networks"}
             </Link>
             <div>
               <button
