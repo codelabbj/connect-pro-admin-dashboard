@@ -25,7 +25,7 @@ export default function AggregatorAuthorizationsPage() {
     const [networks, setNetworks] = useState<any[]>([])
     const [page, setPage] = useState(1)
 
-    
+
     // Modal states
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
@@ -33,7 +33,7 @@ export default function AggregatorAuthorizationsPage() {
     const [selectedAuth, setSelectedAuth] = useState<AggregatorAuthorization | null>(null)
 
     const [formLoading, setFormLoading] = useState(false)
-    
+
     const [formData, setFormData] = useState({
         user: "",
         network: "",
@@ -52,7 +52,7 @@ export default function AggregatorAuthorizationsPage() {
         setError("")
         const queryParams = new URLSearchParams()
         if (filterUser && filterUser !== "all") queryParams.append("user", filterUser)
-        
+
         try {
             const [authData, userData, networkData] = await Promise.all([
                 apiFetch(`${baseUrl}api/aggregator/admin/user-authorizations/?${queryParams.toString()}`),
@@ -85,7 +85,7 @@ export default function AggregatorAuthorizationsPage() {
             fetchData()
             toast({ title: t("common.success"), description: t("aggregators.authorizationCreated") })
         } catch (err: any) {
-            toast({ title: "Error", description: extractErrorMessages(err), variant: "destructive" })
+            toast({ title: t("common.error"), description: extractErrorMessages(err), variant: "destructive" })
         } finally {
             setFormLoading(false)
         }
@@ -104,7 +104,7 @@ export default function AggregatorAuthorizationsPage() {
             fetchData()
             toast({ title: t("common.success"), description: t("aggregators.authorizationUpdated") })
         } catch (err: any) {
-            toast({ title: "Error", description: extractErrorMessages(err), variant: "destructive" })
+            toast({ title: t("common.error"), description: extractErrorMessages(err), variant: "destructive" })
         } finally {
             setFormLoading(false)
         }
@@ -123,8 +123,8 @@ export default function AggregatorAuthorizationsPage() {
     }
 
     const handleDelete = async (uid: string) => {
-        if (!confirm(t("aggregators.confirmRevoke") || "Are you sure you want to revoke this authorization?")) return
-        
+        if (!confirm(t("aggregators.confirmRevoke"))) return
+
         try {
             await apiFetch(`${baseUrl}api/aggregator/admin/user-authorizations/${uid}/`, {
                 method: 'DELETE'
@@ -179,7 +179,7 @@ export default function AggregatorAuthorizationsPage() {
                             <label className="text-sm font-medium text-slate-500">{t("aggregators.filterByAggregator")}</label>
                             <Select value={filterUser} onValueChange={setFilterUser}>
                                 <SelectTrigger>
-                                    <SelectValue placeholder={t("aggregators.allAggregators") || "All Aggregators"} />
+                                    <SelectValue placeholder={t("aggregators.allAggregators")} />
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="all">{t("aggregators.allAggregators")}</SelectItem>
@@ -212,12 +212,12 @@ export default function AggregatorAuthorizationsPage() {
                             <Table>
                                 <TableHeader className="bg-slate-50">
                                     <TableRow>
-                                        <TableHead>{t("aggregators.aggregatorUser") || "Aggregator"}</TableHead>
+                                        <TableHead>{t("aggregators.aggregatorUser")}</TableHead>
                                         <TableHead>{t("common.network")}</TableHead>
-                                        <TableHead className="text-center">{t("common.payinFee") || "Payin Fee"}</TableHead>
-                                        <TableHead className="text-center">{t("common.payoutFee") || "Payout Fee"}</TableHead>
+                                        <TableHead className="text-center">{t("common.payinFee")}</TableHead>
+                                        <TableHead className="text-center">{t("common.payoutFee")}</TableHead>
                                         <TableHead>{t("common.status")}</TableHead>
-                                        <TableHead>{t("common.updatedAt") || "Updated At"}</TableHead>
+                                        <TableHead>{t("common.updatedAt")}</TableHead>
                                         <TableHead className="w-[100px]"></TableHead>
                                     </TableRow>
                                 </TableHeader>
@@ -271,7 +271,7 @@ export default function AggregatorAuthorizationsPage() {
                                                                 <Edit2 size={14} className="mr-2" /> {t("common.edit")}
                                                             </DropdownMenuItem>
                                                             <DropdownMenuSeparator />
-                                                            <DropdownMenuItem 
+                                                            <DropdownMenuItem
                                                                 className="text-red-600"
                                                                 onClick={() => handleDelete(auth.uid)}
                                                             >
@@ -298,14 +298,14 @@ export default function AggregatorAuthorizationsPage() {
                         <DialogTitle>{isCreateModalOpen ? t("aggregators.newAuthorization") : t("aggregators.editAuthorization")}</DialogTitle>
                         <DialogDescription>{t("aggregators.assignLabel")}</DialogDescription>
                     </DialogHeader>
-                    
+
                     <form onSubmit={isCreateModalOpen ? handleCreate : handleUpdate} className="space-y-6 py-4">
                         <div className="space-y-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">{t("aggregators.aggregatorUser")}</label>
-                                <Select disabled={isEditModalOpen} value={formData.user} onValueChange={(v) => setFormData({...formData, user: v})}>
+                                <Select disabled={isEditModalOpen} value={formData.user} onValueChange={(v) => setFormData({ ...formData, user: v })}>
                                     <SelectTrigger>
-                                        <SelectValue placeholder={t("aggregators.selectAggregator") || "Select an aggregator"} />
+                                        <SelectValue placeholder={t("aggregators.selectAggregator")} />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {users.map(u => (
@@ -314,12 +314,12 @@ export default function AggregatorAuthorizationsPage() {
                                     </SelectContent>
                                 </Select>
                             </div>
-                            
+
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">{t("common.network")}</label>
-                                <Select disabled={isEditModalOpen} value={formData.network} onValueChange={(v) => setFormData({...formData, network: v})}>
+                                <Select disabled={isEditModalOpen} value={formData.network} onValueChange={(v) => setFormData({ ...formData, network: v })}>
                                     <SelectTrigger>
-                                        <SelectValue placeholder={t("aggregators.selectNetwork") || "Select a network"} />
+                                        <SelectValue placeholder={t("aggregators.selectNetwork")} />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {networks.map(n => (
@@ -333,16 +333,16 @@ export default function AggregatorAuthorizationsPage() {
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <label className="text-sm font-medium text-green-700">{t("aggregators.payinFeePercent")}</label>
-                                    <Input type="number" step="0.01" value={formData.user_payin_fee_percent} onChange={(e) => setFormData({...formData, user_payin_fee_percent: parseFloat(e.target.value)})} />
+                                    <Input type="number" step="0.01" value={formData.user_payin_fee_percent} onChange={(e) => setFormData({ ...formData, user_payin_fee_percent: parseFloat(e.target.value) })} />
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-sm font-medium text-blue-700">{t("aggregators.payoutFeePercent")}</label>
-                                    <Input type="number" step="0.01" value={formData.user_payout_fee_percent} onChange={(e) => setFormData({...formData, user_payout_fee_percent: parseFloat(e.target.value)})} />
+                                    <Input type="number" step="0.01" value={formData.user_payout_fee_percent} onChange={(e) => setFormData({ ...formData, user_payout_fee_percent: parseFloat(e.target.value) })} />
                                 </div>
                             </div>
 
                             <div className="flex items-center gap-2 pt-2">
-                                <Switch checked={formData.is_active} onCheckedChange={(v) => setFormData({...formData, is_active: v})} />
+                                <Switch checked={formData.is_active} onCheckedChange={(v) => setFormData({ ...formData, is_active: v })} />
                                 <span className="text-sm font-medium">{t("aggregators.accessEnabled")}</span>
                             </div>
                         </div>
@@ -377,7 +377,7 @@ export default function AggregatorAuthorizationsPage() {
                                     <p className="font-semibold">{selectedAuth.network_name}</p>
                                 </div>
                             </div>
-                            
+
                             <div className="border-t pt-4 space-y-3">
                                 <div className="flex justify-between">
                                     <span className="text-sm text-slate-500">Payin Fee %:</span>
@@ -403,7 +403,7 @@ export default function AggregatorAuthorizationsPage() {
                         </div>
                     )}
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setIsDetailModalOpen(false)}>{t("common.ok") || "Close"}</Button>
+                        <Button variant="outline" onClick={() => setIsDetailModalOpen(false)}>{t("common.ok")}</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

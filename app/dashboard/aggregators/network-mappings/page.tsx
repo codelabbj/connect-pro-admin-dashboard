@@ -21,14 +21,14 @@ export default function NetworkMappingsPage() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
     const [networks, setNetworks] = useState<any[]>([])
-    
+
     // Modal states
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
     const [selectedMapping, setSelectedMapping] = useState<AggregatorNetworkMapping | null>(null)
     const [formLoading, setFormLoading] = useState(false)
-    
+
     const [formData, setFormData] = useState({
         network: "",
         network_payin_fee_percent: "0",
@@ -64,7 +64,7 @@ export default function NetworkMappingsPage() {
             setMappings(mappingData.results || [])
             setNetworks(networkData.results || [])
         } catch (err: any) {
-            setError(extractErrorMessages(err) || t("aggregators.noAuthorizationsFound"))
+            setError(extractErrorMessages(err) || t("common.failedToLoad"))
         } finally {
             setLoading(false)
         }
@@ -86,7 +86,7 @@ export default function NetworkMappingsPage() {
             fetchData()
             toast({ title: t("common.success"), description: t("aggregators.mappingCreated") })
         } catch (err: any) {
-            toast({ title: "Error", description: extractErrorMessages(err), variant: "destructive" })
+            toast({ title: t("common.error"), description: extractErrorMessages(err), variant: "destructive" })
         } finally {
             setFormLoading(false)
         }
@@ -240,14 +240,14 @@ export default function NetworkMappingsPage() {
                         <DialogTitle>{isCreateModalOpen ? t("aggregators.newMapping") : t("aggregators.editMapping")}</DialogTitle>
                         <DialogDescription>{t("aggregators.networkMappingsSub")}</DialogDescription>
                     </DialogHeader>
-                    
+
                     <form onSubmit={isCreateModalOpen ? handleCreate : handleUpdate} className="space-y-6 py-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">{t("aggregators.chooseNetwork")}</label>
-                                <Select disabled={isEditModalOpen} value={formData.network} onValueChange={(v) => setFormData({...formData, network: v})}>
+                                <Select disabled={isEditModalOpen} value={formData.network} onValueChange={(v) => setFormData({ ...formData, network: v })}>
                                     <SelectTrigger>
-                                        <SelectValue placeholder={t("aggregators.chooseNetwork") || "Choose a network"} />
+                                        <SelectValue placeholder={t("aggregators.chooseNetwork")} />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {networks.map(n => (
@@ -259,7 +259,7 @@ export default function NetworkMappingsPage() {
                             </div>
                             <div className="flex items-end pb-2">
                                 <div className="flex items-center gap-2">
-                                    <Switch checked={formData.is_active} onCheckedChange={(v) => setFormData({...formData, is_active: v})} />
+                                    <Switch checked={formData.is_active} onCheckedChange={(v) => setFormData({ ...formData, is_active: v })} />
                                     <span className="text-sm font-medium">{t("aggregators.mappingActive")}</span>
                                 </div>
                             </div>
@@ -268,11 +268,11 @@ export default function NetworkMappingsPage() {
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">{t("aggregators.payinFeePercent")}</label>
-                                <Input type="number" step="0.01" value={formData.network_payin_fee_percent} onChange={(e) => setFormData({...formData, network_payin_fee_percent: e.target.value})} />
+                                <Input type="number" step="0.01" value={formData.network_payin_fee_percent} onChange={(e) => setFormData({ ...formData, network_payin_fee_percent: e.target.value })} />
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">{t("aggregators.payoutFeePercent")}</label>
-                                <Input type="number" step="0.01" value={formData.network_payout_fee_percent} onChange={(e) => setFormData({...formData, network_payout_fee_percent: e.target.value})} />
+                                <Input type="number" step="0.01" value={formData.network_payout_fee_percent} onChange={(e) => setFormData({ ...formData, network_payout_fee_percent: e.target.value })} />
                             </div>
                         </div>
 
@@ -280,12 +280,12 @@ export default function NetworkMappingsPage() {
                             <div className="space-y-4">
                                 <h3 className="font-bold text-sm text-green-700">{t("aggregators.payinSettings")}</h3>
                                 <div className="flex items-center gap-2">
-                                    <Switch checked={formData.enable_payin} onCheckedChange={(v) => setFormData({...formData, enable_payin: v})} />
+                                    <Switch checked={formData.enable_payin} onCheckedChange={(v) => setFormData({ ...formData, enable_payin: v })} />
                                     <label className="text-xs">{t("aggregators.payinEnabled")}</label>
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-xs">{t("aggregators.processor")}</label>
-                                    <Select value={formData.payin_processor} onValueChange={(v) => setFormData({...formData, payin_processor: v})}>
+                                    <Select value={formData.payin_processor} onValueChange={(v) => setFormData({ ...formData, payin_processor: v })}>
                                         <SelectTrigger className="h-8 text-xs">
                                             <SelectValue />
                                         </SelectTrigger>
@@ -296,26 +296,26 @@ export default function NetworkMappingsPage() {
                                         </SelectContent>
                                     </Select>
                                 </div>
-                                <Input placeholder={t("aggregators.payinUssdPlaceholder") || "Payin USSD code"} className="h-8 text-xs" value={formData.payin_ussd} onChange={(e) => setFormData({...formData, payin_ussd: e.target.value})} />
-                                <Input placeholder={t("aggregators.payinUrlPlaceholder") || "Payin URL"} className="h-8 text-xs" value={formData.payin_url} onChange={(e) => setFormData({...formData, payin_url: e.target.value})} />
-                                <textarea 
-                                    placeholder={t("aggregators.payinCommentPlaceholder") || "Payin Comment"} 
+                                <Input placeholder={t("aggregators.payinUssdPlaceholder") || "Payin USSD code"} className="h-8 text-xs" value={formData.payin_ussd} onChange={(e) => setFormData({ ...formData, payin_ussd: e.target.value })} />
+                                <Input placeholder={t("aggregators.payinUrlPlaceholder") || "Payin URL"} className="h-8 text-xs" value={formData.payin_url} onChange={(e) => setFormData({ ...formData, payin_url: e.target.value })} />
+                                <textarea
+                                    placeholder={t("aggregators.payinCommentPlaceholder") || "Payin Comment"}
                                     className="w-full rounded-md border border-input bg-transparent px-3 py-1 text-xs shadow-sm"
                                     rows={2}
                                     value={formData.payin_comment}
-                                    onChange={(e) => setFormData({...formData, payin_comment: e.target.value})}
+                                    onChange={(e) => setFormData({ ...formData, payin_comment: e.target.value })}
                                 />
                             </div>
 
                             <div className="space-y-4 text-orange-700">
                                 <h3 className="font-bold text-sm">{t("aggregators.payoutSettings")}</h3>
                                 <div className="flex items-center gap-2">
-                                    <Switch checked={formData.enable_payout} onCheckedChange={(v) => setFormData({...formData, enable_payout: v})} />
+                                    <Switch checked={formData.enable_payout} onCheckedChange={(v) => setFormData({ ...formData, enable_payout: v })} />
                                     <label className="text-xs">{t("aggregators.payoutEnabled")}</label>
                                 </div>
                                 <div className="space-y-2 text-slate-900">
                                     <label className="text-xs">{t("aggregators.processor")}</label>
-                                    <Select value={formData.payout_processor} onValueChange={(v) => setFormData({...formData, payout_processor: v})}>
+                                    <Select value={formData.payout_processor} onValueChange={(v) => setFormData({ ...formData, payout_processor: v })}>
                                         <SelectTrigger className="h-8 text-xs">
                                             <SelectValue />
                                         </SelectTrigger>
@@ -326,14 +326,14 @@ export default function NetworkMappingsPage() {
                                         </SelectContent>
                                     </Select>
                                 </div>
-                                <Input placeholder={t("aggregators.payoutUssdPlaceholder") || "Payout USSD code"} className="h-8 text-xs" value={formData.payout_ussd} onChange={(e) => setFormData({...formData, payout_ussd: e.target.value})} />
-                                <Input placeholder={t("aggregators.payoutUrlPlaceholder") || "Payout URL"} className="h-8 text-xs" value={formData.payout_url} onChange={(e) => setFormData({...formData, payout_url: e.target.value})} />
-                                <textarea 
-                                    placeholder={t("aggregators.payoutCommentPlaceholder") || "Payout Comment"} 
+                                <Input placeholder={t("aggregators.payoutUssdPlaceholder") || "Payout USSD code"} className="h-8 text-xs" value={formData.payout_ussd} onChange={(e) => setFormData({ ...formData, payout_ussd: e.target.value })} />
+                                <Input placeholder={t("aggregators.payoutUrlPlaceholder") || "Payout URL"} className="h-8 text-xs" value={formData.payout_url} onChange={(e) => setFormData({ ...formData, payout_url: e.target.value })} />
+                                <textarea
+                                    placeholder={t("aggregators.payoutCommentPlaceholder") || "Payout Comment"}
                                     className="w-full rounded-md border border-input bg-transparent px-3 py-1 text-xs shadow-sm"
                                     rows={2}
                                     value={formData.payout_comment}
-                                    onChange={(e) => setFormData({...formData, payout_comment: e.target.value})}
+                                    onChange={(e) => setFormData({ ...formData, payout_comment: e.target.value })}
                                 />
                             </div>
                         </div>
@@ -341,11 +341,11 @@ export default function NetworkMappingsPage() {
                         <div className="grid grid-cols-2 gap-4 border-t pt-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">{t("aggregators.minAmount")}</label>
-                                <Input type="number" value={formData.min_amount} onChange={(e) => setFormData({...formData, min_amount: e.target.value})} />
+                                <Input type="number" value={formData.min_amount} onChange={(e) => setFormData({ ...formData, min_amount: e.target.value })} />
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">{t("aggregators.maxAmount")}</label>
-                                <Input type="number" value={formData.max_amount} onChange={(e) => setFormData({...formData, max_amount: e.target.value})} />
+                                <Input type="number" value={formData.max_amount} onChange={(e) => setFormData({ ...formData, max_amount: e.target.value })} />
                             </div>
                         </div>
 
@@ -453,7 +453,7 @@ export default function NetworkMappingsPage() {
                         </div>
                     )}
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setIsDetailModalOpen(false)}>{t("common.ok") || "Close"}</Button>
+                        <Button variant="outline" onClick={() => setIsDetailModalOpen(false)}>{t("common.ok")}</Button>
                         <Button onClick={() => { setIsDetailModalOpen(false); openEdit(selectedMapping!); }}>{t("aggregators.editMapping")}</Button>
                     </DialogFooter>
                 </DialogContent>

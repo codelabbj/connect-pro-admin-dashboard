@@ -82,6 +82,7 @@ export interface AggregatorUser {
 
 export interface AggregatorListResponse {
     aggregators: AggregatorUser[];
+    stats?: AggregatorUserStats;
     pagination: {
         total_count: number;
         total_pages: number;

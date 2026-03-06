@@ -94,7 +94,7 @@ export default function AggregatorDashboardPage() {
                         <div className="flex gap-2 mt-1 text-xs">
                             <span className="text-green-600 font-medium">{dashboard.transactions.success_count} {t("dashboard.success")}</span>
                             <span className="text-slate-300">|</span>
-                            <span className="text-blue-600 font-medium">{dashboard.transactions.success_rate}% {t("dashboard.approvalRate") || "Rate"}</span>
+                            <span className="text-blue-600 font-medium">{dashboard.transactions.success_rate}% {t("dashboard.approvalRate")}</span>
                         </div>
                     </CardContent>
                 </Card>
@@ -136,7 +136,7 @@ export default function AggregatorDashboardPage() {
                             <span className="font-bold">{dashboard.today.total_count}</span>
                         </div>
                         <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg">
-                            <span className="text-sm text-slate-600">{t("dashboard.successTransactions") || "Success Count"}</span>
+                            <span className="text-sm text-slate-600">{t("dashboard.successTransactions")}</span>
                             <span className="font-bold text-green-600">{dashboard.today.success_count}</span>
                         </div>
                         <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg">
@@ -156,19 +156,19 @@ export default function AggregatorDashboardPage() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg">
-                            <span className="text-sm text-slate-600">Total Count</span>
+                            <span className="text-sm text-slate-600">{t("common.totalCount")}</span>
                             <span className="font-bold">{dashboard.last_7_days.total_count}</span>
                         </div>
                         <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg">
-                            <span className="text-sm text-slate-600">Success Count</span>
+                            <span className="text-sm text-slate-600">{t("dashboard.successTransactions")}</span>
                             <span className="font-bold text-green-600">{dashboard.last_7_days.success_count}</span>
                         </div>
                         <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg">
-                            <span className="text-sm text-slate-600">Total Amount</span>
+                            <span className="text-sm text-slate-600">{t("common.totalAmount")}</span>
                             <span className="font-bold">{dashboard.last_7_days.total_amount.toLocaleString()}</span>
                         </div>
                         <div className="flex justify-between items-center bg-blue-50 p-3 rounded-lg">
-                            <span className="text-sm text-blue-700">Platform Profit</span>
+                            <span className="text-sm text-blue-700">{t("aggregators.platformProfit")}</span>
                             <span className="font-bold text-blue-700">{dashboard.last_7_days.total_platform_profit.toLocaleString()}</span>
                         </div>
                     </CardContent>
@@ -180,19 +180,19 @@ export default function AggregatorDashboardPage() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg">
-                            <span className="text-sm text-slate-600">Total Count</span>
+                            <span className="text-sm text-slate-600">{t("common.totalCount")}</span>
                             <span className="font-bold">{dashboard.last_30_days.total_count}</span>
                         </div>
                         <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg">
-                            <span className="text-sm text-slate-600">Success Count</span>
+                            <span className="text-sm text-slate-600">{t("dashboard.successTransactions")}</span>
                             <span className="font-bold text-green-600">{dashboard.last_30_days.success_count}</span>
                         </div>
                         <div className="flex justify-between items-center bg-slate-50 p-3 rounded-lg">
-                            <span className="text-sm text-slate-600">Total Amount</span>
+                            <span className="text-sm text-slate-600">{t("common.totalAmount")}</span>
                             <span className="font-bold">{dashboard.last_30_days.total_amount.toLocaleString()}</span>
                         </div>
                         <div className="flex justify-between items-center bg-blue-50 p-3 rounded-lg">
-                            <span className="text-sm text-blue-700">Platform Profit</span>
+                            <span className="text-sm text-blue-700">{t("aggregators.platformProfit")}</span>
                             <span className="font-bold text-blue-700">{dashboard.last_30_days.total_platform_profit.toLocaleString()}</span>
                         </div>
                     </CardContent>
@@ -211,7 +211,7 @@ export default function AggregatorDashboardPage() {
                                 <TableRow>
                                     <TableHead>{t("common.network")}</TableHead>
                                     <TableHead className="text-right">{t("aggregators.totalProcessed")}</TableHead>
-                                    <TableHead className="text-right">{t("dashboard.successTransactions") || "Success Count"}</TableHead>
+                                    <TableHead className="text-right">{t("dashboard.successTransactions")}</TableHead>
                                     <TableHead className="text-right">{t("common.totalAmount")}</TableHead>
                                     <TableHead className="text-right">{t("aggregators.platformProfit")}</TableHead>
                                 </TableRow>
@@ -245,7 +245,7 @@ export default function AggregatorDashboardPage() {
                         <CardTitle className="text-xl">{t("aggregators.topAggregators")}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                         <div className="text-slate-400 italic">{t("aggregators.comingSoon")}</div>
+                        <div className="text-slate-400 italic">{t("aggregators.comingSoon")}</div>
                     </CardContent>
                 </Card>
             )}

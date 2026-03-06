@@ -29,7 +29,7 @@ export default function AggregatorTransactionsPage() {
     })
     const [selectedTx, setSelectedTx] = useState<AggregatorTransaction | null>(null)
     const [showDetail, setShowDetail] = useState(false)
-    
+
     const apiFetch = useApi()
     const { t } = useLanguage()
     const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
@@ -43,7 +43,7 @@ export default function AggregatorTransactionsPage() {
         if (filters.user) queryParams.append("user", filters.user)
         if (filters.date_from) queryParams.append("date_from", filters.date_from)
         if (filters.date_to) queryParams.append("date_to", filters.date_to)
-        
+
         try {
             const data = await apiFetch(`${baseUrl}api/aggregator/admin/transactions/?${queryParams.toString()}`)
             setTransactions(data.results || [])
@@ -82,12 +82,12 @@ export default function AggregatorTransactionsPage() {
                     <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-slate-500">{t("common.status")}</label>
-                            <Select onValueChange={(v) => setFilters({...filters, status: v === "all" ? "" : v})}>
+                            <Select onValueChange={(v) => setFilters({ ...filters, status: v === "all" ? "" : v })}>
                                 <SelectTrigger>
-                                    <SelectValue placeholder={t("common.allStatuses") || "All Statuses"} />
+                                    <SelectValue placeholder={t("common.allStatuses")} />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="all">{t("common.allStatuses") || "All Statuses"}</SelectItem>
+                                    <SelectItem value="all">{t("common.allStatuses")}</SelectItem>
                                     <SelectItem value="pending">{t("common.pending")}</SelectItem>
                                     <SelectItem value="processing">{t("common.processing")}</SelectItem>
                                     <SelectItem value="success">{t("common.success")}</SelectItem>
@@ -98,24 +98,24 @@ export default function AggregatorTransactionsPage() {
                         </div>
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-slate-500">{t("common.type")}</label>
-                            <Select onValueChange={(v) => setFilters({...filters, type: v === "all" ? "" : v})}>
+                            <Select onValueChange={(v) => setFilters({ ...filters, type: v === "all" ? "" : v })}>
                                 <SelectTrigger>
-                                    <SelectValue placeholder={t("common.allTypes") || "All Types"} />
+                                    <SelectValue placeholder={t("common.allTypes")} />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="all">{t("common.allTypes") || "All Types"}</SelectItem>
+                                    <SelectItem value="all">{t("common.allTypes")}</SelectItem>
                                     <SelectItem value="payin">{t("common.payin") || "Payin"}</SelectItem>
                                     <SelectItem value="payout">{t("common.payout") || "Payout"}</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-500">{t("common.fromDate") || "From Date"}</label>
-                            <Input type="date" onChange={(e) => setFilters({...filters, date_from: e.target.value})} />
+                            <label className="text-sm font-medium text-slate-500">{t("common.fromDate")}</label>
+                            <Input type="date" onChange={(e) => setFilters({ ...filters, date_from: e.target.value })} />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-500">{t("common.toDate") || "To Date"}</label>
-                            <Input type="date" onChange={(e) => setFilters({...filters, date_to: e.target.value})} />
+                            <label className="text-sm font-medium text-slate-500">{t("common.toDate")}</label>
+                            <Input type="date" onChange={(e) => setFilters({ ...filters, date_to: e.target.value })} />
                         </div>
                         <div className="flex items-end">
                             <Button variant="outline" className="w-full flex gap-2" onClick={fetchTransactions}>
