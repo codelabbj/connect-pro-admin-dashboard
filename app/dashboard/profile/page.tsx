@@ -15,6 +15,7 @@ import { useLanguage } from '@/components/providers/language-provider';
 import { Loader2, Edit, Save, X, Eye, EyeOff, KeyRound } from 'lucide-react';
 import { extractErrorMessages } from '@/components/ui/error-display';
 
+import { formatApiDateTime } from "@/lib/utils";
 interface UserProfile {
   uid: string;
   email: string;
@@ -218,7 +219,7 @@ export default function ProfilePage() {
             <div>
               <div className="text-2xl font-bold">{profile.display_name}</div>
               <div className="text-sm text-muted-foreground">
-                Member since {new Date(profile.created_at).toLocaleDateString()}
+                Member since {formatApiDateTime(profile.created_at)}
               </div>
             </div>
           </CardTitle>

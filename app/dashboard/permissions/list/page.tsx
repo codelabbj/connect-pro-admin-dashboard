@@ -17,6 +17,7 @@ import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-displa
 import { useApi } from "@/lib/useApi"
 import Link from "next/link"
 
+import { formatApiDateTime } from "@/lib/utils";
 export default function PermissionListPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [platformFilter, setPlatformFilter] = useState("all")
@@ -426,7 +427,7 @@ export default function PermissionListPage() {
                       </TableCell>
                       <TableCell>
                         <div className="text-sm">
-                          <div>{permission.created_at ? new Date(permission.created_at).toLocaleDateString() : "-"}</div>
+                          <div>{permission.created_at ? formatApiDateTime(permission.created_at) : "-"}</div>
                           <div className="text-xs text-muted-foreground">{t("permissions.by")} {permission.granted_by_name}</div>
                         </div>
                       </TableCell>
@@ -541,8 +542,8 @@ export default function PermissionListPage() {
                   <div><strong>{t("permissions.canWithdrawLabel")}:</strong> {selectedPermission.can_withdraw ? t("common.yes") : t("common.no")}</div>
                   <div><strong>{t("permissions.status")}:</strong> {selectedPermission.is_active ? t("common.active") : t("common.inactive")}</div>
                   <div><strong>{t("permissions.grantedBy") || "Granted by"}:</strong> {selectedPermission.granted_by_name}</div>
-                  <div><strong>{t("platforms.createdAtLabel")}:</strong> {selectedPermission.created_at ? new Date(selectedPermission.created_at).toLocaleString() : t("platforms.unknown")}</div>
-                  <div><strong>{t("platforms.updatedAt")}:</strong> {selectedPermission.updated_at ? new Date(selectedPermission.updated_at).toLocaleString() : t("platforms.unknown")}</div>
+                  <div><strong>{t("platforms.createdAtLabel")}:</strong> {selectedPermission.created_at ? formatApiDateTime(selectedPermission.created_at) : t("platforms.unknown")}</div>
+                  <div><strong>{t("platforms.updatedAt")}:</strong> {selectedPermission.updated_at ? formatApiDateTime(selectedPermission.updated_at) : t("platforms.unknown")}</div>
                 </div>
               </div>
               <div className="space-y-2">

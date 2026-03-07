@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { useLanguage } from "@/components/providers/language-provider"
 
+import { formatApiDateTime } from "@/lib/utils";
 export default function BettingTransactionDetailsPage() {
   const params = useParams()
   const router = useRouter()
@@ -272,7 +273,7 @@ export default function BettingTransactionDetailsPage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-sm font-medium">{t("bettingTransactions.paidAt")}</span>
-                <span>{transaction.commission_paid_at ? new Date(transaction.commission_paid_at).toLocaleString() : t("bettingTransactions.notPaid")}</span>
+                <span>{transaction.commission_paid_at ? formatApiDateTime(transaction.commission_paid_at) : t("bettingTransactions.notPaid")}</span>
               </div>
             </CardContent>
           </Card>
@@ -305,22 +306,22 @@ export default function BettingTransactionDetailsPage() {
           <CardContent className="space-y-3">
             <div className="flex justify-between">
               <span className="text-sm font-medium">{t("bettingTransactions.createdDetail")}</span>
-              <span>{new Date(transaction.created_at).toLocaleString()}</span>
+              <span>{formatApiDateTime(transaction.created_at)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-sm font-medium">{t("bettingTransactions.lastUpdatedDetail")}</span>
-              <span>{new Date(transaction.updated_at).toLocaleString()}</span>
+              <span>{formatApiDateTime(transaction.updated_at)}</span>
             </div>
             {transaction.cancellation_requested_at && (
               <div className="flex justify-between">
                 <span className="text-sm font-medium">{t("bettingTransactions.cancellationRequested")}</span>
-                <span>{new Date(transaction.cancellation_requested_at).toLocaleString()}</span>
+                <span>{formatApiDateTime(transaction.cancellation_requested_at)}</span>
               </div>
             )}
             {transaction.cancelled_at && (
               <div className="flex justify-between">
                 <span className="text-sm font-medium">{t("bettingTransactions.cancelled")}</span>
-                <span>{new Date(transaction.cancelled_at).toLocaleString()}</span>
+                <span>{formatApiDateTime(transaction.cancelled_at)}</span>
               </div>
             )}
           </CardContent>

@@ -15,6 +15,7 @@ import { AggregatorTransaction } from "@/lib/aggregator-api"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { useRouter } from "next/navigation"
 
+import { formatApiDateTime } from "@/lib/utils";
 export default function AggregatorTransactionsPage() {
     const [transactions, setTransactions] = useState<AggregatorTransaction[]>([])
     const [loading, setLoading] = useState(true)
@@ -150,8 +151,8 @@ export default function AggregatorTransactionsPage() {
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="all">{t("common.allTypes")}</SelectItem>
-                                    <SelectItem value="payin">{t("common.payin") || "Payin"}</SelectItem>
-                                    <SelectItem value="payout">{t("common.payout") || "Payout"}</SelectItem>
+                                    <SelectItem value="payin">{t("common.payin") || "Pay in"}</SelectItem>
+                                    <SelectItem value="payout">{t("common.payout") || "Pay out"}</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -255,7 +256,7 @@ export default function AggregatorTransactionsPage() {
                                                 </TableCell>
                                                 <TableCell>
                                                     <div className="text-xs text-slate-600">
-                                                        {new Date(tx.created_at).toLocaleString()}
+                                                        {formatApiDateTime(tx.created_at)}
                                                     </div>
                                                 </TableCell>
                                                 <TableCell>
@@ -388,7 +389,7 @@ export default function AggregatorTransactionsPage() {
                                     </div>
                                     <div>
                                         <div className="text-slate-500 text-xs mb-1">Envoyé le</div>
-                                        <div className="text-xs">{selectedTx.webhook_sent_at ? new Date(selectedTx.webhook_sent_at).toLocaleString() : "—"}</div>
+                                        <div className="text-xs">{selectedTx.webhook_sent_at ? formatApiDateTime(selectedTx.webhook_sent_at) : "—"}</div>
                                     </div>
                                     <div>
                                         <div className="text-slate-500 text-xs mb-1">Code réponse</div>
@@ -407,12 +408,12 @@ export default function AggregatorTransactionsPage() {
                                     </div>
                                     <div className="flex justify-between text-xs text-slate-400">
                                         <span>{t("common.createdAt")} :</span>
-                                        <span>{new Date(selectedTx.created_at).toLocaleString()}</span>
+                                        <span>{formatApiDateTime(selectedTx.created_at)}</span>
                                     </div>
                                     {selectedTx.completed_at && (
                                         <div className="flex justify-between text-xs text-slate-400">
                                             <span>{t("common.completed")} :</span>
-                                            <span>{new Date(selectedTx.completed_at).toLocaleString()}</span>
+                                            <span>{formatApiDateTime(selectedTx.completed_at)}</span>
                                         </div>
                                     )}
                                 </div>

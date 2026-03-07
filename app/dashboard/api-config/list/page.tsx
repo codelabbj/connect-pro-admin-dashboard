@@ -16,6 +16,7 @@ import { useApi } from "@/lib/useApi"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import Link from "next/link"
 
+import { formatApiDateTime } from "@/lib/utils";
 export default function ApiConfigListPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
@@ -236,7 +237,7 @@ export default function ApiConfigListPage() {
                       <TableCell>{getStatusBadge(config.is_active)}</TableCell>
                       <TableCell>
                         <div className="text-sm">
-                          {config.updated_at ? new Date(config.updated_at).toLocaleDateString() : "-"}
+                          {config.updated_at ? formatApiDateTime(config.updated_at) : "-"}
                         </div>
                       </TableCell>
                       <TableCell>{config.updated_by_name || "-"}</TableCell>
@@ -366,8 +367,8 @@ export default function ApiConfigListPage() {
               <div className="space-y-2">
                 <div><strong>{t("apiConfig.timeout")}:</strong> {selectedConfig.timeout_seconds} {t("apiConfig.seconds") || "seconds"}</div>
                 <div><strong>{t("apiConfig.status")}:</strong> {getStatusBadge(selectedConfig.is_active)}</div>
-                <div><strong>{t("apiConfig.created")}:</strong> {selectedConfig.created_at ? new Date(selectedConfig.created_at).toLocaleString() : t("platforms.unknown")}</div>
-                <div><strong>{t("apiConfig.lastUpdated")}:</strong> {selectedConfig.updated_at ? new Date(selectedConfig.updated_at).toLocaleString() : t("platforms.unknown")}</div>
+                <div><strong>{t("apiConfig.created")}:</strong> {selectedConfig.created_at ? formatApiDateTime(selectedConfig.created_at) : t("platforms.unknown")}</div>
+                <div><strong>{t("apiConfig.lastUpdated")}:</strong> {selectedConfig.updated_at ? formatApiDateTime(selectedConfig.updated_at) : t("platforms.unknown")}</div>
                 <div><strong>{t("apiConfig.updatedBy")}:</strong> {selectedConfig.updated_by_name || t("platforms.unknown")}</div>
               </div>
             </div>

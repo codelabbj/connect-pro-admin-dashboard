@@ -16,6 +16,7 @@ import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-displa
 import { useApi } from "@/lib/useApi"
 import Link from "next/link"
 
+import { formatApiDateTime } from "@/lib/utils";
 export default function CommissionConfigListPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
@@ -219,7 +220,7 @@ export default function CommissionConfigListPage() {
                       <TableCell>{getRateBadge(config.withdrawal_commission_rate, "withdrawal")}</TableCell>
                       <TableCell>
                         <div className="text-sm">
-                          {config.updated_at ? new Date(config.updated_at).toLocaleDateString() : "-"}
+                          {config.updated_at ? formatApiDateTime(config.updated_at) : "-"}
                         </div>
                       </TableCell>
                       <TableCell>{config.updated_by_name || "-"}</TableCell>
@@ -324,8 +325,8 @@ export default function CommissionConfigListPage() {
               </div>
 
               <div className="space-y-2">
-                <div><strong>Created:</strong> {selectedConfig.created_at ? new Date(selectedConfig.created_at).toLocaleString() : "Unknown"}</div>
-                <div><strong>Updated:</strong> {selectedConfig.updated_at ? new Date(selectedConfig.updated_at).toLocaleString() : "Unknown"}</div>
+                <div><strong>Created:</strong> {selectedConfig.created_at ? formatApiDateTime(selectedConfig.created_at) : "Unknown"}</div>
+                <div><strong>Updated:</strong> {selectedConfig.updated_at ? formatApiDateTime(selectedConfig.updated_at) : "Unknown"}</div>
                 <div><strong>Updated by:</strong> {selectedConfig.updated_by_name || "Unknown"}</div>
               </div>
             </div>

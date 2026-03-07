@@ -8,6 +8,7 @@
 // import { Input } from "@/components/ui/input";
 // import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display";
 
+import { formatApiDateTime } from "@/lib/utils";
 // export default function CommissionStatPage({ params }: { params: { user_id: string } }) {
 //   const userId = params.user_id;
 //   const [stats, setStats] = useState<any>(null);
@@ -236,7 +237,7 @@
 //                     <tr key={idx}>
 //                       <td className="px-2 py-1">{item.reference}</td>
 //                       <td className="px-2 py-1 font-semibold">{item.formatted_amount ?? item.amount + " FCFA"}</td>
-//                       <td className="px-2 py-1">{item.created_at ? new Date(item.created_at).toLocaleString("fr-FR") : ""}</td>
+//                       <td className="px-2 py-1">{item.created_at ? formatApiDateTime(item.created_at) : ""}</td>
 //                       <td className="px-2 py-1">{item.period_start}</td>
 //                       <td className="px-2 py-1">{item.period_end}</td>
 //                       <td className="px-2 py-1">{item.transactions_count ?? 0}</td>
@@ -255,8 +256,8 @@
 //             <CardTitle>Période analysée</CardTitle>
 //           </CardHeader>
 //           <CardContent>
-//             <div><b>Début :</b> {stats?.period_info?.start ? new Date(stats.period_info.start).toLocaleString("fr-FR") : ""}</div>
-//             <div><b>Fin :</b> {stats?.period_info?.end ? new Date(stats.period_info.end).toLocaleString("fr-FR") : ""}</div>
+//             <div><b>Début :</b> {stats?.period_info?.start ? formatApiDateTime(stats.period_info.start) : ""}</div>
+//             <div><b>Fin :</b> {stats?.period_info?.end ? formatApiDateTime(stats.period_info.end) : ""}</div>
 //             <div><b>Inclure les commissions déjà payées :</b> {stats?.period_info?.include_paid ? "Oui" : "Non"}</div>
 //           </CardContent>
 //         </Card>
@@ -569,7 +570,7 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
                     <tbody>
                       {balanceHistory.results.map((item: any, idx: number) => (
                         <tr key={idx} className="border-b hover:bg-gray-50 dark:hover:bg-gray-700">
-                          <td className="px-2 py-2">{item.created_at ? new Date(item.created_at).toLocaleString("fr-FR") : ""}</td>
+                          <td className="px-2 py-2">{item.created_at ? formatApiDateTime(item.created_at) : ""}</td>
                           <td className="px-2 py-2">
                             <span className={`px-2 py-1 rounded text-xs font-medium ${
                               item.type_display === 'Recharge de compte' ?  'bg-green-200 text-green-700' :
@@ -662,7 +663,7 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
                     <tr key={idx}>
                       <td className="px-2 py-1">{item.reference}</td>
                       <td className="px-2 py-1 font-semibold">{item.formatted_amount ?? item.amount + " FCFA"}</td>
-                      <td className="px-2 py-1">{item.created_at ? new Date(item.created_at).toLocaleString("fr-FR") : ""}</td>
+                      <td className="px-2 py-1">{item.created_at ? formatApiDateTime(item.created_at) : ""}</td>
                       <td className="px-2 py-1">{item.period_start}</td>
                       <td className="px-2 py-1">{item.period_end}</td>
                       <td className="px-2 py-1">{item.transactions_count ?? 0}</td>
@@ -682,8 +683,8 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
             <CardTitle>Période analysée</CardTitle>
           </CardHeader>
           <CardContent>
-            <div><b>Début :</b> {stats?.period_info?.start ? new Date(stats.period_info.start).toLocaleString("fr-FR") : ""}</div>
-            <div><b>Fin :</b> {stats?.period_info?.end ? new Date(stats.period_info.end).toLocaleString("fr-FR") : ""}</div>
+            <div><b>Début :</b> {stats?.period_info?.start ? formatApiDateTime(stats.period_info.start) : ""}</div>
+            <div><b>Fin :</b> {stats?.period_info?.end ? formatApiDateTime(stats.period_info.end) : ""}</div>
             <div><b>Inclure les commissions déjà payées :</b> {stats?.period_info?.include_paid ? "Oui" : "Non"}</div>
           </CardContent>
         </Card>

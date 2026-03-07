@@ -1,20 +1,21 @@
-// "use client"
+"use client"
 
-// import { useState, useEffect } from "react"
-// import { Badge } from "@/components/ui/badge"
-// import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table"
-// import { ChartContainer } from "@/components/ui/chart"
-// import { useApi } from "@/lib/useApi"
-// import { useLanguage } from "@/components/providers/language-provider"
-// import { useRouter } from "next/navigation"
-// import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from "recharts";
-// import { useToast } from "@/hooks/use-toast"
-// import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-// import { Switch } from "@/components/ui/switch"
-// import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-// import { ClipboardList, Users, KeyRound, Bell, Clock, TrendingUp, Loader, ServerCrash } from "lucide-react";
-// import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
-
+import { useState, useEffect } from "react"
+import { Badge } from "@/components/ui/badge"
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
+import { ChartContainer } from "@/components/ui/chart"
+import { useApi } from "@/lib/useApi"
+import { useLanguage } from "@/components/providers/language-provider"
+import { useRouter } from "next/navigation"
+import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from "recharts";
+import { useToast } from "@/hooks/use-toast"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { Switch } from "@/components/ui/switch"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { ClipboardList, Users, KeyRound, Bell, Clock, TrendingUp, Loader, ServerCrash, RefreshCw, DollarSign, Zap, Share2, UserCheck } from "lucide-react";
+import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
+import { formatApiDateTime } from "@/lib/utils";
 // const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
 // // Mock data for chart and activity feed
@@ -343,7 +344,7 @@
 //                   </div>
 //                   <div className="col-span-2 text-right text-xs text-gray-500 mt-2">
 //                     {t("dashboard.lastUpdated") || "Last Updated"}:{" "}
-//                     {summary.last_updated ? new Date(summary.last_updated).toLocaleString() : "-"}
+//                     {summary.last_updated ? formatApiDateTime(summary.last_updated) : "-"}
 //                   </div>
 //                 </div>
 //               ) : (
@@ -420,7 +421,7 @@
 //                   <div key={event.uid} className="py-2">
 //                     <div className="flex items-center gap-2">
 //                       <span className="font-semibold">{event.event_type.replace(/_/g, " ").toUpperCase()}</span>
-//                       <span className="text-xs text-gray-400">{new Date(event.created_at).toLocaleString()}</span>
+//                       <span className="text-xs text-gray-400">{formatApiDateTime(event.created_at)}</span>
 //                       <Badge className="ml-2" variant="outline">{event.level}</Badge>
 //                     </div>
 //                     <div className="text-sm text-gray-700 dark:text-gray-200">{event.description}</div>
@@ -481,25 +482,6 @@
 //     </>
 //   )
 // }
-
-
-"use client"
-
-import { useState, useEffect } from "react"
-import { Badge } from "@/components/ui/badge"
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { ChartContainer } from "@/components/ui/chart"
-import { useApi } from "@/lib/useApi"
-import { useLanguage } from "@/components/providers/language-provider"
-import { useRouter } from "next/navigation"
-import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from "recharts";
-import { useToast } from "@/hooks/use-toast"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { Switch } from "@/components/ui/switch"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { ClipboardList, Users, KeyRound, Bell, Clock, TrendingUp, Loader, ServerCrash, DollarSign, RefreshCw, UserCheck, Zap, Share2 } from "lucide-react";
-import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
@@ -570,11 +552,17 @@ export default function DashboardPage() {
   const [aggregatorLoading, setAggregatorLoading] = useState(false);
   const [aggregatorError, setAggregatorError] = useState("");
 
+  // Hydration fix
+  const [isMounted, setIsMounted] = useState(false);
 
   const apiFetch = useApi();
   const { t } = useLanguage();
   const router = useRouter();
   const { toast } = useToast();
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const fetchStats = async () => {
     setLoading(true);
@@ -863,6 +851,9 @@ export default function DashboardPage() {
 
   const financialChartData = prepareFinancialChartData();
   const adminActivityData = prepareAdminActivityData();
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <>
@@ -1357,7 +1348,7 @@ export default function DashboardPage() {
                       {t("dashboard.generatedAt") || "Generated At"}:
                     </span>
                     <div className="text-sm font-mono text-gray-600 dark:text-gray-400">
-                      {balanceOps?.generated_at ? new Date(balanceOps.generated_at).toLocaleString() : "N/A"}
+                      {balanceOps?.generated_at ? formatApiDateTime(balanceOps.generated_at) : "N/A"}
                     </div>
                   </div>
 
@@ -1760,7 +1751,7 @@ export default function DashboardPage() {
                   </div>
                   <div className="col-span-2 text-right text-xs text-gray-500 mt-2">
                     {t("dashboard.lastUpdated") || "Last Updated"}:{" "}
-                    {summary?.last_updated ? new Date(summary.last_updated).toLocaleString() : "-"}
+                    {summary?.last_updated ? formatApiDateTime(summary.last_updated) : "-"}
                   </div>
                 </div>
               ) : (
@@ -1837,7 +1828,7 @@ export default function DashboardPage() {
                   <div key={event.uid} className="py-2">
                     <div className="flex items-center gap-2">
                       <span className="font-semibold">{event.event_type.replace(/_/g, " ").toUpperCase()}</span>
-                      <span className="text-xs text-gray-400">{new Date(event.created_at).toLocaleString()}</span>
+                      <span className="text-xs text-gray-400">{formatApiDateTime(event.created_at)}</span>
                       <Badge className="ml-2" variant="outline">{event.level}</Badge>
                     </div>
                     <div className="text-sm text-gray-700 dark:text-gray-200">{event.description}</div>

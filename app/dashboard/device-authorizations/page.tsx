@@ -19,6 +19,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useRouter } from "next/navigation"
 
+import { formatApiDateTime } from "@/lib/utils";
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
 export default function DeviceAuthorizationsPage() {
@@ -502,7 +503,7 @@ export default function DeviceAuthorizationsPage() {
                       {authorization.is_active ? t("common.active") : t("common.inactive")}
                     </Badge>
                   </TableCell>
-                  <TableCell>{new Date(authorization.created_at).toLocaleString()}</TableCell>
+                  <TableCell>{formatApiDateTime(authorization.created_at)}</TableCell>
                   <TableCell className="max-w-xs truncate">{authorization.notes || "-"}</TableCell>
                   <TableCell>
                     <div className="flex gap-2">

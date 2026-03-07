@@ -22,6 +22,7 @@ import {
 } from "@/lib/bulk-deposit-network-api"
 import { CreateBulkDepositNetworkModal } from "./CreateBulkDepositNetworkModal"
 
+import { formatApiDateTime } from "@/lib/utils";
 export default function BulkDepositNetworksPage() {
     const { t } = useLanguage()
     const { getBulkDepositNetworks, toggleBulkDepositNetworkStatus } = useBulkDepositNetworkApi()
@@ -169,7 +170,7 @@ export default function BulkDepositNetworksPage() {
                                                     <div className="font-medium">{net.network_name || net.network}</div>
                                                     <div className="text-xs text-muted-foreground">{net.network}</div>
                                                 </TableCell>
-                                                <TableCell>{new Date(net.created_at).toLocaleString()}</TableCell>
+                                                <TableCell>{formatApiDateTime(net.created_at)}</TableCell>
                                                 <TableCell className="text-right">
                                                     <Switch
                                                         checked={net.is_active}

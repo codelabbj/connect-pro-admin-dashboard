@@ -15,6 +15,7 @@ import { AggregatorListResponse, AggregatorUser } from "@/lib/aggregator-api"
 import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
 
+import { formatApiDateTime } from "@/lib/utils";
 export default function AggregatorUsersPage() {
     const [data, setData] = useState<AggregatorListResponse | null>(null)
     const [loading, setLoading] = useState(true)
@@ -191,7 +192,7 @@ export default function AggregatorUsersPage() {
                                                         </Badge>
                                                     </TableCell>
                                                     <TableCell className="text-sm text-slate-500">
-                                                        {new Date(agg.created_at).toLocaleDateString()}
+                                                        {formatApiDateTime(agg.created_at)}
                                                     </TableCell>
                                                     <TableCell>
                                                         <DropdownMenu>

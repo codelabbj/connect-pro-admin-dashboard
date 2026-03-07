@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 // import { useWebSocket } from "@/components/providers/websocket-provider"
 
+import { formatApiDateTime } from "@/lib/utils";
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
 export default function DevicesListPage() {
@@ -256,7 +257,7 @@ export default function DevicesListPage() {
                   <TableCell>{device.user_name || '-'}</TableCell>
                   <TableCell>{typeof device.total_transactions === 'number' ? device.total_transactions : (device.total_transactions ?? 0)}</TableCell>
                   <TableCell>{device.success_rate !== undefined && device.success_rate !== null ? `${device.success_rate}%` : '0.00%'}</TableCell>
-                  <TableCell>{device.last_seen ? new Date(device.last_seen).toLocaleString() : '-'}</TableCell>
+                  <TableCell>{device.last_seen ? formatApiDateTime(device.last_seen) : '-'}</TableCell>
                   <TableCell>
                     {/* TODO: Add device actions like edit, delete, etc. */}
                     <span className="text-gray-500">{t("devices.noActionsAvailable")}</span>

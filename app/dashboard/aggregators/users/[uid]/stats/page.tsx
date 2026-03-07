@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { AggregatorIndividualStats } from "@/lib/aggregator-api"
 
+import { formatApiDateTime } from "@/lib/utils";
 export default function AggregatorUserStatsPage() {
     const params = useParams()
     const router = useRouter()
@@ -164,7 +165,7 @@ export default function AggregatorUserStatsPage() {
                         <div className="flex justify-between p-3 rounded-lg bg-blue-50">
                             <span className="text-blue-700">{t("aggregators.lastTransactionAt")}</span>
                             <span className="text-blue-700 font-medium">
-                                {stats.payin_stats.last_transaction_at ? new Date(stats.payin_stats.last_transaction_at).toLocaleString() : t("aggregators.never")}
+                                {stats.payin_stats.last_transaction_at ? formatApiDateTime(stats.payin_stats.last_transaction_at) : t("aggregators.never")}
                             </span>
                         </div>
                     </CardContent>
@@ -191,7 +192,7 @@ export default function AggregatorUserStatsPage() {
                         <div className="flex justify-between p-3 rounded-lg bg-blue-50">
                             <span className="text-blue-700">{t("aggregators.lastTransactionAt")}</span>
                             <span className="text-blue-700 font-medium">
-                                {stats.payout_stats.last_transaction_at ? new Date(stats.payout_stats.last_transaction_at).toLocaleString() : t("aggregators.never")}
+                                {stats.payout_stats.last_transaction_at ? formatApiDateTime(stats.payout_stats.last_transaction_at) : t("aggregators.never")}
                             </span>
                         </div>
                     </CardContent>
@@ -211,7 +212,7 @@ export default function AggregatorUserStatsPage() {
             )}
 
             <div className="text-xs text-slate-400 text-right">
-                {t("aggregators.statsGeneratedAt")}: {new Date(stats.meta.generated_at).toLocaleString()}
+                {t("aggregators.statsGeneratedAt")}: {formatApiDateTime(stats.meta.generated_at)}
             </div>
         </div>
     )

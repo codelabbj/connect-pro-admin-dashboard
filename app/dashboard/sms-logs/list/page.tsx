@@ -316,7 +316,7 @@ export default function SmsLogsListPage() {
                     <TableRow key={log.uid || log.id || log.content}>
                       <TableCell>{log.sender}</TableCell>
                       <TableCell className="whitespace-pre-wrap break-words">{log.content}</TableCell>
-                      <TableCell>{log.received_at ? log.received_at.split("T")[0] : '-'}</TableCell>
+                      <TableCell>{log.received_at ? new Date(log.received_at).toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '-'}</TableCell>
                       <TableCell>{log.sms_type}</TableCell>
                       <TableCell>
                         <Button variant="ghost" size="icon" onClick={() => handleCopy(log.content, log.uid || log.id || log.content)}>

@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { useRouter, useParams } from "next/navigation"
 import { ArrowLeft, Save, ToggleLeft, ToggleRight, Loader } from "lucide-react"
 
+import { formatApiDateTime } from "@/lib/utils";
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
 export default function DeviceAuthorizationDetailPage() {
@@ -247,7 +248,7 @@ export default function DeviceAuthorizationDetailPage() {
               <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 {t("deviceAuthorizations.createdAt") || "Created At"}
               </Label>
-              <p className="mt-1">{new Date(authorization.created_at).toLocaleString()}</p>
+              <p className="mt-1">{formatApiDateTime(authorization.created_at)}</p>
             </div>
           </CardContent>
         </Card>
@@ -336,8 +337,8 @@ export default function DeviceAuthorizationDetailPage() {
         </CardHeader>
         <CardContent>
           <div className="text-sm text-gray-500">
-            <p><strong>{t("deviceAuthorizations.createdAt") || "Created"}:</strong> {new Date(authorization.created_at).toLocaleString()}</p>
-            <p><strong>{t("deviceAuthorizations.lastModified") || "Last Modified"}:</strong> {new Date(authorization.created_at).toLocaleString()}</p>
+            <p><strong>{t("deviceAuthorizations.createdAt") || "Created"}:</strong> {formatApiDateTime(authorization.created_at)}</p>
+            <p><strong>{t("deviceAuthorizations.lastModified") || "Last Modified"}:</strong> {formatApiDateTime(authorization.created_at)}</p>
             <p><strong>{t("deviceAuthorizations.currentStatus") || "Current Status"}:</strong> 
               <Badge variant={authorization.is_active ? "default" : "secondary"} className="ml-2">
                 {authorization.is_active ? t("common.active") : t("common.inactive")}

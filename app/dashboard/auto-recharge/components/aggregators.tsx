@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { Search, ChevronLeft, ChevronRight, ArrowUpDown } from "lucide-react"
 
+import { formatApiDateTime } from "@/lib/utils";
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
 export default function AutoRechargeAggregators() {
@@ -178,7 +179,7 @@ export default function AutoRechargeAggregators() {
                     <TableCell>{aggregator.total_amount_processed || "0.00"}</TableCell>
                     <TableCell>{aggregator.success_rate || "0.00"}%</TableCell>
                     <TableCell>
-                      {aggregator.created_at ? new Date(aggregator.created_at).toLocaleString() : "-"}
+                      {aggregator.created_at ? formatApiDateTime(aggregator.created_at) : "-"}
                     </TableCell>
                   </TableRow>
                 ))

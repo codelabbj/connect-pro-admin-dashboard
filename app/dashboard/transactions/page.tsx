@@ -40,6 +40,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useCallback } from "react"
 
+import { formatApiDateTime } from "@/lib/utils";
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
 export default function TransactionsPage() {
@@ -831,7 +832,7 @@ export default function TransactionsPage() {
                         <TableCell>{transaction.created_by_name || "-"}</TableCell>
                         <TableCell>{transaction.created_by_email || "-"}</TableCell>
                         <TableCell>{transaction.created_by_phone || "-"}</TableCell>
-                        <TableCell>{transaction.created_at ? new Date(transaction.created_at).toLocaleDateString() : "-"}</TableCell>
+                        <TableCell>{transaction.created_at ? formatApiDateTime(transaction.created_at) : "-"}</TableCell>
                         <TableCell>{getTypeBadge(transaction.type)}</TableCell>
                         <TableCell>{transaction.network_name || "-"}</TableCell>
                         <TableCell>{getStatusBadge(transaction.status)}</TableCell>
@@ -1272,9 +1273,9 @@ export default function TransactionsPage() {
                 <h3 className="text-sm font-semibold text-slate-900 border-b pb-2 mb-3 tracking-wide uppercase">{t("common.statusAndMeta") || "Statut & Meta"}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div className="flex justify-between items-center"><span className="text-slate-500">{t("transactions.status") || "Statut"} :</span>{getStatusBadge(selectedDetailTx.status)}</div>
-                  <div className="flex justify-between items-center"><span className="text-slate-500">{t("transactions.date") || "Date de création"} :</span><span className="font-medium">{new Date(selectedDetailTx.created_at).toLocaleString()}</span></div>
+                  <div className="flex justify-between items-center"><span className="text-slate-500">{t("transactions.date") || "Date de création"} :</span><span className="font-medium">{formatApiDateTime(selectedDetailTx.created_at)}</span></div>
                   {selectedDetailTx.completed_at && (
-                    <div className="flex justify-between items-center"><span className="text-slate-500">{t("transactions.completedAt") || "Complété le"} :</span><span className="font-medium">{new Date(selectedDetailTx.completed_at).toLocaleString()}</span></div>
+                    <div className="flex justify-between items-center"><span className="text-slate-500">{t("transactions.completedAt") || "Complété le"} :</span><span className="font-medium">{formatApiDateTime(selectedDetailTx.completed_at)}</span></div>
                   )}
                 </div>
                 {selectedDetailTx.error_message && (

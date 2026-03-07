@@ -18,6 +18,7 @@ import { Switch } from "@/components/ui/switch"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { Suspense } from "react"
 
+import { formatApiDateTime } from "@/lib/utils";
 interface WaveBusinessTransaction {
   uid: string
   amount: string
@@ -181,13 +182,7 @@ function WaveBusinessContent() {
 
   const formatDate = (dateString: string) => {
     if (!dateString) return "-"
-    return new Date(dateString).toLocaleDateString("fr-FR", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit"
-    })
+    return formatApiDateTime(dateString)
   }
 
   const formatAmount = (amount: string) => {

@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy } from "lucide-react"
 
+import { formatApiDateTime } from "@/lib/utils";
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
 export default function AutoRechargeTransactions() {
@@ -263,7 +264,7 @@ export default function AutoRechargeTransactions() {
                     <TableCell>{transaction.fees || "0.00"}</TableCell>
                     <TableCell>{getStatusBadge(transaction.status)}</TableCell>
                     <TableCell>
-                      {transaction.created_at ? new Date(transaction.created_at).toLocaleString() : "-"}
+                      {transaction.created_at ? formatApiDateTime(transaction.created_at) : "-"}
                     </TableCell>
                   </TableRow>
                 ))

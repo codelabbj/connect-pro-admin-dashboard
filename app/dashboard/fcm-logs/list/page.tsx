@@ -320,7 +320,7 @@ export default function FcmLogsListPage() {
                       <TableCell>{log.title}</TableCell>
                       <TableCell>{log.body}</TableCell>
                       <TableCell>{log.device_id}</TableCell>
-                      <TableCell>{log.created_at ? log.created_at.split("T")[0] : '-'}</TableCell>
+                      <TableCell>{log.created_at ? new Date(log.created_at).toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '-'}</TableCell>
                       <TableCell>
                         <Button variant="ghost" size="icon" onClick={() => handleCopy(log.body, log.uid)}>
                           <Copy className="h-4 w-4" />

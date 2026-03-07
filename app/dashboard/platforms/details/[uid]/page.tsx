@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import Link from "next/link"
 
+import { formatApiDateTime } from "@/lib/utils";
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
 export default function PlatformDetailsPage() {
@@ -260,14 +261,14 @@ export default function PlatformDetailsPage() {
 
                 <div>
                   <Label className="text-sm font-medium">{t("platforms.createdAtLabel")}</Label>
-                  <p>{platform.created_at ? new Date(platform.created_at).toLocaleString() : t("platforms.unknown")}</p>
+                  <p>{platform.created_at ? formatApiDateTime(platform.created_at) : t("platforms.unknown")}</p>
                 </div>
               </div>
 
               <div className="space-y-3">
                 <div>
                   <Label className="text-sm font-medium">{t("platforms.updatedAt")}</Label>
-                  <p>{platform.updated_at ? new Date(platform.updated_at).toLocaleString() : t("platforms.unknown")}</p>
+                  <p>{platform.updated_at ? formatApiDateTime(platform.updated_at) : t("platforms.unknown")}</p>
                 </div>
 
                 <div>

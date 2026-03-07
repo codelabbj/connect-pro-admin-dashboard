@@ -11,6 +11,7 @@ import { useLanguage } from "@/components/providers/language-provider"
 import { useApi } from "@/lib/useApi"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { Copy } from "lucide-react"
+import { formatApiDateTime } from "@/lib/utils";
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
 export default function EditTransactionPage() {
@@ -148,8 +149,8 @@ export default function EditTransactionPage() {
             <div><strong>{t("transactions.recipientPhone")}:</strong> {transaction.recipient_phone}</div>
             <div><strong>{t("transactions.network")}: </strong>{transaction.network_name}</div>
             <div><strong>{t("transactions.status")}:</strong> <Badge>{t(`transactions.${transaction.status}`)}</Badge></div>
-            <div><strong>{t("transactions.createdAt")}:</strong> {transaction.created_at ? new Date(transaction.created_at).toLocaleString() : "-"}</div>
-            <div><strong>{t("transactions.completedAt")}:</strong> {transaction.completed_at ? new Date(transaction.completed_at).toLocaleString() : "-"}</div>
+            <div><strong>{t("transactions.createdAt")}:</strong> {transaction.created_at ? formatApiDateTime(transaction.created_at) : "-"}</div>
+            <div><strong>{t("transactions.completedAt")}:</strong> {transaction.completed_at ? formatApiDateTime(transaction.completed_at) : "-"}</div>
             <div><strong>Processed By:</strong> {transaction.processed_by_name}</div>
             {/* Additional read-only technical fields */}
             <div><strong>{t("transactions.balanceBefore")}</strong>: {transaction.balance_before ?? "-"}</div>
@@ -229,7 +230,7 @@ export default function EditTransactionPage() {
                 <div key={log.uid || log.id || idx} className="rounded border p-3">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="text-sm text-muted-foreground">
-                      {new Date(log.created_at || log.timestamp || Date.now()).toLocaleString()}
+                      {formatApiDateTime(log.created_at || log.timestamp || Date.now())}
                     </div>
                     <div className="text-xs px-2 py-1 rounded bg-muted">
                       {log.type || log.event || log.status || "event"}

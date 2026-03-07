@@ -22,6 +22,7 @@ import { DeviceSelectionModal } from "@/components/ui/device-selection-modal"
 import Link from "next/link"
 
 
+import { formatApiDateTime } from "@/lib/utils";
 export default function PartnerPage() {
 	const [searchTerm, setSearchTerm] = useState("")
 	const [statusFilter, setStatusFilter] = useState("all")
@@ -897,7 +898,7 @@ export default function PartnerPage() {
 														{authorization.is_active ? t("common.active") : t("common.inactive")}
 													</Badge>
 												</TableCell>
-												<TableCell>{new Date(authorization.created_at).toLocaleString()}</TableCell>
+												<TableCell>{formatApiDateTime(authorization.created_at)}</TableCell>
 												<TableCell className="max-w-xs truncate">{authorization.notes || "-"}</TableCell>
 												<TableCell>
 													<Button
@@ -1093,7 +1094,7 @@ export default function PartnerPage() {
 										<div><b>{t("bettingCommission.depositCommissionRate")}:</b> {bettingCommissionConfig.deposit_commission_rate}%</div>
 										<div><b>{t("bettingCommission.withdrawalCommissionRate")}:</b> {bettingCommissionConfig.withdrawal_commission_rate}%</div>
 										<div><b>{t("bettingCommission.updatedBy")}:</b> {bettingCommissionConfig.updated_by_name || t("bettingCommission.notAvailable")}</div>
-										<div><b>{t("bettingCommission.lastUpdated")}:</b> {bettingCommissionConfig.updated_at ? new Date(bettingCommissionConfig.updated_at).toLocaleString() : t("bettingCommission.notAvailable")}</div>
+										<div><b>{t("bettingCommission.lastUpdated")}:</b> {bettingCommissionConfig.updated_at ? formatApiDateTime(bettingCommissionConfig.updated_at) : t("bettingCommission.notAvailable")}</div>
 									</div>
 								</div>
 							)}
@@ -1205,7 +1206,7 @@ export default function PartnerPage() {
 								<TableBody>
 									{transfers.map((transfer: any) => (
 										<TableRow key={transfer.uid}>
-											<TableCell>{new Date(transfer.created_at).toLocaleString()}</TableCell>
+											<TableCell>{formatApiDateTime(transfer.created_at)}</TableCell>
 											<TableCell>{transfer.transfer_type || t("bettingCommission.notApplicable")}</TableCell>
 											<TableCell className="font-medium">{transfer.amount} XOF</TableCell>
 											<TableCell>
@@ -1405,7 +1406,7 @@ export default function PartnerPage() {
 															{transaction.description || "-"}
 														</TableCell>
 														<TableCell className="text-sm">
-															{new Date(transaction.created_at).toLocaleString()}
+															{formatApiDateTime(transaction.created_at)}
 														</TableCell>
 														<TableCell>
 															<div className="space-y-1">

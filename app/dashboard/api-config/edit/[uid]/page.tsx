@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { Settings, Eye, EyeOff } from "lucide-react"
 
+import { formatApiDateTime } from "@/lib/utils";
 export default function ApiConfigEditPage() {
   const params = useParams()
   const router = useRouter()
@@ -150,8 +151,8 @@ export default function ApiConfigEditPage() {
             <h3 className="font-semibold mb-2">{t("apiConfig.configurationInformation")}</h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div><strong>{t("common.uid")}:</strong> {originalConfig.uid}</div>
-              <div><strong>{t("apiConfig.created")}:</strong> {originalConfig.created_at ? new Date(originalConfig.created_at).toLocaleString() : t("platforms.unknown")}</div>
-              <div><strong>{t("apiConfig.lastUpdated")}:</strong> {originalConfig.updated_at ? new Date(originalConfig.updated_at).toLocaleString() : t("platforms.unknown")}</div>
+              <div><strong>{t("apiConfig.created")}:</strong> {originalConfig.created_at ? formatApiDateTime(originalConfig.created_at) : t("platforms.unknown")}</div>
+              <div><strong>{t("apiConfig.lastUpdated")}:</strong> {originalConfig.updated_at ? formatApiDateTime(originalConfig.updated_at) : t("platforms.unknown")}</div>
               <div><strong>{t("apiConfig.updatedBy")}:</strong> {originalConfig.updated_by_name || t("platforms.unknown")}</div>
             </div>
           </div>

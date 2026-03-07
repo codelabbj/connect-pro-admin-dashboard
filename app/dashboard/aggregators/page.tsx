@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { AggregatorDashboard } from "@/lib/aggregator-api"
 
+import { formatApiDateTime } from "@/lib/utils";
 export default function AggregatorDashboardPage() {
     const [dashboard, setDashboard] = useState<AggregatorDashboard | null>(null)
     const [loading, setLoading] = useState(true)
@@ -62,7 +63,7 @@ export default function AggregatorDashboardPage() {
                     <p className="text-muted-foreground text-lg text-slate-500">{t("aggregators.dashboardSub")}</p>
                 </div>
                 <div className="text-sm text-slate-400">
-                    {t("aggregators.lastUpdated")}: {new Date(dashboard.meta.generated_at).toLocaleString()}
+                    {t("aggregators.lastUpdated")}: {formatApiDateTime(dashboard.meta.generated_at)}
                 </div>
             </div>
 

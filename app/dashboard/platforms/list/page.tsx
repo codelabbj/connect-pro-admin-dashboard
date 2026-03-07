@@ -16,6 +16,7 @@ import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-displa
 import { useApi } from "@/lib/useApi"
 import Link from "next/link"
 
+import { formatApiDateTime } from "@/lib/utils";
 export default function PlatformListPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
@@ -459,8 +460,8 @@ export default function PlatformListPage() {
               <div className="space-y-2">
                 <div><strong>{t("platforms.description")}:</strong> {selectedPlatform.description || t("platforms.noDescriptionProvided")}</div>
                 <div><strong>{t("platforms.createdBy")}:</strong> {selectedPlatform.created_by_name || t("platforms.unknown")}</div>
-                <div><strong>{t("platforms.createdAtLabel")}:</strong> {selectedPlatform.created_at ? new Date(selectedPlatform.created_at).toLocaleString() : t("platforms.unknown")}</div>
-                <div><strong>{t("platforms.updatedAt")}:</strong> {selectedPlatform.updated_at ? new Date(selectedPlatform.updated_at).toLocaleString() : t("platforms.unknown")}</div>
+                <div><strong>{t("platforms.createdAtLabel")}:</strong> {selectedPlatform.created_at ? formatApiDateTime(selectedPlatform.created_at) : t("platforms.unknown")}</div>
+                <div><strong>{t("platforms.updatedAt")}:</strong> {selectedPlatform.updated_at ? formatApiDateTime(selectedPlatform.updated_at) : t("platforms.unknown")}</div>
                 <div><strong>{t("platforms.activePartners")}:</strong> {selectedPlatform.active_partners_count || 0}</div>
                 <div><strong>{t("platforms.totalTransactions")}:</strong> {selectedPlatform.total_transactions_count || 0}</div>
               </div>

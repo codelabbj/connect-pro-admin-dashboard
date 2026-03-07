@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { ArrowLeft, User, Shield, PieChart, TrendingUp, DollarSign } from "lucide-react"
 
+import { formatApiDateTime } from "@/lib/utils";
 export default function UserPlatformPermissionsPage() {
   const params = useParams()
   const router = useRouter()
@@ -190,7 +191,7 @@ export default function UserPlatformPermissionsPage() {
               )}
               <div className="space-y-2">
                 <div className="text-sm font-medium text-muted-foreground">Last Updated</div>
-                <div className="text-sm">{commissionConfig.updated_at ? new Date(commissionConfig.updated_at).toLocaleString() : "Never"}</div>
+                <div className="text-sm">{commissionConfig.updated_at ? formatApiDateTime(commissionConfig.updated_at) : "Never"}</div>
               </div>
               <div className="space-y-2">
                 <div className="text-sm font-medium text-muted-foreground">Updated By</div>
@@ -289,7 +290,7 @@ export default function UserPlatformPermissionsPage() {
                       <TableCell>{platform.granted_by_name}</TableCell>
                       <TableCell>
                         <div className="text-sm">
-                          {new Date(platform.created_at).toLocaleDateString()}
+                          {formatApiDateTime(platform.created_at)}
                         </div>
                       </TableCell>
                     </TableRow>

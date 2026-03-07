@@ -23,6 +23,7 @@ import {
 import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 
+import { formatApiDateTime } from "@/lib/utils";
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
 export default function TransfersPage() {
@@ -392,7 +393,7 @@ export default function TransfersPage() {
                         </TableCell>
                         <TableCell className="font-medium">{parseFloat(transfer.amount).toLocaleString()} FCFA</TableCell>
                         <TableCell>{parseFloat(transfer.fees).toLocaleString()} FCFA</TableCell>
-                        <TableCell>{transfer.created_at ? new Date(transfer.created_at).toLocaleDateString() : "-"}</TableCell>
+                        <TableCell>{transfer.created_at ? formatApiDateTime(transfer.created_at) : "-"}</TableCell>
                         <TableCell>{getStatusBadge(transfer.status)}</TableCell>
                         <TableCell>
                           <DropdownMenu>
@@ -514,8 +515,8 @@ export default function TransfersPage() {
                     <div><strong>Fees:</strong> {parseFloat(selectedTransfer.fees).toLocaleString()} FCFA</div>
                     <div><strong>Status:</strong> {getStatusBadge(selectedTransfer.status)}</div>
                     <div><strong>Description:</strong> {selectedTransfer.description || "-"}</div>
-                    <div><strong>Created At:</strong> {selectedTransfer.created_at ? new Date(selectedTransfer.created_at).toLocaleString() : "-"}</div>
-                    <div><strong>Completed At:</strong> {selectedTransfer.completed_at ? new Date(selectedTransfer.completed_at).toLocaleString() : "-"}</div>
+                    <div><strong>Created At:</strong> {selectedTransfer.created_at ? formatApiDateTime(selectedTransfer.created_at) : "-"}</div>
+                    <div><strong>Completed At:</strong> {selectedTransfer.completed_at ? formatApiDateTime(selectedTransfer.completed_at) : "-"}</div>
                     {selectedTransfer.failed_reason && (
                       <div className="col-span-2">
                         <strong>Failed Reason:</strong> {selectedTransfer.failed_reason}

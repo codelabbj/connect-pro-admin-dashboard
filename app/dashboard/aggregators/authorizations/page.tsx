@@ -17,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "@/hooks/use-toast"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
+import { formatApiDateTime } from "@/lib/utils";
 export default function AggregatorAuthorizationsPage() {
     const [authorizations, setAuthorizations] = useState<AggregatorAuthorization[]>([])
     const [loading, setLoading] = useState(true)
@@ -253,7 +254,7 @@ export default function AggregatorAuthorizationsPage() {
                                                     </Badge>
                                                 </TableCell>
                                                 <TableCell className="text-xs text-slate-400">
-                                                    {new Date(auth.updated_at).toLocaleString()}
+                                                    {formatApiDateTime(auth.updated_at)}
                                                 </TableCell>
                                                 <TableCell>
                                                     <DropdownMenu>
@@ -397,8 +398,8 @@ export default function AggregatorAuthorizationsPage() {
 
                             <div className="border-t pt-4">
                                 <p className="text-[10px] text-slate-400">UID: {selectedAuth.uid}</p>
-                                <p className="text-[10px] text-slate-400">Created: {new Date(selectedAuth.created_at).toLocaleString()}</p>
-                                <p className="text-[10px] text-slate-400">Updated: {new Date(selectedAuth.updated_at).toLocaleString()}</p>
+                                <p className="text-[10px] text-slate-400">Created: {formatApiDateTime(selectedAuth.created_at)}</p>
+                                <p className="text-[10px] text-slate-400">Updated: {formatApiDateTime(selectedAuth.updated_at)}</p>
                             </div>
                         </div>
                     )}

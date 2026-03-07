@@ -18,6 +18,7 @@ import Link from "next/link"
 import { CopyIcon } from "lucide-react"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 
+import { formatApiDateTime } from "@/lib/utils";
 export default function BettingTransactionsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
@@ -483,7 +484,7 @@ export default function BettingTransactionsPage() {
                       </TableCell> */}
                       <TableCell>
                         <div className="text-sm">
-                          {new Date(transaction.created_at).toLocaleDateString()}
+                          {formatApiDateTime(transaction.created_at)}
                         </div>
                       </TableCell>
                       <TableCell>
@@ -595,7 +596,7 @@ export default function BettingTransactionsPage() {
                   <div><strong>{t("bettingTransactions.commissionRate")}:</strong> {selectedTransaction.commission_rate}%</div>
                   <div><strong>{t("bettingTransactions.commissionAmountDetail")}:</strong> {selectedTransaction.commission_amount} XOF</div>
                   <div><strong>{t("bettingTransactions.commissionPaid")}:</strong> {selectedTransaction.commission_paid ? t("common.yes") : t("common.no")}</div>
-                  <div><strong>{t("bettingTransactions.paidAt")}:</strong> {selectedTransaction.commission_paid_at ? new Date(selectedTransaction.commission_paid_at).toLocaleString() : t("bettingTransactions.notPaid")}</div>
+                  <div><strong>{t("bettingTransactions.paidAt")}:</strong> {selectedTransaction.commission_paid_at ? formatApiDateTime(selectedTransaction.commission_paid_at) : t("bettingTransactions.notPaid")}</div>
                 </div>
               </div>
 
@@ -612,13 +613,13 @@ export default function BettingTransactionsPage() {
               <div className="border-t pt-4">
                 <h4 className="font-medium mb-3">{t("bettingTransactions.transactionTimeline")}</h4>
                 <div className="space-y-2">
-                  <div><strong>{t("bettingTransactions.createdDetail")}:</strong> {selectedTransaction.created_at ? new Date(selectedTransaction.created_at).toLocaleString() : t("platforms.unknown")}</div>
-                  <div><strong>{t("bettingTransactions.lastUpdatedDetail")}:</strong> {selectedTransaction.updated_at ? new Date(selectedTransaction.updated_at).toLocaleString() : t("platforms.unknown")}</div>
+                  <div><strong>{t("bettingTransactions.createdDetail")}:</strong> {selectedTransaction.created_at ? formatApiDateTime(selectedTransaction.created_at) : t("platforms.unknown")}</div>
+                  <div><strong>{t("bettingTransactions.lastUpdatedDetail")}:</strong> {selectedTransaction.updated_at ? formatApiDateTime(selectedTransaction.updated_at) : t("platforms.unknown")}</div>
                   {selectedTransaction.cancellation_requested_at && (
-                    <div><strong>{t("bettingTransactions.cancellationRequested")}:</strong> {new Date(selectedTransaction.cancellation_requested_at).toLocaleString()}</div>
+                    <div><strong>{t("bettingTransactions.cancellationRequested")}:</strong> {formatApiDateTime(selectedTransaction.cancellation_requested_at)}</div>
                   )}
                   {selectedTransaction.cancelled_at && (
-                    <div><strong>{t("bettingTransactions.cancelled")}:</strong> {new Date(selectedTransaction.cancelled_at).toLocaleString()}</div>
+                    <div><strong>{t("bettingTransactions.cancelled")}:</strong> {formatApiDateTime(selectedTransaction.cancelled_at)}</div>
                   )}
                 </div>
               </div>

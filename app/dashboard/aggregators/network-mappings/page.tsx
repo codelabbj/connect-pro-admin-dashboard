@@ -16,6 +16,7 @@ import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "@/hooks/use-toast"
 
+import { formatApiDateTime } from "@/lib/utils";
 export default function NetworkMappingsPage() {
     const [mappings, setMappings] = useState<AggregatorNetworkMapping[]>([])
     const [loading, setLoading] = useState(true)
@@ -447,8 +448,8 @@ export default function NetworkMappingsPage() {
 
                             <div className="pt-4 border-t text-[10px] text-slate-400 grid grid-cols-2 gap-2">
                                 <div>UID: {selectedMapping.uid}</div>
-                                <div className="text-right">Created: {new Date(selectedMapping.created_at).toLocaleString()}</div>
-                                <div className="text-right col-span-2">{t("aggregators.lastUpdated")}: {new Date(selectedMapping.updated_at).toLocaleString()}</div>
+                                <div className="text-right">Created: {formatApiDateTime(selectedMapping.created_at)}</div>
+                                <div className="text-right col-span-2">{t("aggregators.lastUpdated")}: {formatApiDateTime(selectedMapping.updated_at)}</div>
                             </div>
                         </div>
                     )}
