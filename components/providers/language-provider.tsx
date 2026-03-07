@@ -13,7 +13,7 @@ type LanguageProviderProps = {
 type LanguageProviderState = {
   language: Language
   setLanguage: (language: Language) => void
-  t: (key: string) => string
+  t: (key: string, params?: Record<string, any>) => string
 }
 
 const translations = {
@@ -1882,7 +1882,18 @@ const translations = {
     "bulkDepositNetworks.modal.validationError": "Validation Error",
     "bulkDepositNetworks.modal.selectBoth": "Please select both a user and a network",
     "bulkDepositNetworks.modal.createSuccess": "Authorization created successfully.",
-    "bulkDepositNetworks.modal.createFailed": "Failed to create authorization",
+    "bulk_deposits.network_auth.failed": "Failed to create authorization",
+    "common.view": "View",
+    "common.identifiers": "Identifiers",
+    "common.transactionDetails": "Transaction Details",
+    "common.messages": "Messages",
+    "aggregators.moreInfo": "More Info",
+    "transactions.details": "Details",
+    "transactions.externalId": "External ID",
+    "transactions.confirmation": "Confirmation",
+    // "transactions.rawSms": "Raw SMS",
+    "common.rawData": "Raw Data",
+    "common.rawResponse": "Raw API Response",
   },
   fr: {
     // Auth
@@ -3768,14 +3779,30 @@ const translations = {
     "bulkDepositNetworks.modal.validationError": "Erreur de Validation",
     "bulkDepositNetworks.modal.selectBoth": "Veuillez sélectionner à la fois un utilisateur et un réseau",
     "bulkDepositNetworks.modal.createSuccess": "Autorisation créée avec succès.",
-    "bulkDepositNetworks.modal.createFailed": "Échec de la création de l'autorisation",
+    "bulk_deposits.network_auth.failed": "Échec de la création de l'autorisation",
+    "common.view": "Voir",
+    "common.identifiers": "Identifiants",
+    "common.transactionDetails": "Détails de la transaction",
+    // "common.networkLayer": "Réseau et Processeur",
+    // "common.financials": "Informations Financières",
+    "common.messages": "Messages Système",
+    // "common.statusAndMeta": "Statut et Métadonnées",
+    // "common.participant": "Participant",
+    "aggregators.moreInfo": "Plus d'infos",
+    // "aggregators.processor": "Processeur",
+    "transactions.details": "Détails",
+    "transactions.externalId": "ID Externe",
+    "transactions.confirmation": "Confirmation",
+    // "transactions.rawSms": "SMS Brut",
+    "common.rawData": "Données Brutes",
+    "common.rawResponse": "Réponse API Brute",
   },
 }
 
 const initialState: LanguageProviderState = {
   language: "fr",
   setLanguage: () => null,
-  t: () => "",
+  t: (key: string, params?: Record<string, any>) => "",
 }
 
 const LanguageProviderContext = createContext<LanguageProviderState>(initialState)

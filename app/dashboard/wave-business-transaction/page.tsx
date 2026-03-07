@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { useApi } from "@/lib/useApi"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -10,6 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy, Eye } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { useLanguage } from "@/components/providers/language-provider"
+import { Loader } from "lucide-react"
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose, DialogFooter } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
@@ -29,6 +32,7 @@ interface WaveBusinessTransaction {
   is_expired: boolean
   created_at: string
   updated_at: string
+  external_id?: string | null
 }
 
 interface ApiResponse {
@@ -39,7 +43,8 @@ interface ApiResponse {
 }
 
 export default function WaveBusinessPage() {
-  const [searchTerm, setSearchTerm] = useState("")
+  const searchParams = useSearchParams()
+  const [searchTerm, setSearchTerm] = useState(() => searchParams.get("reference") || "")
   const [statusFilter, setStatusFilter] = useState("all")
   const [phoneFilter, setPhoneFilter] = useState("")
   const [startDate, setStartDate] = useState("")
@@ -56,6 +61,7 @@ export default function WaveBusinessPage() {
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
   const { toast } = useToast()
   const apiFetch = useApi()
+  const { t } = useLanguage()
   const [detailModalOpen, setDetailModalOpen] = useState(false)
   const [detailTransaction, setDetailTransaction] = useState<WaveBusinessTransaction | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
@@ -72,7 +78,7 @@ export default function WaveBusinessPage() {
           page: currentPage.toString(),
           page_size: itemsPerPage.toString(),
         })
-        
+
         if (searchTerm.trim() !== "") {
           params.append("reference", searchTerm)
         }
@@ -98,17 +104,17 @@ export default function WaveBusinessPage() {
         const orderingParam = sortField
           ? `&ordering=${(sortDirection === "asc" ? "" : "-")}${sortField}`
           : ""
-        
+
         const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/wave-business-transactions/?${params.toString()}${orderingParam}`
         const data: ApiResponse = await apiFetch(endpoint)
-        
+
         setTransactions(data.results || [])
         setTotalCount(data.count || 0)
         setTotalPages(Math.ceil((data.count || 0) / itemsPerPage))
-        
-        toast({ 
-          title: "Succès", 
-          description: "Transactions Wave Business chargées avec succès" 
+
+        toast({
+          title: "Succès",
+          description: "Transactions Wave Business chargées avec succès"
         })
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
@@ -116,10 +122,10 @@ export default function WaveBusinessPage() {
         setTransactions([])
         setTotalCount(0)
         setTotalPages(1)
-        toast({ 
-          title: "Erreur de chargement", 
-          description: errorMessage, 
-          variant: "destructive" 
+        toast({
+          title: "Erreur de chargement",
+          description: errorMessage,
+          variant: "destructive"
         })
       } finally {
         setLoading(false)
@@ -127,6 +133,14 @@ export default function WaveBusinessPage() {
     }
     fetchTransactions()
   }, [searchTerm, currentPage, itemsPerPage, baseUrl, statusFilter, phoneFilter, startDate, endDate, includeExpired, sortField, sortDirection, toast, apiFetch])
+
+  // Handle UID from searchParams
+  useEffect(() => {
+    const uid = searchParams.get("uid")
+    if (uid) {
+      handleOpenDetail({ uid } as any)
+    }
+  }, [searchParams])
 
   const startIndex = (currentPage - 1) * itemsPerPage
 
@@ -143,7 +157,7 @@ export default function WaveBusinessPage() {
     if (isExpired) {
       return <Badge variant="destructive">Expiré</Badge>
     }
-    
+
     switch (status) {
       case "pending":
         return <Badge variant="secondary">En attente</Badge>
@@ -172,11 +186,27 @@ export default function WaveBusinessPage() {
   }
 
   // Ouvrir les détails d'une transaction
-  const handleOpenDetail = (transaction: WaveBusinessTransaction) => {
+  const handleOpenDetail = async (transaction: WaveBusinessTransaction) => {
     setDetailModalOpen(true)
     setDetailTransaction(transaction)
     setDetailError("")
-    // GET requests don't show success toasts automatically
+    setDetailLoading(true)
+
+    try {
+      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/wave-business-transactions/${transaction.uid}/`
+      const detailedTransaction: WaveBusinessTransaction = await apiFetch(endpoint)
+      setDetailTransaction(detailedTransaction)
+    } catch (err: any) {
+      const errorMessage = extractErrorMessages(err)
+      setDetailError(errorMessage)
+      toast({
+        title: "Erreur de chargement",
+        description: errorMessage,
+        variant: "destructive"
+      })
+    } finally {
+      setDetailLoading(false)
+    }
   }
 
   const handleCloseDetail = () => {
@@ -216,7 +246,7 @@ export default function WaveBusinessPage() {
                 className="w-full sm:w-48"
               />
             </div>
-            
+
             <div className="flex flex-col sm:flex-row gap-4 items-center">
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-full sm:w-48">
@@ -230,7 +260,7 @@ export default function WaveBusinessPage() {
                   <SelectItem value="cancelled">Annulé</SelectItem>
                 </SelectContent>
               </Select>
-              
+
               <div className="flex items-center space-x-2">
                 <Switch
                   id="include-expired"
@@ -242,7 +272,7 @@ export default function WaveBusinessPage() {
                 </label>
               </div>
             </div>
-            
+
             {/* Date Filters */}
             <div className="flex flex-col lg:flex-row gap-4">
               <div className="flex flex-col lg:flex-row gap-4 flex-1">
@@ -349,9 +379,9 @@ export default function WaveBusinessPage() {
                       <TableCell>{formatDate(transaction.created_at)}</TableCell>
                       <TableCell>{formatDate(transaction.expires_at)}</TableCell>
                       <TableCell>
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
+                        <Button
+                          size="sm"
+                          variant="outline"
                           onClick={() => handleOpenDetail(transaction)}
                         >
                           <Eye className="h-4 w-4 mr-1" />
@@ -397,14 +427,16 @@ export default function WaveBusinessPage() {
         </CardContent>
       </Card>
 
-      {/* Modal des détails de la transaction */}
       <Dialog open={detailModalOpen} onOpenChange={(open) => { if (!open) handleCloseDetail() }}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Détails de la transaction</DialogTitle>
+            <DialogTitle>{t("transactions.details")}</DialogTitle>
           </DialogHeader>
           {detailLoading ? (
-            <div className="p-4 text-center">Chargement...</div>
+            <div className="flex flex-col items-center justify-center py-12 space-y-4">
+              <Loader className="animate-spin h-8 w-8 text-blue-600" />
+              <p className="text-slate-500">{t("common.loading")}</p>
+            </div>
           ) : detailError ? (
             <ErrorDisplay
               error={detailError}
@@ -413,54 +445,118 @@ export default function WaveBusinessPage() {
               className="mb-4"
             />
           ) : detailTransaction ? (
-            <div className="space-y-3 max-h-96 overflow-y-auto">
-              <div className="flex items-center gap-2">
-                <b>UID :</b> 
-                <span className="font-mono text-sm">{detailTransaction.uid}</span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-5 w-5"
-                  onClick={() => copyToClipboard(detailTransaction.uid, "UID")}
-                  aria-label="Copier l'UID"
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <b>Référence :</b> 
-                <span className="font-mono text-sm">{detailTransaction.reference}</span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-5 w-5"
-                  onClick={() => copyToClipboard(detailTransaction.reference, "Référence")}
-                  aria-label="Copier la référence"
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-              </div>
-              
-              <div><b>Montant :</b> {formatAmount(detailTransaction.amount)}</div>
-              <div><b>Montant (entier) :</b> {detailTransaction.amount_as_integer.toLocaleString("fr-FR")}</div>
-              <div><b>Téléphone destinataire :</b> {detailTransaction.recipient_phone}</div>
-              <div><b>Statut :</b> {getStatusBadge(detailTransaction.status, detailTransaction.is_expired)}</div>
-              <div><b>Créé par :</b> {detailTransaction.created_by}</div>
-              <div><b>URL de callback :</b> <span className="text-sm break-all">{detailTransaction.callback_url}</span></div>
-              <div><b>Date de création :</b> {formatDate(detailTransaction.created_at)}</div>
-              <div><b>Date de mise à jour :</b> {formatDate(detailTransaction.updated_at)}</div>
-              <div><b>Date d'expiration :</b> {formatDate(detailTransaction.expires_at)}</div>
-              <div><b>Date de confirmation :</b> {detailTransaction.confirmed_at ? formatDate(detailTransaction.confirmed_at) : "Non confirmé"}</div>
-              <div><b>Expiré :</b> {detailTransaction.is_expired ? "Oui" : "Non"}</div>
-              <div><b>Notifications FCM :</b> {detailTransaction.fcm_notifications.length} notification(s)</div>
+            <div className="space-y-6 mt-4">
+              {/* Identifiers */}
+              <section>
+                <h3 className="text-sm font-semibold text-slate-900 border-b pb-2 mb-3 tracking-wide uppercase">{t("common.identifiers")}</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div className="flex justify-between items-center bg-slate-50 p-2 rounded">
+                    <span className="text-slate-500">{t("common.uid")} :</span>
+                    <div className="flex items-center gap-1">
+                      <span className="font-mono text-xs font-medium">{detailTransaction.uid}</span>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => copyToClipboard(detailTransaction.uid, "UID")}>
+                        <Copy size={12} />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center bg-slate-50 p-2 rounded">
+                    <span className="text-slate-500">{t("transactions.reference")} :</span>
+                    <div className="flex items-center gap-1">
+                      <span className="font-mono text-xs font-medium">{detailTransaction.reference}</span>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => copyToClipboard(detailTransaction.reference, "Référence")}>
+                        <Copy size={12} />
+                      </Button>
+                    </div>
+                  </div>
+                  {detailTransaction.external_id && (
+                    <div className="flex justify-between items-center col-span-full bg-slate-50 p-2 rounded border-l-4 border-slate-300">
+                      <span className="text-slate-500">{t("transactions.externalId")} :</span>
+                      <span className="font-mono text-xs font-medium">{detailTransaction.external_id}</span>
+                    </div>
+                  )}
+                </div>
+              </section>
+
+              {/* Financials */}
+              <section className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                <h3 className="text-sm font-semibold text-slate-900 border-b border-slate-300 pb-2 mb-3 tracking-wide uppercase">{t("common.financials")}</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3 text-sm">
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-slate-500">{t("transactions.amount")} :</span>
+                    <span className="text-lg font-bold text-slate-900">{formatAmount(detailTransaction.amount)}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-slate-500">{t("transactions.recipientPhone")} :</span>
+                    <span className="font-medium">{detailTransaction.recipient_phone}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-1 border-t border-slate-200 mt-1">
+                    <span className="text-slate-500">Amount (Int) :</span>
+                    <span className="font-medium">{detailTransaction.amount_as_integer.toLocaleString()}</span>
+                  </div>
+                </div>
+              </section>
+
+              {/* Status & Meta */}
+              <section>
+                <h3 className="text-sm font-semibold text-slate-900 border-b pb-2 mb-3 tracking-wide uppercase">{t("common.statusAndMeta")}</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-8 text-sm">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-500">{t("transactions.status")} :</span>
+                    {getStatusBadge(detailTransaction.status, detailTransaction.is_expired)}
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-500">{t("transactions.createdAt")} :</span>
+                    <span className="font-medium">{formatDate(detailTransaction.created_at)}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-500">{t("transactions.completedAt")} :</span>
+                    <span className="font-medium">{detailTransaction.confirmed_at ? formatDate(detailTransaction.confirmed_at) : "-"}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-500">Expires At :</span>
+                    <span className="font-medium">{formatDate(detailTransaction.expires_at)}</span>
+                  </div>
+                </div>
+              </section>
+
+              {/* System Messages */}
+              {detailTransaction.fcm_notifications && detailTransaction.fcm_notifications.length > 0 && (
+                <section>
+                  <h3 className="text-sm font-semibold text-slate-900 border-b pb-2 mb-3 tracking-wide uppercase">{t("common.messages")}</h3>
+                  <div className="space-y-2">
+                    {detailTransaction.fcm_notifications.map((notif: any, idx: number) => (
+                      <div key={idx} className="bg-slate-50 p-3 rounded border border-slate-200 font-mono text-[10px] leading-relaxed break-all">
+                        <p className="font-sans font-semibold mb-1 text-xs uppercase opacity-70">Notification {idx + 1} ({notif.timestamp}):</p>
+                        {notif.data?.original_body || JSON.stringify(notif.data)}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* Raw Response */}
+              <section className="mt-6 border-t pt-6">
+                <details className="group">
+                  <summary className="flex items-center cursor-pointer text-sm font-semibold text-slate-900 tracking-wide uppercase list-none">
+                    <span className="mr-2 transition-transform group-open:rotate-90">▶</span>
+                    {t("common.rawResponse")}
+                  </summary>
+                  <div className="mt-4 p-4 bg-slate-900 rounded-lg overflow-x-auto">
+                    <pre className="text-[10px] text-emerald-400 font-mono leading-relaxed">
+                      {JSON.stringify(detailTransaction, null, 2)}
+                    </pre>
+                  </div>
+                </details>
+              </section>
             </div>
           ) : null}
-          <DialogClose asChild>
-            <Button className="mt-4 w-full">Fermer</Button>
-          </DialogClose>
-        </DialogContent>
-      </Dialog>
+        <DialogFooter className="mt-6 border-t pt-4">
+          <Button variant="outline" onClick={handleCloseDetail} className="w-full">
+            {t("common.close")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog >
     </>
   )
 }

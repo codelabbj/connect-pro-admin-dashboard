@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { useApi } from "@/lib/useApi"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -15,6 +16,8 @@ import { Switch } from "@/components/ui/switch"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { useLanguage } from "@/components/providers/language-provider"
+import { Loader } from "lucide-react"
 
 interface MomoPayTransaction {
   uid: string
@@ -33,6 +36,8 @@ interface MomoPayTransaction {
   updated_at: string
   payment_type?: string
   description?: string
+  external_id?: string | null
+  sms?: any[]
 }
 
 interface ApiResponse {
@@ -44,7 +49,8 @@ interface ApiResponse {
 
 
 export default function MomoPayTransactionsPage() {
-  const [searchTerm, setSearchTerm] = useState("")
+  const searchParams = useSearchParams()
+  const [searchTerm, setSearchTerm] = useState(() => searchParams.get("reference") || "")
   const [statusFilter, setStatusFilter] = useState("all")
   const [phoneFilter, setPhoneFilter] = useState("")
   const [paymentTypeFilter, setPaymentTypeFilter] = useState("all")
@@ -78,6 +84,7 @@ export default function MomoPayTransactionsPage() {
     description: "",
     callback_url: ""
   })
+  const { t } = useLanguage()
   const itemsPerPage = 20
 
 
@@ -91,7 +98,7 @@ export default function MomoPayTransactionsPage() {
           page: currentPage.toString(),
           page_size: itemsPerPage.toString(),
         })
-        
+
         if (searchTerm.trim() !== "") {
           params.append("reference", searchTerm)
         }
@@ -120,17 +127,17 @@ export default function MomoPayTransactionsPage() {
         const orderingParam = sortField
           ? `&ordering=${(sortDirection === "asc" ? "" : "-")}${sortField}`
           : ""
-        
+
         const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/momo-pay-transactions/?${params.toString()}${orderingParam}`
         const data: ApiResponse = await apiFetch(endpoint)
-        
+
         setTransactions(data.results || [])
         setTotalCount(data.count || 0)
         setTotalPages(Math.ceil((data.count || 0) / itemsPerPage))
-        
-        toast({ 
-          title: "Succès", 
-          description: "Transactions MoMo Pay chargées avec succès" 
+
+        toast({
+          title: "Succès",
+          description: "Transactions MoMo Pay chargées avec succès"
         })
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
@@ -138,10 +145,10 @@ export default function MomoPayTransactionsPage() {
         setTransactions([])
         setTotalCount(0)
         setTotalPages(1)
-        toast({ 
-          title: "Erreur de chargement", 
-          description: errorMessage, 
-          variant: "destructive" 
+        toast({
+          title: "Erreur de chargement",
+          description: errorMessage,
+          variant: "destructive"
         })
       } finally {
         setLoading(false)
@@ -149,6 +156,14 @@ export default function MomoPayTransactionsPage() {
     }
     fetchTransactions()
   }, [searchTerm, currentPage, itemsPerPage, baseUrl, statusFilter, phoneFilter, paymentTypeFilter, startDate, endDate, includeExpired, sortField, sortDirection, toast, apiFetch])
+
+  // Handle UID from searchParams
+  useEffect(() => {
+    const uid = searchParams.get("uid")
+    if (uid) {
+      handleOpenDetail({ uid } as any)
+    }
+  }, [searchParams])
 
   const startIndex = (currentPage - 1) * itemsPerPage
 
@@ -165,7 +180,7 @@ export default function MomoPayTransactionsPage() {
     if (isExpired) {
       return <Badge variant="destructive">Expiré</Badge>
     }
-    
+
     switch (status) {
       case "pending":
         return <Badge variant="secondary">En attente</Badge>
@@ -199,22 +214,22 @@ export default function MomoPayTransactionsPage() {
     setDetailTransaction(transaction)
     setDetailError("")
     setDetailLoading(true)
-    
+
     try {
       const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/momo-pay-transactions/${transaction.uid}/`
       const detailedTransaction: MomoPayTransaction = await apiFetch(endpoint)
       setDetailTransaction(detailedTransaction)
-      toast({ 
-        title: "Détail chargé", 
-        description: "Détails de la transaction affichés avec succès" 
+      toast({
+        title: "Détail chargé",
+        description: "Détails de la transaction affichés avec succès"
       })
     } catch (err: any) {
       const errorMessage = extractErrorMessages(err)
       setDetailError(errorMessage)
-      toast({ 
-        title: "Erreur de chargement", 
-        description: errorMessage, 
-        variant: "destructive" 
+      toast({
+        title: "Erreur de chargement",
+        description: errorMessage,
+        variant: "destructive"
       })
     } finally {
       setDetailLoading(false)
@@ -230,24 +245,24 @@ export default function MomoPayTransactionsPage() {
   // Cancel transaction
   const handleCancelTransaction = async () => {
     if (!cancelTransaction) return
-    
+
     setCancelLoading(true)
     try {
       const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/momo-pay-transactions/${cancelTransaction.uid}/cancel/`
       await apiFetch(endpoint, { method: "POST" })
       // Success toast is automatically shown by useApi hook for non-GET requests
-      
+
       setCancelModalOpen(false)
       setCancelTransaction(null)
-      
+
       // Refresh the transactions list
       window.location.reload()
     } catch (err: any) {
       const errorMessage = extractErrorMessages(err)
-      toast({ 
-        title: "Erreur d'annulation", 
-        description: errorMessage, 
-        variant: "destructive" 
+      toast({
+        title: "Erreur d'annulation",
+        description: errorMessage,
+        variant: "destructive"
       })
     } finally {
       setCancelLoading(false)
@@ -268,7 +283,7 @@ export default function MomoPayTransactionsPage() {
 
   const handleUpdateTransaction = async () => {
     if (!updateTransaction) return
-    
+
     setUpdateLoading(true)
     try {
       const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/momo-pay-transactions/${updateTransaction.uid}/`
@@ -277,23 +292,23 @@ export default function MomoPayTransactionsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updateForm)
       })
-      
-      toast({ 
-        title: "Succès", 
-        description: "Transaction mise à jour avec succès" 
+
+      toast({
+        title: "Succès",
+        description: "Transaction mise à jour avec succès"
       })
-      
+
       setUpdateModalOpen(false)
       setUpdateTransaction(null)
-      
+
       // Refresh the transactions list
       window.location.reload()
     } catch (err: any) {
       const errorMessage = extractErrorMessages(err)
-      toast({ 
-        title: "Erreur de mise à jour", 
-        description: errorMessage, 
-        variant: "destructive" 
+      toast({
+        title: "Erreur de mise à jour",
+        description: errorMessage,
+        variant: "destructive"
       })
     } finally {
       setUpdateLoading(false)
@@ -331,7 +346,7 @@ export default function MomoPayTransactionsPage() {
                 className="w-full sm:w-48"
               />
             </div>
-            
+
             <div className="flex flex-col sm:flex-row gap-4 items-center">
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-full sm:w-48">
@@ -357,7 +372,7 @@ export default function MomoPayTransactionsPage() {
                   <SelectItem value="card">Carte</SelectItem>
                 </SelectContent>
               </Select>
-              
+
               <div className="flex items-center space-x-2">
                 <Switch
                   id="include-expired"
@@ -369,7 +384,7 @@ export default function MomoPayTransactionsPage() {
                 </label>
               </div>
             </div>
-            
+
             {/* Date Filters */}
             <div className="flex flex-col lg:flex-row gap-4">
               <div className="flex flex-col lg:flex-row gap-4 flex-1">
@@ -481,9 +496,9 @@ export default function MomoPayTransactionsPage() {
                       <TableCell>{formatDate(transaction.expires_at)}</TableCell>
                       <TableCell>
                         <div className="flex gap-2">
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
+                          <Button
+                            size="sm"
+                            variant="outline"
                             onClick={() => handleOpenDetail(transaction)}
                           >
                             <Eye className="h-4 w-4 mr-1" />
@@ -491,17 +506,17 @@ export default function MomoPayTransactionsPage() {
                           </Button>
                           {transaction.status === "pending" && (
                             <>
-                              <Button 
-                                size="sm" 
-                                variant="outline" 
+                              <Button
+                                size="sm"
+                                variant="outline"
                                 onClick={() => handleOpenUpdate(transaction)}
                               >
                                 <Edit className="h-4 w-4 mr-1" />
                                 Modifier
                               </Button>
-                              <Button 
-                                size="sm" 
-                                variant="destructive" 
+                              <Button
+                                size="sm"
+                                variant="destructive"
                                 onClick={() => {
                                   setCancelTransaction(transaction)
                                   setCancelModalOpen(true)
@@ -553,14 +568,16 @@ export default function MomoPayTransactionsPage() {
         </CardContent>
       </Card>
 
-      {/* Transaction Details Modal */}
       <Dialog open={detailModalOpen} onOpenChange={(open) => { if (!open) handleCloseDetail() }}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Détails de la transaction MoMo Pay</DialogTitle>
+            <DialogTitle>{t("transactions.details")}</DialogTitle>
           </DialogHeader>
           {detailLoading ? (
-            <div className="p-4 text-center">Chargement...</div>
+            <div className="flex flex-col items-center justify-center py-12 space-y-4">
+              <Loader className="animate-spin h-8 w-8 text-blue-600" />
+              <p className="text-slate-500">{t("common.loading")}</p>
+            </div>
           ) : detailError ? (
             <ErrorDisplay
               error={detailError}
@@ -569,54 +586,126 @@ export default function MomoPayTransactionsPage() {
               className="mb-4"
             />
           ) : detailTransaction ? (
-            <div className="space-y-3 max-h-96 overflow-y-auto">
-              <div className="flex items-center gap-2">
-                <b>UID :</b> 
-                <span className="font-mono text-sm">{detailTransaction.uid}</span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-5 w-5"
-                  onClick={() => copyToClipboard(detailTransaction.uid, "UID")}
-                  aria-label="Copier l'UID"
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <b>Référence :</b> 
-                <span className="font-mono text-sm">{detailTransaction.reference}</span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-5 w-5"
-                  onClick={() => copyToClipboard(detailTransaction.reference, "Référence")}
-                  aria-label="Copier la référence"
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-              </div>
-              
-              <div><b>Montant :</b> {formatAmount(detailTransaction.amount)}</div>
-              <div><b>Montant (entier) :</b> {detailTransaction.amount_as_integer.toLocaleString("fr-FR")}</div>
-              <div><b>Téléphone destinataire :</b> {detailTransaction.recipient_phone}</div>
-              <div><b>Type de paiement :</b> {detailTransaction.payment_type || "N/A"}</div>
-              <div><b>Statut :</b> {getStatusBadge(detailTransaction.status, detailTransaction.is_expired)}</div>
-              <div><b>Description :</b> {detailTransaction.description || "N/A"}</div>
-              <div><b>Créé par :</b> {detailTransaction.created_by}</div>
-              <div><b>URL de callback :</b> <span className="text-sm break-all">{detailTransaction.callback_url}</span></div>
-              <div><b>Date de création :</b> {formatDate(detailTransaction.created_at)}</div>
-              <div><b>Date de mise à jour :</b> {formatDate(detailTransaction.updated_at)}</div>
-              <div><b>Date d'expiration :</b> {formatDate(detailTransaction.expires_at)}</div>
-              <div><b>Date de confirmation :</b> {detailTransaction.confirmed_at ? formatDate(detailTransaction.confirmed_at) : "Non confirmé"}</div>
-              <div><b>Expiré :</b> {detailTransaction.is_expired ? "Oui" : "Non"}</div>
-              <div><b>Notifications FCM :</b> {detailTransaction.fcm_notifications?.length || 0} notification(s)</div>
+            <div className="space-y-6 mt-4">
+              {/* Identifiers */}
+              <section>
+                <h3 className="text-sm font-semibold text-slate-900 border-b pb-2 mb-3 tracking-wide uppercase">{t("common.identifiers")}</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div className="flex justify-between items-center bg-slate-50 p-2 rounded">
+                    <span className="text-slate-500">{t("common.uid")} :</span>
+                    <div className="flex items-center gap-1">
+                      <span className="font-mono text-xs font-medium">{detailTransaction.uid}</span>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => copyToClipboard(detailTransaction.uid, "UID")}>
+                        <Copy size={12} />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center bg-slate-50 p-2 rounded">
+                    <span className="text-slate-500">{t("transactions.reference")} :</span>
+                    <div className="flex items-center gap-1">
+                      <span className="font-mono text-xs font-medium">{detailTransaction.reference}</span>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => copyToClipboard(detailTransaction.reference, "Référence")}>
+                        <Copy size={12} />
+                      </Button>
+                    </div>
+                  </div>
+                  {detailTransaction.external_id && (
+                    <div className="flex justify-between items-center col-span-full bg-slate-50 p-2 rounded border-l-4 border-slate-300">
+                      <span className="text-slate-500">{t("transactions.externalId")} :</span>
+                      <span className="font-mono text-xs font-medium">{detailTransaction.external_id}</span>
+                    </div>
+                  )}
+                </div>
+              </section>
+
+              {/* Financials */}
+              <section className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                <h3 className="text-sm font-semibold text-slate-900 border-b border-slate-300 pb-2 mb-3 tracking-wide uppercase">{t("common.financials")}</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3 text-sm">
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-slate-500">{t("transactions.amount")} :</span>
+                    <span className="text-lg font-bold text-slate-900">{formatAmount(detailTransaction.amount)}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-slate-500">{t("transactions.recipientPhone")} :</span>
+                    <span className="font-medium">{detailTransaction.recipient_phone}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-1 border-t border-slate-200 mt-1">
+                    <span className="text-slate-500">{t("transactions.type")} :</span>
+                    <Badge variant="outline">{detailTransaction.payment_type || "N/A"}</Badge>
+                  </div>
+                  <div className="flex justify-between items-center py-1 border-t border-slate-200 mt-1">
+                    <span className="text-slate-500">Amount (Int) :</span>
+                    <span className="font-medium">{detailTransaction.amount_as_integer.toLocaleString()}</span>
+                  </div>
+                </div>
+              </section>
+
+              {/* Status & Meta */}
+              <section>
+                <h3 className="text-sm font-semibold text-slate-900 border-b pb-2 mb-3 tracking-wide uppercase">{t("common.statusAndMeta")}</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-8 text-sm">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-500">{t("transactions.status")} :</span>
+                    {getStatusBadge(detailTransaction.status, detailTransaction.is_expired)}
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-500">{t("transactions.createdAt")} :</span>
+                    <span className="font-medium">{formatDate(detailTransaction.created_at)}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-500">{t("transactions.completedAt")} :</span>
+                    <span className="font-medium">{detailTransaction.confirmed_at ? formatDate(detailTransaction.confirmed_at) : "-"}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-500">Expires At :</span>
+                    <span className="font-medium">{formatDate(detailTransaction.expires_at)}</span>
+                  </div>
+                </div>
+                {detailTransaction.description && (
+                  <div className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded text-blue-800 text-sm italic">
+                    <p className="font-semibold not-italic mb-1 text-xs uppercase opacity-70 italic">Description :</p>
+                    {detailTransaction.description}
+                  </div>
+                )}
+              </section>
+
+              {/* System Messages */}
+              {detailTransaction.sms && detailTransaction.sms.length > 0 && (
+                <section>
+                  <h3 className="text-sm font-semibold text-slate-900 border-b pb-2 mb-3 tracking-wide uppercase">{t("common.messages")}</h3>
+                  <div className="space-y-2">
+                    {detailTransaction.sms.map((msg: any, idx: number) => (
+                      <div key={idx} className="bg-slate-50 p-3 rounded border border-slate-200 font-mono text-[10px] leading-relaxed break-all">
+                        <p className="font-sans font-semibold mb-1 text-xs uppercase opacity-70">SMS {idx + 1} ({msg.timestamp}):</p>
+                        {msg.body || JSON.stringify(msg)}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* Raw Response */}
+              <section className="mt-6 border-t pt-6">
+                <details className="group">
+                  <summary className="flex items-center cursor-pointer text-sm font-semibold text-slate-900 tracking-wide uppercase list-none">
+                    <span className="mr-2 transition-transform group-open:rotate-90">▶</span>
+                    {t("common.rawResponse")}
+                  </summary>
+                  <div className="mt-4 p-4 bg-slate-900 rounded-lg overflow-x-auto">
+                    <pre className="text-[10px] text-emerald-400 font-mono leading-relaxed">
+                      {JSON.stringify(detailTransaction, null, 2)}
+                    </pre>
+                  </div>
+                </details>
+              </section>
             </div>
           ) : null}
-          <DialogClose asChild>
-            <Button className="mt-4 w-full">Fermer</Button>
-          </DialogClose>
+          <DialogFooter className="mt-6 border-t pt-4">
+            <Button variant="outline" onClick={handleCloseDetail} className="w-full">
+              {t("common.close")}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -640,8 +729,8 @@ export default function MomoPayTransactionsPage() {
             <Button variant="outline" onClick={() => setCancelModalOpen(false)}>
               Annuler
             </Button>
-            <Button 
-              variant="destructive" 
+            <Button
+              variant="destructive"
               onClick={handleCancelTransaction}
               disabled={cancelLoading}
             >
@@ -696,7 +785,7 @@ export default function MomoPayTransactionsPage() {
             <Button variant="outline" onClick={() => setUpdateModalOpen(false)}>
               Annuler
             </Button>
-            <Button 
+            <Button
               onClick={handleUpdateTransaction}
               disabled={updateLoading}
             >

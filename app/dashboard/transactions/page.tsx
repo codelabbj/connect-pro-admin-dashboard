@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useLanguage } from "@/components/providers/language-provider"
 import { useApi } from "@/lib/useApi"
-import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Pencil, Trash, MoreHorizontal } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Pencil, Trash, MoreHorizontal, Eye, Loader } from "lucide-react"
 import {
   Dialog,
   DialogTrigger,
@@ -43,7 +43,13 @@ import { useCallback } from "react"
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
 export default function TransactionsPage() {
-  const [searchTerm, setSearchTerm] = useState("")
+  const [searchTerm, setSearchTerm] = useState(() => {
+    // Pre-fill from URL param when navigated from aggregator transactions
+    if (typeof window !== "undefined") {
+      return new URLSearchParams(window.location.search).get("search") || ""
+    }
+    return ""
+  })
   const [statusFilter, setStatusFilter] = useState("all")
   const [typeFilter, setTypeFilter] = useState("all")
   const [startDate, setStartDate] = useState("")
@@ -68,6 +74,12 @@ export default function TransactionsPage() {
   const router = useRouter()
   const [showEditConfirm, setShowEditConfirm] = useState(false)
   const [pendingEditPayload, setPendingEditPayload] = useState<any | null>(null)
+
+  // Detail modal state
+  const [selectedDetailTx, setSelectedDetailTx] = useState<any | null>(null)
+  const [detailModalOpen, setDetailModalOpen] = useState(false)
+  const [detailLoading, setDetailLoading] = useState(false)
+  const [detailError, setDetailError] = useState("")
 
   // Edit form state
   const [editForm, setEditForm] = useState({
@@ -115,7 +127,7 @@ export default function TransactionsPage() {
           const orderBy = sortField === "date" ? "created_at" : "amount";
           const prefix = sortDirection === "desc" ? "-" : "+";
           params.append("ordering", `${prefix}${orderBy}`);
-          
+
         }
         endpoint = `${baseUrl}api/payments/transactions/?${params.toString()}`;
       } else {
@@ -148,8 +160,39 @@ export default function TransactionsPage() {
     }
   }
 
+  // Fetch single transaction detail
+  const fetchTransactionDetail = async (uid: string) => {
+    setDetailLoading(true)
+    setDetailError("")
+    try {
+      const endpoint = `${baseUrl}api/payments/transactions/${uid}/`
+      const data = await apiFetch(endpoint)
+      setSelectedDetailTx(data)
+      setDetailModalOpen(true)
+    } catch (err: any) {
+      const errorMessage = extractErrorMessages(err) || "Failed to load transaction details"
+      setDetailError(errorMessage)
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      })
+    } finally {
+      setDetailLoading(false)
+    }
+  }
+
   useEffect(() => {
     fetchTransactions()
+
+    // Check for UID in query params to auto-open detail modal
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const uidFromUrl = urlParams.get("uid");
+      if (uidFromUrl) {
+        fetchTransactionDetail(uidFromUrl);
+      }
+    }
   }, [currentPage, itemsPerPage, baseUrl, searchTerm, statusFilter, typeFilter, startDate, endDate, sortField, sortDirection])
 
   // Remove client-side filtering and sorting since it's now handled by the API
@@ -165,37 +208,37 @@ export default function TransactionsPage() {
     setSortField(field)
   }
 
-  
-    const statusMap: Record<string, { label: string; color: string }> = {
-      pending:      { label: "En attente", color: "#ffc107" },      // jaune
-      sent_to_user: { label: "Envoyé", color: "#17a2b8" },          // bleu clair
-      processing:   { label: "En cours", color: "#fd7e14" },        // orange
-      completed:    { label: "Terminé", color: "#28a745" },         // vert foncé
-      success:      { label: "Succès", color: "#20c997" },          // turquoise
-      failed:       { label: "Échec", color: "#dc3545" },           // rouge
-      cancelled:    { label: "Annulé", color: "#6c757d" },          // gris
-      timeout:      { label: "Expiré", color: "#6f42c1" },          // violet
-    };
 
-    const getStatusBadge = (status: string) => {
-      const info = statusMap[status] || { label: status, color: "#adb5bd" };
-      return (
-        <span
-          style={{
-            backgroundColor: info.color,
-            color: "#fff",
-            borderRadius: "0.375rem",
-            padding: "0.25em 0.75em",
-            fontWeight: 500,
-            fontSize: "0.875rem",
-            display: "inline-block",
-          }}
-        >
-          {info.label}
-        </span>
-      );
-    };
-   
+  const statusMap: Record<string, { label: string; color: string }> = {
+    pending: { label: "En attente", color: "#ffc107" },      // jaune
+    sent_to_user: { label: "Envoyé", color: "#17a2b8" },          // bleu clair
+    processing: { label: "En cours", color: "#fd7e14" },        // orange
+    completed: { label: "Terminé", color: "#28a745" },         // vert foncé
+    success: { label: "Succès", color: "#20c997" },          // turquoise
+    failed: { label: "Échec", color: "#dc3545" },           // rouge
+    cancelled: { label: "Annulé", color: "#6c757d" },          // gris
+    timeout: { label: "Expiré", color: "#6f42c1" },          // violet
+  };
+
+  const getStatusBadge = (status: string) => {
+    const info = statusMap[status] || { label: status, color: "#adb5bd" };
+    return (
+      <span
+        style={{
+          backgroundColor: info.color,
+          color: "#fff",
+          borderRadius: "0.375rem",
+          padding: "0.25em 0.75em",
+          fontWeight: 500,
+          fontSize: "0.875rem",
+          display: "inline-block",
+        }}
+      >
+        {info.label}
+      </span>
+    );
+  };
+
 
   const getTypeBadge = (type: string) => {
     const colors: Record<string, string> = {
@@ -637,7 +680,7 @@ export default function TransactionsPage() {
           </div>
         </DialogContent>
       </Dialog>
-     
+
       <Card>
         <CardHeader>
           <CardTitle>{t("transactions.title")}</CardTitle>
@@ -682,7 +725,7 @@ export default function TransactionsPage() {
               </SelectContent>
             </Select>
           </div>
-          
+
           {/* Date Filters */}
           <div className="flex flex-col lg:flex-row gap-4 mb-6">
             <div className="flex flex-col lg:flex-row gap-4 flex-1">
@@ -844,6 +887,15 @@ export default function TransactionsPage() {
                                     {t("transactions.edit") || "Edit"}
                                   </div>
                                 </a>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => fetchTransactionDetail(transaction.uid)}
+                                className="text-slate-600 hover:text-slate-700 pointer-events-auto cursor-pointer"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <Eye className="w-4 h-4" />
+                                  {t("common.view") || "View"}
+                                </div>
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -1103,6 +1155,157 @@ export default function TransactionsPage() {
             <DialogClose asChild>
               <Button type="button" variant="outline">{t("transactions.cancel")}</Button>
             </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Transaction Detail Modal */}
+      <Dialog open={detailModalOpen} onOpenChange={setDetailModalOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{t("transactions.details") || "Transaction Details"}</DialogTitle>
+            <DialogDescription>
+              {selectedDetailTx ? `${t("transactions.reference")}: ${selectedDetailTx.reference}` : t("common.loading")}
+            </DialogDescription>
+          </DialogHeader>
+
+          {detailLoading ? (
+            <div className="flex flex-col items-center justify-center py-12 space-y-4">
+              <Loader className="animate-spin h-8 w-8 text-blue-600" />
+              <p className="text-slate-500">{t("common.loading")}</p>
+            </div>
+          ) : detailError ? (
+            <ErrorDisplay error={detailError} variant="inline" showRetry={false} />
+          ) : selectedDetailTx ? (
+            <div className="space-y-6 mt-4">
+              {/* Identifiers */}
+              <section>
+                <h3 className="text-sm font-semibold text-slate-900 border-b pb-2 mb-3 tracking-wide uppercase">{t("common.identifiers") || "Identifiants"}</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div className="flex justify-between items-center bg-slate-50 p-2 rounded">
+                    <span className="text-slate-500">{t("common.uid") || "UID"} :</span>
+                    <span className="font-mono text-xs font-medium">{selectedDetailTx.uid}</span>
+                  </div>
+                  <div className="flex justify-between items-center bg-slate-50 p-2 rounded">
+                    <span className="text-slate-500">{t("transactions.reference") || "Référence"} :</span>
+                    <span className="font-mono text-xs font-medium">{selectedDetailTx.reference}</span>
+                  </div>
+                  {selectedDetailTx.external_transaction_id && (
+                    <div className="flex justify-between items-center col-span-full bg-slate-50 p-2 rounded border-l-4 border-slate-300">
+                      <span className="text-slate-500">{t("transactions.externalId") || "ID Externe"} :</span>
+                      <span className="font-mono text-xs font-medium">{selectedDetailTx.external_transaction_id}</span>
+                    </div>
+                  )}
+                </div>
+              </section>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Participant Info */}
+                <section>
+                  <h3 className="text-sm font-semibold text-slate-900 border-b pb-2 mb-3 tracking-wide uppercase">{t("common.participant") || "Participant"}</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between"><span className="text-slate-500">{t("common.name") || "Nom"} :</span><span className="font-medium">{selectedDetailTx.created_by_name || "-"}</span></div>
+                    <div className="flex justify-between"><span className="text-slate-500">{t("common.email") || "Email"} :</span><span className="font-medium">{selectedDetailTx.created_by_email || "-"}</span></div>
+                    <div className="flex justify-between"><span className="text-slate-500">{t("common.phone") || "Téléphone"} :</span><span className="font-medium">{selectedDetailTx.created_by_phone || "-"}</span></div>
+                    <div className="flex justify-between"><span className="text-slate-500">{t("transactions.recipientPhone") || "Destinataire"} :</span><span className="font-medium">{selectedDetailTx.recipient_phone || "-"}</span></div>
+                  </div>
+                </section>
+
+                {/* Network Layer */}
+                <section>
+                  <h3 className="text-sm font-semibold text-slate-900 border-b pb-2 mb-3 tracking-wide uppercase">{t("common.networkLayer") || "Couche Réseau"}</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between"><span className="text-slate-500">{t("transactions.network") || "Réseau"} :</span><Badge variant="outline" className="font-bold">{selectedDetailTx.network_name}</Badge></div>
+                    <div className="flex justify-between"><span className="text-slate-500">{t("transactions.type") || "Type"} :</span><span className="capitalize font-medium">{selectedDetailTx.type}</span></div>
+                    {selectedDetailTx.processor && (
+                      <div className="flex justify-between"><span className="text-slate-500">{t("aggregators.processor") || "Processeur"} :</span><span className="font-medium">{selectedDetailTx.processor}</span></div>
+                    )}
+                  </div>
+                </section>
+              </div>
+
+              {/* Financials */}
+              <section className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                <h3 className="text-sm font-semibold text-slate-900 border-b border-slate-300 pb-2 mb-3 tracking-wide uppercase">{t("common.financials") || "Informations Financières"}</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3 text-sm">
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-slate-500">{t("transactions.amount") || "Montant"} :</span>
+                    <span className="text-lg font-bold text-slate-900">{parseFloat(selectedDetailTx.amount).toLocaleString()} FCFA</span>
+                  </div>
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-slate-500">{t("transactions.fees") || "Frais"} :</span>
+                    <span className="font-medium text-red-600">{parseFloat(selectedDetailTx.fees || "0").toLocaleString()} FCFA</span>
+                  </div>
+                  <div className="flex justify-between items-center py-1 border-t border-slate-200 mt-1">
+                    <span className="text-slate-500">{t("transactions.balanceBefore") || "Solde Avant"} :</span>
+                    <span className="font-medium">{parseFloat(selectedDetailTx.balance_before || "0").toLocaleString()} FCFA</span>
+                  </div>
+                  <div className="flex justify-between items-center py-1 border-t border-slate-200 mt-1">
+                    <span className="text-slate-500">{t("transactions.balanceAfter") || "Solde Après"} :</span>
+                    <span className="font-medium">{parseFloat(selectedDetailTx.balance_after || "0").toLocaleString()} FCFA</span>
+                  </div>
+                </div>
+              </section>
+
+              {/* SMS & Message */}
+              {(selectedDetailTx.confirmation_message || selectedDetailTx.raw_sms) && (
+                <section>
+                  <h3 className="text-sm font-semibold text-slate-900 border-b pb-2 mb-3 tracking-wide uppercase">{t("common.messages") || "Messages System"}</h3>
+                  <div className="space-y-4">
+                    {selectedDetailTx.confirmation_message && (
+                      <div className="bg-blue-50 p-3 rounded border border-blue-100 italic text-sm text-blue-800">
+                        <p className="font-semibold not-italic mb-1 text-xs uppercase opacity-70">{t("transactions.confirmation")} :</p>
+                        {selectedDetailTx.confirmation_message}
+                      </div>
+                    )}
+                    {selectedDetailTx.raw_sms && (
+                      <div className="bg-slate-50 p-3 rounded border border-slate-200 font-mono text-[10px] leading-relaxed break-all">
+                        <p className="font-sans font-semibold mb-1 text-xs uppercase opacity-70">{t("transactions.rawSms")} :</p>
+                        {selectedDetailTx.raw_sms}
+                      </div>
+                    )}
+                  </div>
+                </section>
+              )}
+
+              {/* Status & Meta */}
+              <section>
+                <h3 className="text-sm font-semibold text-slate-900 border-b pb-2 mb-3 tracking-wide uppercase">{t("common.statusAndMeta") || "Statut & Meta"}</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div className="flex justify-between items-center"><span className="text-slate-500">{t("transactions.status") || "Statut"} :</span>{getStatusBadge(selectedDetailTx.status)}</div>
+                  <div className="flex justify-between items-center"><span className="text-slate-500">{t("transactions.date") || "Date de création"} :</span><span className="font-medium">{new Date(selectedDetailTx.created_at).toLocaleString()}</span></div>
+                  {selectedDetailTx.completed_at && (
+                    <div className="flex justify-between items-center"><span className="text-slate-500">{t("transactions.completedAt") || "Complété le"} :</span><span className="font-medium">{new Date(selectedDetailTx.completed_at).toLocaleString()}</span></div>
+                  )}
+                </div>
+                {selectedDetailTx.error_message && (
+                  <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
+                    <p className="font-bold flex items-center gap-2 mb-1"><Trash size={14} /> {t("transactions.errorMessage") || "Message d'erreur"}</p>
+                    {selectedDetailTx.error_message}
+                  </div>
+                )}
+              </section>
+
+              {/* Raw Response */}
+              <section className="mt-6 border-t pt-6">
+                <details className="group">
+                  <summary className="flex items-center cursor-pointer text-sm font-semibold text-slate-900 tracking-wide uppercase list-none">
+                    <span className="mr-2 transition-transform group-open:rotate-90">▶</span>
+                    {t("common.rawResponse") || "Réponse API Brute"}
+                  </summary>
+                  <div className="mt-4 p-4 bg-slate-900 rounded-lg overflow-x-auto">
+                    <pre className="text-[10px] text-emerald-400 font-mono leading-relaxed">
+                      {JSON.stringify(selectedDetailTx, null, 2)}
+                    </pre>
+                  </div>
+                </details>
+              </section>
+            </div>
+          ) : null}
+
+          <DialogFooter className="mt-6 border-t pt-4">
+            <Button variant="outline" onClick={() => setDetailModalOpen(false)}>
+              {t("common.close") || "Fermer"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
