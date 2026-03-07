@@ -18,6 +18,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useLanguage } from "@/components/providers/language-provider"
 import { Loader } from "lucide-react"
+import { Suspense } from "react"
 
 interface MomoPayTransaction {
   uid: string
@@ -49,6 +50,14 @@ interface ApiResponse {
 
 
 export default function MomoPayTransactionsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <MomoPayTransactionsContent />
+    </Suspense>
+  )
+}
+
+function MomoPayTransactionsContent() {
   const searchParams = useSearchParams()
   const [searchTerm, setSearchTerm] = useState(() => searchParams.get("reference") || "")
   const [statusFilter, setStatusFilter] = useState("all")

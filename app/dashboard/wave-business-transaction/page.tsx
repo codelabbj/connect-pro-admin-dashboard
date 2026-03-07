@@ -16,6 +16,7 @@ import { Loader } from "lucide-react"
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose, DialogFooter } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
+import { Suspense } from "react"
 
 interface WaveBusinessTransaction {
   uid: string
@@ -43,6 +44,14 @@ interface ApiResponse {
 }
 
 export default function WaveBusinessPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <WaveBusinessContent />
+    </Suspense>
+  )
+}
+
+function WaveBusinessContent() {
   const searchParams = useSearchParams()
   const [searchTerm, setSearchTerm] = useState(() => searchParams.get("reference") || "")
   const [statusFilter, setStatusFilter] = useState("all")
@@ -550,13 +559,13 @@ export default function WaveBusinessPage() {
               </section>
             </div>
           ) : null}
-        <DialogFooter className="mt-6 border-t pt-4">
-          <Button variant="outline" onClick={handleCloseDetail} className="w-full">
-            {t("common.close")}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog >
+          <DialogFooter className="mt-6 border-t pt-4">
+            <Button variant="outline" onClick={handleCloseDetail} className="w-full">
+              {t("common.close")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog >
     </>
   )
 }
