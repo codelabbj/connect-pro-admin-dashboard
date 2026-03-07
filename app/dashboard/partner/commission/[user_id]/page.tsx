@@ -1,14 +1,16 @@
-// "use client";
-// import { useEffect, useState } from "react";
-// import { useRouter } from "next/navigation";
-// import { useApi } from "@/lib/useApi";
-// import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-// import { Button } from "@/components/ui/button";
-// import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-// import { Input } from "@/components/ui/input";
-// import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display";
+"use client";
 
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useApi } from "@/lib/useApi";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display";
 import { formatApiDateTime } from "@/lib/utils";
+
+// Commented out code section
 // export default function CommissionStatPage({ params }: { params: { user_id: string } }) {
 //   const userId = params.user_id;
 //   const [stats, setStats] = useState<any>(null);
@@ -265,18 +267,6 @@ import { formatApiDateTime } from "@/lib/utils";
 //     </div>
 //   );
 // }
-
-
-
-"use client";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useApi } from "@/lib/useApi";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display";
 
 export default function CommissionStatPage({ params }: { params: { user_id: string } }) {
   const userId = params.user_id;

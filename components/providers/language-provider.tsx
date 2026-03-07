@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { createContext, useContext, useState } from "react"
+import { createContext, useContext, useEffect, useState } from "react"
 
 type Language = "en" | "fr"
 
@@ -3792,7 +3792,17 @@ const initialState: LanguageProviderState = {
 const LanguageProviderContext = createContext<LanguageProviderState>(initialState)
 
 export function LanguageProvider({ children }: LanguageProviderProps) {
-  const [language, setLanguage] = useState<Language>("fr")
+  const [isMounted, setIsMounted] = useState(false)
+  const [language, setLanguage] = useState<Language>("en")
+
+  useEffect(() => {
+    setIsMounted(true)
+    // Restore language preference from localStorage
+    const savedLanguage = localStorage.getItem('language') as Language
+    if (savedLanguage === 'en' || savedLanguage === 'fr') {
+      setLanguage(savedLanguage)
+    }
+  }, [])
 
   const t = (key: string, params?: Record<string, any>): string => {
     const currentTranslations = translations[language] as Record<string, string>
@@ -3805,10 +3815,20 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
     return text
   }
 
+  const handleSetLanguage = (newLanguage: Language) => {
+    setLanguage(newLanguage)
+    localStorage.setItem('language', newLanguage)
+  }
+
   const value = {
     language,
-    setLanguage,
+    setLanguage: handleSetLanguage,
     t,
+  }
+
+  // Prevent hydration mismatch by not rendering until mounted
+  if (!isMounted) {
+    return <LanguageProviderContext.Provider value={{ language: "en", setLanguage, t }}>{children}</LanguageProviderContext.Provider>
   }
 
   return <LanguageProviderContext.Provider value={value}>{children}</LanguageProviderContext.Provider>
