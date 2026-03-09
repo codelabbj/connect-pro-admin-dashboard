@@ -183,7 +183,7 @@ export default function AggregatorUsersPage() {
                                                     </TableCell>
                                                     <TableCell>
                                                         <div className="font-semibold text-blue-600">
-                                                            {agg.account_balance.toLocaleString()} {agg.account_currency}
+                                                            {agg.account_balance.toLocaleString("en-GB")} {agg.account_currency}
                                                         </div>
                                                     </TableCell>
                                                     <TableCell>

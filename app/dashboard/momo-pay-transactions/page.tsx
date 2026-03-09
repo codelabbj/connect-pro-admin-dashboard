@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { useApi } from "@/lib/useApi"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -18,9 +18,8 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useLanguage } from "@/components/providers/language-provider"
 import { Loader } from "lucide-react"
-import { Suspense } from "react"
-
 import { formatApiDateTime } from "@/lib/utils";
+
 interface MomoPayTransaction {
   uid: string
   amount: string
@@ -50,9 +49,10 @@ interface ApiResponse {
 }
 
 
+
 export default function MomoPayTransactionsPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<div className="p-8 text-center text-muted-foreground">Chargement...</div>}>
       <MomoPayTransactionsContent />
     </Suspense>
   )
@@ -60,7 +60,7 @@ export default function MomoPayTransactionsPage() {
 
 function MomoPayTransactionsContent() {
   const searchParams = useSearchParams()
-  const [searchTerm, setSearchTerm] = useState(() => searchParams.get("reference") || "")
+  const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [phoneFilter, setPhoneFilter] = useState("")
   const [paymentTypeFilter, setPaymentTypeFilter] = useState("all")
@@ -167,13 +167,16 @@ function MomoPayTransactionsContent() {
     fetchTransactions()
   }, [searchTerm, currentPage, itemsPerPage, baseUrl, statusFilter, phoneFilter, paymentTypeFilter, startDate, endDate, includeExpired, sortField, sortDirection, toast, apiFetch])
 
-  // Handle UID from searchParams
+  // After mount: initialize from URL params (safe for SSR)
   useEffect(() => {
+    const ref = searchParams.get("reference")
+    if (ref) setSearchTerm(ref)
     const uid = searchParams.get("uid")
     if (uid) {
       handleOpenDetail({ uid } as any)
     }
-  }, [searchParams])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const startIndex = (currentPage - 1) * itemsPerPage
 

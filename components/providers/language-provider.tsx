@@ -3784,9 +3784,12 @@ const translations = {
 }
 
 const initialState: LanguageProviderState = {
-  language: "fr",
+  language: "en",
   setLanguage: () => null,
-  t: (key: string, params?: Record<string, any>) => "",
+  t: (key: string, params?: Record<string, any>) => {
+    const currentTranslations = translations["en"] as Record<string, string>
+    return currentTranslations[key] || key
+  },
 }
 
 const LanguageProviderContext = createContext<LanguageProviderState>(initialState)
@@ -3826,9 +3829,24 @@ export function LanguageProvider({ children }: LanguageProviderProps) {
     t,
   }
 
-  // Prevent hydration mismatch by not rendering until mounted
+  // Prevent hydration mismatch: render with the same "en" context on first render
+  // (matches the server-side default), then swap to actual user preference after mount
   if (!isMounted) {
-    return <LanguageProviderContext.Provider value={{ language: "en", setLanguage, t }}>{children}</LanguageProviderContext.Provider>
+    const enT = (key: string, params?: Record<string, any>): string => {
+      const currentTranslations = translations["en"] as Record<string, string>
+      let text = currentTranslations[key] || key
+      if (params) {
+        Object.entries(params).forEach(([param, value]) => {
+          text = text.replace(`{${param}}`, String(value))
+        })
+      }
+      return text
+    }
+    return (
+      <LanguageProviderContext.Provider value={{ language: "en", setLanguage: handleSetLanguage, t: enT }}>
+        {children}
+      </LanguageProviderContext.Provider>
+    )
   }
 
   return <LanguageProviderContext.Provider value={value}>{children}</LanguageProviderContext.Provider>

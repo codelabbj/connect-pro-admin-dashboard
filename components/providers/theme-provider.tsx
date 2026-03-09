@@ -51,7 +51,15 @@ function getInitialTheme(): Theme {
 }
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(getInitialTheme)
+  const [theme, setTheme] = useState<Theme>("light")
+
+  useEffect(() => {
+    // Restore theme from localStorage after mount (client-side only)
+    const restored = getInitialTheme()
+    if (restored !== "light") {
+      setTheme(restored)
+    }
+  }, [])
 
   useEffect(() => {
     const root = window.document.documentElement
