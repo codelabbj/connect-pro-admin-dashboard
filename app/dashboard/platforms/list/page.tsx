@@ -16,7 +16,7 @@ import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-displa
 import { useApi } from "@/lib/useApi"
 import Link from "next/link"
 
-import { formatApiDateTime } from "@/lib/utils";
+import { formatApiDateTime, getImageUrl } from "@/lib/utils";
 export default function PlatformListPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
@@ -283,6 +283,7 @@ export default function PlatformListPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>UID</TableHead>
+                    <TableHead>{t("platforms.logo") || "Logo"}</TableHead>
                     <TableHead>
                       <Button variant="ghost" onClick={() => handleSort("name")} className="h-auto p-0 font-semibold">
                         {t("platforms.name")}
@@ -320,6 +321,31 @@ export default function PlatformListPage() {
                           >
                             <Copy className="h-4 w-4" />
                           </Button>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="h-10 w-10 border rounded overflow-hidden bg-muted flex items-center justify-center">
+                          {platform.logo ? (
+                            <img 
+                              src={getImageUrl(platform.logo) || ""} 
+                              alt={platform.name} 
+                              className="h-full w-full object-contain"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                                const parent = e.currentTarget.parentElement;
+                                if (parent) {
+                                  const fallback = document.createElement('div');
+                                  fallback.className = "flex h-full w-full items-center justify-center bg-primary text-primary-foreground font-bold";
+                                  fallback.innerText = platform.name[0] || "?";
+                                  parent.appendChild(fallback);
+                                }
+                              }}
+                            />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center bg-primary text-primary-foreground font-bold">
+                              {platform.name[0] || "?"}
+                            </div>
+                          )}
                         </div>
                       </TableCell>
                       <TableCell className="font-medium">{platform.name}</TableCell>
@@ -430,6 +456,31 @@ export default function PlatformListPage() {
             <div className="p-4 text-center">{t("platforms.loadingPlatformDetails")}</div>
           ) : selectedPlatform ? (
             <div className="space-y-4">
+              <div className="flex justify-center mb-4">
+                <div className="h-24 w-24 border rounded-full overflow-hidden bg-muted flex items-center justify-center">
+                  {selectedPlatform.logo ? (
+                    <img 
+                      src={getImageUrl(selectedPlatform.logo) || ""} 
+                      alt={selectedPlatform.name} 
+                      className="h-full w-full object-contain"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        const parent = e.currentTarget.parentElement;
+                        if (parent) {
+                          const fallback = document.createElement('div');
+                          fallback.className = "flex h-full w-full items-center justify-center bg-primary text-primary-foreground font-bold text-2xl";
+                          fallback.innerText = selectedPlatform.name[0] || "?";
+                          parent.appendChild(fallback);
+                        }
+                      }}
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-primary text-primary-foreground font-bold text-2xl">
+                      {selectedPlatform.name[0] || "?"}
+                    </div>
+                  )}
+                </div>
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">

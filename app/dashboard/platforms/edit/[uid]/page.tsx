@@ -12,6 +12,7 @@ import { useApi } from "@/lib/useApi"
 import { useLanguage } from "@/components/providers/language-provider"
 import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
+import { getImageUrl } from "@/lib/utils"
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
@@ -32,6 +33,8 @@ export default function PlatformEditPage() {
   const [maxWithdrawalAmount, setMaxWithdrawalAmount] = useState("")
   const [description, setDescription] = useState("")
   const [isActive, setIsActive] = useState(true)
+  const [logoFile, setLogoFile] = useState<File | null>(null)
+  const [currentLogo, setCurrentLogo] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [fetching, setFetching] = useState(true)
   const [error, setError] = useState("")
@@ -55,6 +58,7 @@ export default function PlatformEditPage() {
         setMaxWithdrawalAmount(data.max_withdrawal_amount?.toString() || "")
         setDescription(data.description || "")
         setIsActive(data.is_active ?? true)
+        setCurrentLogo(data.logo || null)
         // GET requests don't show success toasts automatically
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err)
@@ -78,20 +82,38 @@ export default function PlatformEditPage() {
     setError("")
     
     try {
-      const payload = {
-        name: name.trim(),
-        min_deposit_amount: parseFloat(minDepositAmount) || 0,
-        max_deposit_amount: parseFloat(maxDepositAmount) || 0,
-        min_withdrawal_amount: parseFloat(minWithdrawalAmount) || 0,
-        max_withdrawal_amount: parseFloat(maxWithdrawalAmount) || 0,
-        description: description.trim(),
-        is_active: isActive,
+      let body: any;
+      let headers: Record<string, string> = {};
+
+      if (logoFile) {
+        const formData = new FormData();
+        formData.append("name", name.trim());
+        formData.append("min_deposit_amount", (parseFloat(minDepositAmount) || 0).toString());
+        formData.append("max_deposit_amount", (parseFloat(maxDepositAmount) || 0).toString());
+        formData.append("min_withdrawal_amount", (parseFloat(minWithdrawalAmount) || 0).toString());
+        formData.append("max_withdrawal_amount", (parseFloat(maxWithdrawalAmount) || 0).toString());
+        formData.append("description", description.trim());
+        formData.append("is_active", isActive.toString());
+        formData.append("logo", logoFile);
+        body = formData;
+      } else {
+        const payload = {
+          name: name.trim(),
+          min_deposit_amount: parseFloat(minDepositAmount) || 0,
+          max_deposit_amount: parseFloat(maxDepositAmount) || 0,
+          min_withdrawal_amount: parseFloat(minWithdrawalAmount) || 0,
+          max_withdrawal_amount: parseFloat(maxWithdrawalAmount) || 0,
+          description: description.trim(),
+          is_active: isActive,
+        }
+        body = JSON.stringify(payload);
+        headers["Content-Type"] = "application/json";
       }
 
       await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/platforms/${uid}/`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        headers,
+        body,
       })
       // Success toast is automatically shown by useApi hook for non-GET requests
       
@@ -144,6 +166,50 @@ export default function PlatformEditPage() {
               disabled
               className="bg-muted"
             />
+          </div>
+
+          {/* Logo Upload */}
+          <div className="space-y-2">
+            <Label htmlFor="logo">{t("platforms.logo") || "Platform Logo"}</Label>
+            <div className="flex flex-col gap-4">
+              { (logoFile || currentLogo) && (
+                <div className="relative h-24 w-24 border rounded overflow-hidden bg-muted flex items-center justify-center">
+                  <img 
+                    src={logoFile ? URL.createObjectURL(logoFile) : (getImageUrl(currentLogo) || "")} 
+                    alt="Preview" 
+                    className="h-full w-full object-contain"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      const parent = e.currentTarget.parentElement;
+                      if (parent) {
+                        const fallback = document.createElement('div');
+                        fallback.className = "flex h-full w-full items-center justify-center bg-primary text-primary-foreground font-bold text-xl";
+                        fallback.innerText = name[0] || "?";
+                        parent.appendChild(fallback);
+                      }
+                    }}
+                  />
+                  {logoFile && (
+                    <Button 
+                      type="button" 
+                      variant="destructive" 
+                      size="icon" 
+                      className="absolute top-0 right-0 h-6 w-6 rounded-none rounded-bl"
+                      onClick={() => setLogoFile(null)}
+                    >
+                      ×
+                    </Button>
+                  )}
+                </div>
+              )}
+              <Input 
+                id="logo"
+                type="file" 
+                accept="image/*" 
+                onChange={(e) => setLogoFile(e.target.files?.[0] || null)} 
+                className="cursor-pointer"
+              />
+            </div>
           </div>
 
           {/* Platform Name */}

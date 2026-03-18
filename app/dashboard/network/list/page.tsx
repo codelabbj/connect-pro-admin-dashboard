@@ -11,6 +11,7 @@ import { useLanguage } from "@/components/providers/language-provider"
 import { Search, ArrowUpDown } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
+import { getImageUrl } from "@/lib/utils"
 
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
@@ -256,6 +257,7 @@ export default function NetworkListPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>{t("network.logo") || "Logo"}</TableHead>
                 <TableHead>
                   <Button type="button" variant="ghost" onClick={() => handleSort("nom")} className="h-auto p-0 font-semibold">
                     {t("network.name")}
@@ -278,6 +280,31 @@ export default function NetworkListPage() {
             <TableBody>
               {filteredNetworks.map((network: any) => (
                 <TableRow key={network.uid}>
+                  <TableCell>
+                    <div className="h-10 w-10 border rounded overflow-hidden bg-muted flex items-center justify-center">
+                      {network.image ? (
+                        <img 
+                          src={getImageUrl(network.image) || ""} 
+                          alt={network.nom} 
+                          className="h-full w-full object-contain"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            const parent = e.currentTarget.parentElement;
+                            if (parent) {
+                              const fallback = document.createElement('div');
+                              fallback.className = "flex h-full w-full items-center justify-center bg-primary text-primary-foreground font-bold";
+                              fallback.innerText = network.nom[0] || "?";
+                              parent.appendChild(fallback);
+                            }
+                          }}
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-primary text-primary-foreground font-bold">
+                          {network.nom[0] || "?"}
+                        </div>
+                      )}
+                    </div>
+                  </TableCell>
                   <TableCell>{network.nom}</TableCell>
                   <TableCell>{network.code}</TableCell>
                   <TableCell>{network.country_name || network.country}</TableCell>

@@ -24,6 +24,7 @@ export default function NetworkCreatePage() {
   const [isActive, setIsActive] = useState(true)
   const [sentDepositToModule, setSentDepositToModule] = useState(false)
   const [sentWithdrawalToModule, setSentWithdrawalToModule] = useState(false)
+  const [logoFile, setLogoFile] = useState<File | null>(null)
   const [countries, setCountries] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -56,10 +57,24 @@ export default function NetworkCreatePage() {
     setLoading(true)
     setError("")
     try {
-      await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/networks/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      let body: any;
+      let headers: Record<string, string> = {};
+
+      if (logoFile) {
+        const formData = new FormData();
+        formData.append("nom", nom);
+        formData.append("code", code);
+        formData.append("country", country);
+        formData.append("ussd_base_code", ussdBaseCode);
+        formData.append("payment_link", paymentLink);
+        formData.append("payment_ussd", paymentUssd);
+        formData.append("is_active", isActive.toString());
+        formData.append("sent_deposit_to_module", sentDepositToModule.toString());
+        formData.append("sent_withdrawal_to_module", sentWithdrawalToModule.toString());
+        formData.append("image", logoFile);
+        body = formData;
+      } else {
+        const payload = {
           nom,
           code,
           country,
@@ -69,7 +84,15 @@ export default function NetworkCreatePage() {
           is_active: isActive,
           sent_deposit_to_module: sentDepositToModule,
           sent_withdrawal_to_module: sentWithdrawalToModule
-        })
+        }
+        body = JSON.stringify(payload);
+        headers["Content-Type"] = "application/json";
+      }
+
+      await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/networks/`, {
+        method: "POST",
+        headers,
+        body,
       })
       // Success toast is automatically shown by useApi hook for non-GET requests
       router.push("/dashboard/network/list")
@@ -101,6 +124,37 @@ export default function NetworkCreatePage() {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Logo Upload */}
+          <div className="space-y-2">
+            <label>{t("network.logo") || "Network Logo"}</label>
+            <div className="flex flex-col gap-4">
+              {logoFile && (
+                <div className="relative h-24 w-24 border rounded overflow-hidden bg-muted flex items-center justify-center">
+                  <img 
+                    src={URL.createObjectURL(logoFile)} 
+                    alt="Preview" 
+                    className="h-full w-full object-contain"
+                  />
+                  <Button 
+                    type="button" 
+                    variant="destructive" 
+                    size="icon" 
+                    className="absolute top-0 right-0 h-6 w-6 rounded-none rounded-bl"
+                    onClick={() => setLogoFile(null)}
+                  >
+                    ×
+                  </Button>
+                </div>
+              )}
+              <Input 
+                id="logo"
+                type="file" 
+                accept="image/*" 
+                onChange={(e) => setLogoFile(e.target.files?.[0] || null)} 
+                className="cursor-pointer"
+              />
+            </div>
+          </div>
           <div>
             <label>{t("network.name")}</label>
             <Input value={nom} onChange={e => setNom(e.target.value)} required />

@@ -26,6 +26,7 @@ export default function PlatformCreatePage() {
   const [maxWithdrawalAmount, setMaxWithdrawalAmount] = useState("")
   const [description, setDescription] = useState("")
   const [isActive, setIsActive] = useState(true)
+  const [logoFile, setLogoFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [yapsonApps, setYapsonApps] = useState<any[]>([])
@@ -64,21 +65,41 @@ export default function PlatformCreatePage() {
     setError("")
     
     try {
-      const payload = {
-        name: name.trim(),
-        external_id: externalId.trim(),
-        min_deposit_amount: parseFloat(minDepositAmount) || 0,
-        max_deposit_amount: parseFloat(maxDepositAmount) || 0,
-        min_withdrawal_amount: parseFloat(minWithdrawalAmount) || 0,
-        max_withdrawal_amount: parseFloat(maxWithdrawalAmount) || 0,
-        description: description.trim(),
-        is_active: isActive,
+      let body: any;
+      let headers: Record<string, string> = {};
+
+      if (logoFile) {
+        const formData = new FormData();
+        formData.append("name", name.trim());
+        formData.append("external_id", externalId.trim());
+        formData.append("min_deposit_amount", (parseFloat(minDepositAmount) || 0).toString());
+        formData.append("max_deposit_amount", (parseFloat(maxDepositAmount) || 0).toString());
+        formData.append("min_withdrawal_amount", (parseFloat(minWithdrawalAmount) || 0).toString());
+        formData.append("max_withdrawal_amount", (parseFloat(maxWithdrawalAmount) || 0).toString());
+        formData.append("description", description.trim());
+        formData.append("is_active", isActive.toString());
+        formData.append("logo", logoFile);
+        body = formData;
+        // Don't set Content-Type header for FormData, browser does it automatically with boundary
+      } else {
+        const payload = {
+          name: name.trim(),
+          external_id: externalId.trim(),
+          min_deposit_amount: parseFloat(minDepositAmount) || 0,
+          max_deposit_amount: parseFloat(maxDepositAmount) || 0,
+          min_withdrawal_amount: parseFloat(minWithdrawalAmount) || 0,
+          max_withdrawal_amount: parseFloat(maxWithdrawalAmount) || 0,
+          description: description.trim(),
+          is_active: isActive,
+        }
+        body = JSON.stringify(payload);
+        headers["Content-Type"] = "application/json";
       }
 
       await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/platforms/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        headers,
+        body,
       })
       // Success toast is automatically shown by useApi hook for non-GET requests
       
@@ -147,6 +168,38 @@ export default function PlatformCreatePage() {
                 </SelectContent>
               </Select>
             )}
+          </div>
+
+          {/* Logo Upload */}
+          <div className="space-y-2">
+            <Label htmlFor="logo">{t("platforms.logo") || "Platform Logo"}</Label>
+            <div className="flex flex-col gap-4">
+              {logoFile && (
+                <div className="relative h-24 w-24 border rounded overflow-hidden bg-muted flex items-center justify-center">
+                  <img 
+                    src={URL.createObjectURL(logoFile)} 
+                    alt="Preview" 
+                    className="h-full w-full object-contain"
+                  />
+                  <Button 
+                    type="button" 
+                    variant="destructive" 
+                    size="icon" 
+                    className="absolute top-0 right-0 h-6 w-6 rounded-none rounded-bl"
+                    onClick={() => setLogoFile(null)}
+                  >
+                    ×
+                  </Button>
+                </div>
+              )}
+              <Input 
+                id="logo"
+                type="file" 
+                accept="image/*" 
+                onChange={(e) => setLogoFile(e.target.files?.[0] || null)} 
+                className="cursor-pointer"
+              />
+            </div>
           </div>
 
           {/* Basic Information */}

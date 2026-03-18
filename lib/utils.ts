@@ -19,3 +19,14 @@ export function formatApiDateTime(dateString: string | undefined | null) {
     return dateString;
   }
 }
+
+export const getImageUrl = (path: string | null) => {
+  if (!path) return null;
+  // If it's already a full URL, return it
+  if (path.startsWith('http')) return path;
+
+  // Otherwise, prefix it with your API Base URL
+  const baseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL || "").replace(/\/$/, "");
+  const cleanPath = path.toString().replace(/^\//, "");
+  return `${baseUrl}/${cleanPath}`;
+};

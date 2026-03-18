@@ -11,6 +11,7 @@ import { useLanguage } from "@/components/providers/language-provider"
 import { useToast } from "@/hooks/use-toast"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
+import { getImageUrl } from "@/lib/utils"
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
@@ -27,6 +28,8 @@ export default function NetworkEditPage() {
   const [isActive, setIsActive] = useState(true)
   const [sentDepositToModule, setSentDepositToModule] = useState(false)
   const [sentWithdrawalToModule, setSentWithdrawalToModule] = useState(false)
+  const [logoFile, setLogoFile] = useState<File | null>(null)
+  const [currentLogo, setCurrentLogo] = useState<string | null>(null)
   const [countries, setCountries] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -71,6 +74,7 @@ export default function NetworkEditPage() {
         setIsActive(data.is_active)
         setSentDepositToModule(!!data.sent_deposit_to_module)
         setSentWithdrawalToModule(!!data.sent_withdrawal_to_module)
+        setCurrentLogo(data.image || null)
         // GET requests don't show success toasts automatically
       } catch (err: any) {
         const errorMessage = extractErrorMessages(err) || t("network.failedToLoad")
@@ -93,10 +97,24 @@ export default function NetworkEditPage() {
     setLoading(true)
     setError("")
     try {
-      await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/networks/${id}/`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      let body: any;
+      let headers: Record<string, string> = {};
+
+      if (logoFile) {
+        const formData = new FormData();
+        formData.append("nom", nom);
+        formData.append("code", code);
+        formData.append("country", country);
+        formData.append("ussd_base_code", ussdBaseCode);
+        formData.append("payment_link", paymentLink);
+        formData.append("payment_ussd", paymentUssd);
+        formData.append("is_active", isActive.toString());
+        formData.append("sent_deposit_to_module", sentDepositToModule.toString());
+        formData.append("sent_withdrawal_to_module", sentWithdrawalToModule.toString());
+        formData.append("image", logoFile);
+        body = formData;
+      } else {
+        const payload = {
           nom,
           code,
           country,
@@ -106,7 +124,15 @@ export default function NetworkEditPage() {
           is_active: isActive,
           sent_deposit_to_module: sentDepositToModule,
           sent_withdrawal_to_module: sentWithdrawalToModule
-        })
+        }
+        body = JSON.stringify(payload);
+        headers["Content-Type"] = "application/json";
+      }
+
+      await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/networks/${id}/`, {
+        method: "PATCH",
+        headers,
+        body,
       })
       // Success toast is automatically shown by useApi hook for non-GET requests
       router.push("/dashboard/network/list")
@@ -138,6 +164,49 @@ export default function NetworkEditPage() {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Logo Upload */}
+            <div className="space-y-2">
+              <label>{t("network.logo") || "Network Logo"}</label>
+              <div className="flex flex-col gap-4">
+                { (logoFile || currentLogo) && (
+                  <div className="relative h-24 w-24 border rounded overflow-hidden bg-muted flex items-center justify-center">
+                    <img 
+                      src={logoFile ? URL.createObjectURL(logoFile) : (getImageUrl(currentLogo) || "")} 
+                      alt="Preview" 
+                      className="h-full w-full object-contain"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        const parent = e.currentTarget.parentElement;
+                        if (parent) {
+                          const fallback = document.createElement('div');
+                          fallback.className = "flex h-full w-full items-center justify-center bg-primary text-primary-foreground font-bold text-xl";
+                          fallback.innerText = nom[0] || "?";
+                          parent.appendChild(fallback);
+                        }
+                      }}
+                    />
+                    {logoFile && (
+                      <Button 
+                        type="button" 
+                        variant="destructive" 
+                        size="icon" 
+                        className="absolute top-0 right-0 h-6 w-6 rounded-none rounded-bl"
+                        onClick={() => setLogoFile(null)}
+                      >
+                        ×
+                      </Button>
+                    )}
+                  </div>
+                )}
+                <Input 
+                  id="logo"
+                  type="file" 
+                  accept="image/*" 
+                  onChange={(e) => setLogoFile(e.target.files?.[0] || null)} 
+                  className="cursor-pointer"
+                />
+              </div>
+            </div>
             <div>
               <label>{t("network.name")}</label>
               <Input value={nom} onChange={e => setNom(e.target.value)} required />

@@ -15,7 +15,34 @@ import { useToast } from "@/hooks/use-toast"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
 import Link from "next/link"
 
-import { formatApiDateTime } from "@/lib/utils";
+import { formatApiDateTime, getImageUrl } from "@/lib/utils";
+interface Platform {
+  uid: string;
+  name: string;
+  logo?: string | null;
+  is_active: boolean;
+  external_id: string;
+  description?: string | null;
+  min_deposit_amount: string;
+  max_deposit_amount: string;
+  min_withdrawal_amount: string;
+  max_withdrawal_amount: string;
+  created_by_name?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+  active_partners_count?: number;
+}
+
+interface PlatformStats {
+  total_transactions: number;
+  successful_transactions: number;
+  failed_transactions: number;
+  active_partners: number;
+  pending_transactions: number;
+  total_volume: string | number;
+  total_commissions: string | number;
+}
+
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
 export default function PlatformDetailsPage() {
@@ -27,8 +54,8 @@ export default function PlatformDetailsPage() {
   
   const uid = params.uid as string
   
-  const [platform, setPlatform] = useState<any | null>(null)
-  const [stats, setStats] = useState<any | null>(null)
+  const [platform, setPlatform] = useState<Platform | null>(null)
+  const [stats, setStats] = useState<PlatformStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [togglingStatus, setTogglingStatus] = useState(false)
@@ -82,7 +109,7 @@ export default function PlatformDetailsPage() {
         method: "PATCH",
       })
       
-      setPlatform(prev => prev ? { ...prev, is_active: data.is_active } : prev)
+      setPlatform((prev: Platform | null) => prev ? { ...prev, is_active: data.is_active } : prev)
       // Success toast is automatically shown by useApi hook for non-GET requests
     } catch (err: any) {
       toast({
@@ -147,6 +174,29 @@ export default function PlatformDetailsPage() {
             <ArrowLeft className="h-4 w-4 mr-2" />
             {t("platforms.backToPlatforms")}
           </Button>
+          <div className="h-16 w-16 border rounded-full overflow-hidden bg-muted flex items-center justify-center">
+            {platform.logo ? (
+              <img 
+                src={getImageUrl(platform.logo) || ""} 
+                alt={platform.name} 
+                className="h-full w-full object-contain"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  const parent = e.currentTarget.parentElement;
+                  if (parent) {
+                    const fallback = document.createElement('div');
+                    fallback.className = "flex h-full w-full items-center justify-center bg-primary text-primary-foreground font-bold text-xl";
+                    fallback.innerText = platform.name[0] || "?";
+                    parent.appendChild(fallback);
+                  }
+                }}
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-primary text-primary-foreground font-bold text-xl">
+                {platform.name[0] || "?"}
+              </div>
+            )}
+          </div>
           <div>
             <h1 className="text-2xl font-bold">{platform.name}</h1>
             <p className="text-muted-foreground">{t("platforms.platformDetailsTitle")}</p>
