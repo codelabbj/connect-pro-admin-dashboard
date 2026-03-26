@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import type React from "react"
 
@@ -648,6 +648,8 @@ const translations = {
     "topup.allStatuses": "All Statuses",
     "topup.pending": "Pending",
     "common.completed": "Completed",
+    "common.approve": "Approve",
+    "common.reject": "Reject",
     "common.participant": "Participant",
     "common.financials": "Financials",
     "common.recipient": "Recipient",
@@ -2570,6 +2572,8 @@ const translations = {
     "earning.search": "Rechercher des gains...",
     "earning.allStatuses": "Tous les statuts",
     "earning.pending": "En attente",
+    "common.approve": "Approuver",
+    "common.reject": "Rejeter",
     "earning.completed": "Terminé",
     "earning.approved": "Approuvé",
     "earning.rejected": "Rejeté",

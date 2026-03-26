@@ -202,13 +202,14 @@ export default function BettingTransactionsPage() {
   }
 
   // Process cancellation request
-  const handleProcessCancellation = async () => {
+  const handleProcessCancellation = async (approve: boolean) => {
     if (!selectedTransaction) return
     
     setProcessingCancellation(true)
     try {
       const payload = {
-        admin_notes: cancellationNotes || "Cancellation approved by admin"
+        success: approve,
+        admin_notes: cancellationNotes || (approve ? "Cancellation approved by admin" : "Cancellation rejected by admin")
       }
       
       await apiFetch(`${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/transactions/${selectedTransaction.uid}/process_cancellation/`, {
@@ -222,8 +223,8 @@ export default function BettingTransactionsPage() {
       setCancellationModalOpen(false)
       setCancellationNotes("")
       
-      // Reload transactions to reflect changes
-      window.location.reload() // Simple refresh for now
+      // Reload Transactions
+      window.location.reload()
       
     } catch (err: any) {
       const errorMessage = extractErrorMessages(err)
@@ -684,14 +685,23 @@ export default function BettingTransactionsPage() {
           </div>
           
           <AlertDialogFooter>
-            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleProcessCancellation}
-              disabled={processingCancellation}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              {processingCancellation ? t("bettingTransactions.processing") : t("bettingTransactions.approveCancellation")}
-            </AlertDialogAction>
+            <AlertDialogCancel disabled={processingCancellation}>{t("common.cancel")}</AlertDialogCancel>
+            <div className="flex gap-2">
+              <Button
+                variant="destructive"
+                onClick={() => handleProcessCancellation(false)}
+                disabled={processingCancellation}
+              >
+                {t("common.reject") || "Reject"}
+              </Button>
+              <Button
+                onClick={() => handleProcessCancellation(true)}
+                disabled={processingCancellation}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                {processingCancellation ? t("bettingTransactions.processing") : (t("common.approve") || "Approve")}
+              </Button>
+            </div>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
