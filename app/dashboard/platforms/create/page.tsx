@@ -44,7 +44,8 @@ export default function PlatformCreatePage() {
       try {
         const response = await fetch(yapsonUrl)
         const data = await response.json()
-        setYapsonApps(data || [])
+        // Ensure data is an array
+        setYapsonApps(Array.isArray(data) ? data : [])
       } catch (err) {
         console.error("Failed to fetch Yapson apps:", err)
         toast({
@@ -147,15 +148,17 @@ export default function PlatformCreatePage() {
             ) : (
               <Select
                 onValueChange={(appId) => {
-                  const app = yapsonApps.find(a => a.id === appId)
-                  if (app) handleYapsonAppSelect(app)
+                  if (Array.isArray(yapsonApps)) {
+                    const app = yapsonApps.find(a => a.id === appId)
+                    if (app) handleYapsonAppSelect(app)
+                  }
                 }}
               >
                 <SelectTrigger>
                   <SelectValue placeholder={t("commissionPayments.selectPlatformToAutoFill") || t("commissionPayments.choosePlatformToAutoFill")} />
                 </SelectTrigger>
                 <SelectContent>
-                  {yapsonApps.map((app) => (
+                  {Array.isArray(yapsonApps) && yapsonApps.map((app) => (
                     <SelectItem key={app.id} value={app.id}>
                       <div className="flex items-center gap-2">
                         {app.image && (
@@ -164,7 +167,7 @@ export default function PlatformCreatePage() {
                         {app.name} ({app.public_name})
                       </div>
                     </SelectItem>
-   ))}                 
+                  ))}
                 </SelectContent>
               </Select>
             )}
