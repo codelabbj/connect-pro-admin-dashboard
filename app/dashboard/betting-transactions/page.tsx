@@ -327,6 +327,7 @@ export default function BettingTransactionsPage() {
                   <SelectItem value="pending">{t("bettingTransactions.pending") || "Pending"}</SelectItem>
                   <SelectItem value="cancelled">{t("bettingTransactions.cancelled") || "Cancelled"}</SelectItem>
                   <SelectItem value="cancellation_requested">{t("bettingTransactions.cancellationRequested") || "Cancellation Requested"}</SelectItem>
+                  <SelectItem value="processing">{t("bettingTransactions.processing") || "Processing"}</SelectItem>
                 </SelectContent>
               </Select>
 
