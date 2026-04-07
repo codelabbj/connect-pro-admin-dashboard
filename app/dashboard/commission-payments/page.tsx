@@ -140,6 +140,7 @@ export default function CommissionPaymentsPage() {
       const payload = {
         partner_uid: selectedPartner,
         transaction_ids: null,
+        amount: null,
         admin_notes: paymentNotes || "Commission payment",
       }
 

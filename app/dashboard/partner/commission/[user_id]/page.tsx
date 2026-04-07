@@ -274,7 +274,6 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
-  const [amount, setAmount] = useState("");
   const [adminNote, setAdminNote] = useState("");
   const [payLoading, setPayLoading] = useState(false);
   const [payError, setPayError] = useState("");
@@ -343,7 +342,7 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
     try {
       const now = new Date().toISOString();
       const payload = {
-        amount: parseFloat(amount),
+        amount: null,
         period_start: lastPeriodEnd || stats?.period_info?.start || now,
         period_end: now,
         admin_notes: adminNote,
@@ -355,7 +354,6 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
         headers: { "Content-Type": "application/json" },
       });
       setModalOpen(false);
-      setAmount("");
       setAdminNote("");
       // Optionally, refetch stats
       window.location.reload();
@@ -435,12 +433,6 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
             </DialogHeader>
             <div className="space-y-4">
               <Input
-                type="number"
-                placeholder="Montant (ex: 25000.00)"
-                value={amount}
-                onChange={e => setAmount(e.target.value)}
-              />
-              <Input
                 placeholder="Note admin (ex: Raison du paiement)"
                 value={adminNote}
                 onChange={e => setAdminNote(e.target.value)}
@@ -448,7 +440,7 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
               {payError && <ErrorDisplay error={payError} />}
             </div>
             <DialogFooter>
-              <Button onClick={handlePayClick} disabled={payLoading || !amount}>
+              <Button onClick={handlePayClick} disabled={payLoading}>
                 {payLoading ? "Paiement..." : "Payer"}
               </Button>
             </DialogFooter>
@@ -461,9 +453,7 @@ export default function CommissionStatPage({ params }: { params: { user_id: stri
               <DialogTitle>Confirmer le paiement</DialogTitle>
             </DialogHeader>
             <div className="py-4 text-center">
-              <span className="font-semibold">Êtes-vous sûr de vouloir payer la commission de </span>
-              <span className="font-bold text-blue-700">{amount} FCFA</span>
-              <span className="font-semibold"> ?</span>
+              <span className="font-semibold">Êtes-vous sûr de vouloir payer toute la commission de ce partenaire ?</span>
             </div>
             <DialogFooter className="flex justify-center gap-4">
               <Button variant="outline" onClick={() => setConfirmModalOpen(false)}>

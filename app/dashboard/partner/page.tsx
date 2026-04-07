@@ -26,6 +26,9 @@ import { formatApiDateTime } from "@/lib/utils";
 export default function PartnerPage() {
 	const [searchTerm, setSearchTerm] = useState("")
 	const [statusFilter, setStatusFilter] = useState("all")
+	const [momoFilter, setMomoFilter] = useState("all")
+	const [mobcashFilter, setMobcashFilter] = useState("all")
+	const [bulkPaymentFilter, setBulkPaymentFilter] = useState("all")
 	const [startDate, setStartDate] = useState("")
 	const [endDate, setEndDate] = useState("")
 	const [currentPage, setCurrentPage] = useState(1)
@@ -91,6 +94,7 @@ export default function PartnerPage() {
 	const [bettingCommissionPaymentModalOpen, setBettingCommissionPaymentModalOpen] = useState(false)
 	const [bettingCommissionPaymentForm, setBettingCommissionPaymentForm] = useState({
 		admin_notes: "",
+		amount: "",
 	})
 	const [bettingCommissionPaymentLoading, setBettingCommissionPaymentLoading] = useState(false)
 	const [bettingCommissionPaymentError, setBettingCommissionPaymentError] = useState("")
@@ -123,6 +127,15 @@ export default function PartnerPage() {
 			if (statusFilter !== "all") {
 				params.append("is_active", statusFilter === "active" ? "true" : "false")
 			}
+			if (momoFilter !== "all") {
+				params.append("can_process_momo", momoFilter)
+			}
+			if (mobcashFilter !== "all") {
+				params.append("can_process_mobcash", mobcashFilter)
+			}
+			if (bulkPaymentFilter !== "all") {
+				params.append("can_process_bulk_payment", bulkPaymentFilter)
+			}
 			if (startDate) {
 				params.append("created_at__gte", startDate)
 			}
@@ -153,7 +166,7 @@ export default function PartnerPage() {
 			}
 		}
 		fetchPartners()
-	}, [searchTerm, currentPage, itemsPerPage, baseUrl, statusFilter, startDate, endDate, sortField, sortDirection, t, toast, apiFetch])
+	}, [searchTerm, currentPage, itemsPerPage, baseUrl, statusFilter, momoFilter, mobcashFilter, bulkPaymentFilter, startDate, endDate, sortField, sortDirection, t, toast, apiFetch])
 
 	const startIndex = (currentPage - 1) * itemsPerPage
 
@@ -454,6 +467,7 @@ export default function PartnerPage() {
 			const payload = {
 				partner_uid: bettingCommissionPartner.uid,
 				transaction_ids: null, // null = pay all unpaid commissions
+				amount: bettingCommissionPaymentForm.amount ? parseFloat(bettingCommissionPaymentForm.amount) : null,
 				admin_notes: bettingCommissionPaymentForm.admin_notes,
 			}
 
@@ -470,7 +484,7 @@ export default function PartnerPage() {
 			})
 			
 			setBettingCommissionPaymentModalOpen(false)
-			setBettingCommissionPaymentForm({ admin_notes: "" })
+			setBettingCommissionPaymentForm({ admin_notes: "", amount: "" })
 			
 			// Refresh partner-specific stats
 			const statsEndpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/commissions/partner_commission_stats/?partner_uid=${bettingCommissionPartner.uid}`
@@ -582,8 +596,41 @@ export default function PartnerPage() {
 								<SelectItem value="active">{t("partners.active")}</SelectItem>
 								<SelectItem value="inactive">{t("partners.inactive")}</SelectItem>
 							</SelectContent>
-				</Select>
-			</div>
+						</Select>
+
+						<Select value={momoFilter} onValueChange={setMomoFilter}>
+							<SelectTrigger className="w-full sm:w-48">
+								<SelectValue placeholder={t("users.canProcessMomo") || "Can Process Momo"} />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="all">{t("common.all") || "All"} MoMo</SelectItem>
+								<SelectItem value="true">{t("common.yes") || "Yes"}</SelectItem>
+								<SelectItem value="false">{t("common.no") || "No"}</SelectItem>
+							</SelectContent>
+						</Select>
+
+						<Select value={mobcashFilter} onValueChange={setMobcashFilter}>
+							<SelectTrigger className="w-full sm:w-48">
+								<SelectValue placeholder={t("users.canProcessMobcash") || "Can Process Mobcash"} />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="all">{t("common.all") || "All"} MobCash</SelectItem>
+								<SelectItem value="true">{t("common.yes") || "Yes"}</SelectItem>
+								<SelectItem value="false">{t("common.no") || "No"}</SelectItem>
+							</SelectContent>
+						</Select>
+
+						<Select value={bulkPaymentFilter} onValueChange={setBulkPaymentFilter}>
+							<SelectTrigger className="w-full sm:w-48">
+								<SelectValue placeholder={t("users.canProcessBulkPayment") || "Can Process Bulk"} />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="all">{t("common.all") || "All"} Bulk</SelectItem>
+								<SelectItem value="true">{t("common.yes") || "Yes"}</SelectItem>
+								<SelectItem value="false">{t("common.no") || "No"}</SelectItem>
+							</SelectContent>
+						</Select>
+					</div>
 			
 			{/* Date Filters */}
 			<div className="flex flex-col lg:flex-row gap-4 mb-6">
@@ -623,6 +670,9 @@ export default function PartnerPage() {
 						onClick={() => {
 							setStartDate("")
 							setEndDate("")
+							setMomoFilter("all")
+							setMobcashFilter("all")
+							setBulkPaymentFilter("all")
 							setCurrentPage(1)
 						}}
 						className="h-10"
@@ -1251,6 +1301,19 @@ export default function PartnerPage() {
 								<ErrorDisplay error={bettingCommissionPaymentError} variant="inline" className="mb-4" />
 							)}
 							<div className="space-y-2">
+								<Label htmlFor="amount">{t("common.amount") || "Amount"}</Label>
+								<Input
+									id="amount"
+									type="number"
+									placeholder={t("common.amountPlaceholder") || "Optional specific amount..."}
+									value={bettingCommissionPaymentForm.amount}
+									onChange={(e) => setBettingCommissionPaymentForm((prev: any) => ({ 
+										...prev, 
+										amount: e.target.value 
+									}))}
+								/>
+							</div>
+							<div className="space-y-2">
 								<Label htmlFor="admin_notes">{t("bettingCommission.paymentNotes")}</Label>
 								<Textarea
 									id="admin_notes"
@@ -1274,7 +1337,7 @@ export default function PartnerPage() {
 									variant="outline" 
 									onClick={() => {
 										setBettingCommissionPaymentModalOpen(false)
-										setBettingCommissionPaymentForm({ admin_notes: "" })
+										setBettingCommissionPaymentForm({ admin_notes: "", amount: "" })
 										setBettingCommissionPaymentError("")
 									}}
 								>
