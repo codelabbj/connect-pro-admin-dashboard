@@ -10,7 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useLanguage } from "@/components/providers/language-provider"
-import { Search, ChevronLeft, ChevronRight, ArrowUpDown, MoreHorizontal, DollarSign, AlertTriangle } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, ArrowUpDown, MoreHorizontal, DollarSign, AlertTriangle, CheckCircle, XCircle, RefreshCw } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useApi } from "@/lib/useApi"
 import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-display"
@@ -52,6 +52,26 @@ export default function BettingTransactionsPage() {
   const [cancellationModalOpen, setCancellationModalOpen] = useState(false)
   const [processingCancellation, setProcessingCancellation] = useState(false)
   const [cancellationNotes, setCancellationNotes] = useState("")
+
+  // Success modal state
+  const [successModalOpen, setSuccessModalOpen] = useState(false)
+  const [successReason, setSuccessReason] = useState("")
+  const [successLoading, setSuccessLoading] = useState(false)
+  const [successError, setSuccessError] = useState("")
+  const [successTransaction, setSuccessTransaction] = useState<any | null>(null)
+
+  // Refund modal state
+  const [refundModalOpen, setRefundModalOpen] = useState(false)
+  const [refundReason, setRefundReason] = useState("")
+  const [refundError, setRefundError] = useState("")
+  const [refundTransaction, setRefundTransaction] = useState<any | null>(null)
+
+  // Failed modal state
+  const [failedModalOpen, setFailedModalOpen] = useState(false)
+  const [failedReason, setFailedReason] = useState("Tentative de relance après timeout")
+  const [failedLoading, setFailedLoading] = useState(false)
+  const [failedError, setFailedError] = useState("")
+  const [failedTransaction, setFailedTransaction] = useState<any | null>(null)
 
   // Fetch platforms for filtering
   useEffect(() => {
@@ -235,6 +255,111 @@ export default function BettingTransactionsPage() {
       })
     } finally {
       setProcessingCancellation(false)
+    }
+  }
+
+  // Action Handlers
+  const openSuccessModal = (tx: any) => {
+    setSuccessTransaction(tx)
+    setSuccessReason("")
+    setSuccessError("")
+    setSuccessModalOpen(true)
+  }
+
+  const handleSuccessSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!successTransaction) return
+
+    setSuccessLoading(true)
+    setSuccessError("")
+    try {
+      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/transactions/${successTransaction.uid}/mark-as-success/`
+      await apiFetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: (successReason.trim() || "Aucune raison fournie") }),
+      })
+      setSuccessModalOpen(false)
+      setSuccessTransaction(null)
+      setSuccessReason("")
+      window.location.reload()
+    } catch (err: any) {
+      const errMsg = extractErrorMessages(err)
+      setSuccessError(errMsg)
+      toast({ title: t("common.error") || "Error", description: errMsg, variant: "destructive" })
+    } finally {
+      setSuccessLoading(false)
+    }
+  }
+
+  const openRefundModal = (tx: any) => {
+    setRefundTransaction(tx)
+    setRefundReason("")
+    setRefundError("")
+    setRefundModalOpen(true)
+  }
+
+  const handleRefundSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!refundTransaction) return
+
+    setProcessingCancellation(true)
+    setRefundError("")
+    try {
+      const payload = {
+        reason: (refundReason || "Autre raison").trim(),
+        admin_notes: (refundReason || "Aucune note fournie").trim(),
+      }
+
+      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/transactions/${refundTransaction.uid}/refund-partner/`
+      await apiFetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      })
+
+      setRefundModalOpen(false)
+      setRefundReason("")
+      window.location.reload()
+    } catch (err: any) {
+      const errMsg = extractErrorMessages(err)
+      setRefundError(errMsg)
+      toast({ title: t("common.error") || "Error", description: errMsg, variant: "destructive" })
+    } finally {
+      setProcessingCancellation(false)
+    }
+  }
+
+  const openFailedModal = (tx: any) => {
+    setFailedTransaction(tx)
+    setFailedReason("Tentative de relance après timeout")
+    setFailedError("")
+    setFailedModalOpen(true)
+  }
+
+  const handleFailedSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!failedTransaction) return
+
+    setFailedLoading(true)
+    setFailedError("")
+    try {
+      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/betting/admin/transactions/${failedTransaction.uid}/mark-as-failed/`
+      await apiFetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: (failedReason.trim() || "Aucune raison fournie") }),
+      })
+      setFailedModalOpen(false)
+      setFailedTransaction(null)
+      setFailedReason("Tentative de relance après timeout")
+      window.location.reload()
+    } catch (err: any) {
+      const errMsg = extractErrorMessages(err)
+      setFailedError(errMsg)
+      toast({ title: t("common.error") || "Error", description: errMsg, variant: "destructive" })
+    } finally {
+      setFailedLoading(false)
     }
   }
 
@@ -500,6 +625,21 @@ export default function BettingTransactionsPage() {
                             <DropdownMenuItem onClick={() => handleOpenDetail(transaction)}>
                               {t("bettingTransactions.viewDetails") || "View Details"}
                             </DropdownMenuItem>
+                            
+                            <DropdownMenuItem onClick={() => openSuccessModal(transaction)}>
+                              <CheckCircle className="h-4 w-4 mr-2 text-green-600" />
+                              <span>Marquer comme Succès</span>
+                            </DropdownMenuItem>
+
+                            <DropdownMenuItem onClick={() => openFailedModal(transaction)}>
+                              <XCircle className="h-4 w-4 mr-2 text-red-600" />
+                              <span>Marquer comme Échec</span>
+                            </DropdownMenuItem>
+
+                            <DropdownMenuItem onClick={() => openRefundModal(transaction)}>
+                              <RefreshCw className="h-4 w-4 mr-2 text-orange-600" />
+                              <span>Rembourser</span>
+                            </DropdownMenuItem>
                             {transaction.status === "cancellation_requested" && (
                               <DropdownMenuItem
                                 onClick={() => {
@@ -706,6 +846,86 @@ export default function BettingTransactionsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Success Modal */}
+      <Dialog open={successModalOpen} onOpenChange={setSuccessModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Marquer comme Succès</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSuccessSubmit} className="space-y-4">
+            {successError && <ErrorDisplay error={successError} />}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Raison</label>
+              <Input
+                value={successReason}
+                onChange={(e) => setSuccessReason(e.target.value)}
+                placeholder="Ex: Confirmation manuelle..."
+                required
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button type="button" variant="outline" onClick={() => setSuccessModalOpen(false)}>Annuler</Button>
+              <Button type="submit" disabled={successLoading} className="bg-green-600 hover:bg-green-700 text-white">
+                {successLoading ? "Traitement..." : "Confirmer"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Failed Modal */}
+      <Dialog open={failedModalOpen} onOpenChange={setFailedModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Marquer comme Échec</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleFailedSubmit} className="space-y-4">
+            {failedError && <ErrorDisplay error={failedError} />}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Raison de l'échec</label>
+              <Input
+                value={failedReason}
+                onChange={(e) => setFailedReason(e.target.value)}
+                required
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button type="button" variant="outline" onClick={() => setFailedModalOpen(false)}>Annuler</Button>
+              <Button type="submit" variant="destructive" disabled={failedLoading}>
+                {failedLoading ? "Traitement..." : "Confirmer"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Refund Modal */}
+      <Dialog open={refundModalOpen} onOpenChange={setRefundModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rembourser la transaction</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleRefundSubmit} className="space-y-4">
+            {refundError && <ErrorDisplay error={refundError} />}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Raison du remboursement</label>
+              <Input
+                value={refundReason}
+                onChange={(e) => setRefundReason(e.target.value)}
+                placeholder="Raison..."
+                required
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button type="button" variant="outline" onClick={() => setRefundModalOpen(false)}>Annuler</Button>
+              <Button type="submit" disabled={processingCancellation} className="bg-orange-600 hover:bg-orange-700 text-white">
+                {processingCancellation ? "Traitement..." : "Rembourser"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }

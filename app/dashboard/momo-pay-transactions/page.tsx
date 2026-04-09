@@ -8,8 +8,9 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy, Eye, X, Edit } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, ArrowUpDown, Copy, Eye, X, Edit, MoreHorizontal, CheckCircle, XCircle } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose, DialogFooter } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
@@ -25,7 +26,7 @@ interface MomoPayTransaction {
   amount: string
   amount_as_integer: number
   recipient_phone: string
-  status: "pending" | "confirmed" | "cancelled" | "expired"
+  status: "pending" | "confirmed" | "cancelled" | "expired" | "failed"
   reference: string
   created_by: number
   fcm_notifications: any[]
@@ -94,6 +95,18 @@ function MomoPayTransactionsContent() {
     description: "",
     callback_url: ""
   })
+
+  // Dropdown Modal actions
+  const [successModalOpen, setSuccessModalOpen] = useState(false)
+  const [successReason, setSuccessReason] = useState("")
+  const [successLoading, setSuccessLoading] = useState(false)
+  const [successTransaction, setSuccessTransaction] = useState<any | null>(null)
+
+  const [failedModalOpen, setFailedModalOpen] = useState(false)
+  const [failedReason, setFailedReason] = useState("Tentative de relance après timeout")
+  const [failedLoading, setFailedLoading] = useState(false)
+  const [failedTransaction, setFailedTransaction] = useState<any | null>(null)
+
   const { t } = useLanguage()
   const itemsPerPage = 20
 
@@ -247,6 +260,58 @@ function MomoPayTransactionsContent() {
     setDetailModalOpen(false)
     setDetailTransaction(null)
     setDetailError("")
+  }
+
+  const openSuccessModal = (tx: any) => {
+    setSuccessTransaction(tx)
+    setSuccessReason("")
+    setSuccessModalOpen(true)
+  }
+
+  const handleSuccessSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!successTransaction) return
+    setSuccessLoading(true)
+    try {
+      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/momo-pay-transactions/${successTransaction.uid}/success/`
+      await apiFetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: (successReason.trim() || "Confirmation manuelle") }),
+      })
+      setSuccessModalOpen(false)
+      window.location.reload()
+    } catch (err: any) {
+      toast({ title: t("common.error") || "Error", description: extractErrorMessages(err), variant: "destructive" })
+    } finally {
+      setSuccessLoading(false)
+    }
+  }
+
+  const openFailedModal = (tx: any) => {
+    setFailedTransaction(tx)
+    setFailedReason("Tentative de relance après timeout")
+    setFailedModalOpen(true)
+  }
+
+  const handleFailedSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!failedTransaction) return
+    setFailedLoading(true)
+    try {
+      const endpoint = `${baseUrl.replace(/\/$/, "")}/api/payments/momo-pay-transactions/${failedTransaction.uid}/failed/`
+      await apiFetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: (failedReason.trim() || "Échec") }),
+      })
+      setFailedModalOpen(false)
+      window.location.reload()
+    } catch (err: any) {
+      toast({ title: t("common.error") || "Error", description: extractErrorMessages(err), variant: "destructive" })
+    } finally {
+      setFailedLoading(false)
+    }
   }
 
   // Cancel transaction
@@ -534,6 +599,27 @@ function MomoPayTransactionsContent() {
                               </Button>
                             </>
                           )}
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              {transaction.status === "pending" || transaction.status === "failed" ? (
+                                <DropdownMenuItem onClick={() => openSuccessModal(transaction)}>
+                                  <CheckCircle className="h-4 w-4 mr-2 text-green-600" />
+                                  <span>Marquer comme Succès</span>
+                                </DropdownMenuItem>
+                              ) : null}
+                              {transaction.status === "pending" || transaction.status === "confirmed" ? (
+                                <DropdownMenuItem onClick={() => openFailedModal(transaction)}>
+                                  <XCircle className="h-4 w-4 mr-2 text-red-600" />
+                                  <span>Marquer comme Échec</span>
+                                </DropdownMenuItem>
+                              ) : null}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -799,6 +885,57 @@ function MomoPayTransactionsContent() {
               {updateLoading ? "Mise à jour..." : "Mettre à jour"}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Success Modal */}
+      <Dialog open={successModalOpen} onOpenChange={setSuccessModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Marquer comme Succès</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSuccessSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Raison</label>
+              <Input
+                value={successReason}
+                onChange={(e) => setSuccessReason(e.target.value)}
+                placeholder="Ex: Confirmation manuelle..."
+                required
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button type="button" variant="outline" onClick={() => setSuccessModalOpen(false)}>Annuler</Button>
+              <Button type="submit" disabled={successLoading} className="bg-green-600 hover:bg-green-700 text-white">
+                {successLoading ? "Traitement..." : "Confirmer"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Failed Modal */}
+      <Dialog open={failedModalOpen} onOpenChange={setFailedModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Marquer comme Échec</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleFailedSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Raison de l'échec</label>
+              <Input
+                value={failedReason}
+                onChange={(e) => setFailedReason(e.target.value)}
+                required
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button type="button" variant="outline" onClick={() => setFailedModalOpen(false)}>Annuler</Button>
+              <Button type="submit" variant="destructive" disabled={failedLoading}>
+                {failedLoading ? "Traitement..." : "Confirmer"}
+              </Button>
+            </div>
+          </form>
         </DialogContent>
       </Dialog>
     </>
