@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
+import { useSearchParams, usePathname, useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -27,15 +28,19 @@ import { formatApiDateTime } from "@/lib/utils";
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
 export default function TransfersPage() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [senderFilter, setSenderFilter] = useState("")
-  const [receiverFilter, setReceiverFilter] = useState("")
-  const [startDate, setStartDate] = useState("")
-  const [endDate, setEndDate] = useState("")
-  const [currentPage, setCurrentPage] = useState(1)
-  const [sortField, setSortField] = useState<"amount" | "date" | null>(null)
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc")
+  const searchParams = useSearchParams()
+  const pathname = usePathname()
+  const router = useRouter()
+
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "")
+  const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "all")
+  const [senderFilter, setSenderFilter] = useState(searchParams.get("sender") || "")
+  const [receiverFilter, setReceiverFilter] = useState(searchParams.get("receiver") || "")
+  const [startDate, setStartDate] = useState(searchParams.get("start_date") || "")
+  const [endDate, setEndDate] = useState(searchParams.get("end_date") || "")
+  const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1)
+  const [sortField, setSortField] = useState<"amount" | "date" | null>((searchParams.get("sort") as any) || null)
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">((searchParams.get("direction") as "asc" | "desc") || "desc")
   const [transfers, setTransfers] = useState<any[]>([])
   const [totalCount, setTotalCount] = useState(0)
   const [loading, setLoading] = useState(false)
@@ -49,6 +54,18 @@ export default function TransfersPage() {
   const { toast } = useToast()
   const [detailModalOpen, setDetailModalOpen] = useState(false)
   const [selectedTransfer, setSelectedTransfer] = useState<any | null>(null)
+
+  const updateUrl = useCallback((updates: Record<string, string | null>) => {
+    const params = new URLSearchParams(searchParams.toString())
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value === null || value === "all" || value === "") {
+        params.delete(key)
+      } else {
+        params.set(key, value)
+      }
+    })
+    router.push(`${pathname}?${params.toString()}`)
+  }, [searchParams, pathname, router])
 
   // Fetch transfers from API
   const fetchTransfers = async () => {
@@ -131,8 +148,19 @@ export default function TransfersPage() {
   }
 
   useEffect(() => {
+    // Sync state from URL
+    setSearchTerm(searchParams.get("search") || "")
+    setStatusFilter(searchParams.get("status") || "all")
+    setSenderFilter(searchParams.get("sender") || "")
+    setReceiverFilter(searchParams.get("receiver") || "")
+    setStartDate(searchParams.get("start_date") || "")
+    setEndDate(searchParams.get("end_date") || "")
+    setCurrentPage(Number(searchParams.get("page")) || 1)
+    setSortField((searchParams.get("sort") as any) || null)
+    setSortDirection((searchParams.get("direction") as "asc" | "desc") || "desc")
+
     fetchTransfers()
-  }, [currentPage, itemsPerPage, searchTerm, statusFilter, senderFilter, receiverFilter, startDate, endDate, sortField, sortDirection])
+  }, [searchParams, itemsPerPage, baseUrl, apiFetch, toast])
 
   useEffect(() => {
     fetchStatistics()
@@ -142,9 +170,12 @@ export default function TransfersPage() {
   const startIndex = (currentPage - 1) * itemsPerPage
 
   const handleSort = (field: "amount" | "date") => {
-    setCurrentPage(1)
-    setSortDirection((prevDir) => (sortField === field ? (prevDir === "desc" ? "asc" : "desc") : "desc"))
-    setSortField(field)
+    const isAsc = sortField === field && sortDirection === "asc"
+    updateUrl({
+      sort: field,
+      direction: isAsc ? "desc" : "asc",
+      page: "1"
+    })
   }
 
   const getStatusBadge = (status: string) => {
@@ -240,12 +271,12 @@ export default function TransfersPage() {
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value)
-                  setCurrentPage(1)
+                  updateUrl({ search: e.target.value, page: "1" })
                 }}
                 className="pl-10"
               />
             </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <Select value={statusFilter} onValueChange={(val) => updateUrl({ status: val, page: "1" })}>
               <SelectTrigger className="w-full lg:w-48">
                 <SelectValue placeholder="All Statuses" />
               </SelectTrigger>
@@ -266,7 +297,7 @@ export default function TransfersPage() {
               value={senderFilter}
               onChange={(e) => {
                 setSenderFilter(e.target.value)
-                setCurrentPage(1)
+                updateUrl({ sender: e.target.value, page: "1" })
               }}
               className="w-full lg:w-48"
             />
@@ -275,7 +306,7 @@ export default function TransfersPage() {
               value={receiverFilter}
               onChange={(e) => {
                 setReceiverFilter(e.target.value)
-                setCurrentPage(1)
+                updateUrl({ receiver: e.target.value, page: "1" })
               }}
               className="w-full lg:w-48"
             />
@@ -291,10 +322,7 @@ export default function TransfersPage() {
                 <Input
                   type="date"
                   value={startDate}
-                  onChange={(e) => {
-                    setStartDate(e.target.value)
-                    setCurrentPage(1)
-                  }}
+                  onChange={(e) => updateUrl({ start_date: e.target.value, page: "1" })}
                   className="w-full lg:w-48"
                 />
               </div>
@@ -305,10 +333,7 @@ export default function TransfersPage() {
                 <Input
                   type="date"
                   value={endDate}
-                  onChange={(e) => {
-                    setEndDate(e.target.value)
-                    setCurrentPage(1)
-                  }}
+                  onChange={(e) => updateUrl({ end_date: e.target.value, page: "1" })}
                   className="w-full lg:w-48"
                 />
               </div>
@@ -317,9 +342,11 @@ export default function TransfersPage() {
               <Button
                 variant="outline"
                 onClick={() => {
-                  setStartDate("")
-                  setEndDate("")
-                  setCurrentPage(1)
+                  updateUrl({
+                    start_date: null,
+                    end_date: null,
+                    page: "1"
+                  })
                 }}
                 className="h-10"
               >
@@ -428,7 +455,7 @@ export default function TransfersPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                onClick={() => updateUrl({ page: Math.max(currentPage - 1, 1).toString() })}
                 disabled={currentPage === 1 || loading}
               >
                 <ChevronLeft className="h-4 w-4 mr-1" />
@@ -440,7 +467,7 @@ export default function TransfersPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                onClick={() => updateUrl({ page: Math.min(currentPage + 1, totalPages).toString() })}
                 disabled={currentPage === totalPages || loading}
               >
                 Next

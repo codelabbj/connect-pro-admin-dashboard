@@ -37,27 +37,25 @@ import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-displa
 // import { useWebSocket } from "@/components/providers/websocket-provider"
 import { Plus } from "lucide-react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import { useCallback } from "react"
 
 import { formatApiDateTime } from "@/lib/utils";
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
 export default function TransactionsPage() {
-  const [searchTerm, setSearchTerm] = useState(() => {
-    // Pre-fill from URL param when navigated from aggregator transactions
-    if (typeof window !== "undefined") {
-      return new URLSearchParams(window.location.search).get("search") || ""
-    }
-    return ""
-  })
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [typeFilter, setTypeFilter] = useState("all")
-  const [startDate, setStartDate] = useState("")
-  const [endDate, setEndDate] = useState("")
-  const [currentPage, setCurrentPage] = useState(1)
-  const [sortField, setSortField] = useState<"amount" | "date" | null>(null)
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc")
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "")
+  const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "all")
+  const [typeFilter, setTypeFilter] = useState(searchParams.get("type") || "all")
+  const [startDate, setStartDate] = useState(searchParams.get("start_date") || "")
+  const [endDate, setEndDate] = useState(searchParams.get("end_date") || "")
+  const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1)
+  const [sortField, setSortField] = useState<"amount" | "date" | null>((searchParams.get("sort_field") as any) || null)
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">((searchParams.get("sort_dir") as any) || "desc")
   const [transactions, setTransactions] = useState<any[]>([])
   const [totalCount, setTotalCount] = useState(0)
   const [loading, setLoading] = useState(false)
@@ -72,7 +70,6 @@ export default function TransactionsPage() {
   const [editTransaction, setEditTransaction] = useState<any | null>(null)
   const [deleteUid, setDeleteUid] = useState<string | null>(null)
   const [createModalOpen, setCreateModalOpen] = useState(false)
-  const router = useRouter()
   const [showEditConfirm, setShowEditConfirm] = useState(false)
   const [pendingEditPayload, setPendingEditPayload] = useState<any | null>(null)
 
@@ -183,18 +180,58 @@ export default function TransactionsPage() {
     }
   }
 
+  // Centralized URL update function
+  const updateUrl = useCallback((newParams: Record<string, string | number | null>) => {
+    const params = new URLSearchParams(searchParams.toString())
+    Object.entries(newParams).forEach(([key, value]) => {
+      if (value === null || value === "" || value === "all" || (key === "page" && value === 1)) {
+        params.delete(key)
+      } else {
+        params.set(key, value.toString())
+      }
+    })
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+  }, [searchParams, pathname, router])
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    updateUrl({ page })
+  }
+
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value)
+    setCurrentPage(1)
+    updateUrl({ search: value, page: 1 })
+  }
+
+  const handleStatusChange = (value: string) => {
+    setStatusFilter(value)
+    setCurrentPage(1)
+    updateUrl({ status: value, page: 1 })
+  }
+
+  const handleTypeChange = (value: string) => {
+    setTypeFilter(value)
+    setCurrentPage(1)
+    updateUrl({ type: value, page: 1 })
+  }
+
+  const handleDateChange = (start: string, end: string) => {
+    setStartDate(start)
+    setEndDate(end)
+    setCurrentPage(1)
+    updateUrl({ start_date: start, end_date: end, page: 1 })
+  }
+
   useEffect(() => {
     fetchTransactions()
 
     // Check for UID in query params to auto-open detail modal
-    if (typeof window !== "undefined") {
-      const urlParams = new URLSearchParams(window.location.search);
-      const uidFromUrl = urlParams.get("uid");
-      if (uidFromUrl) {
-        fetchTransactionDetail(uidFromUrl);
-      }
+    const uidFromUrl = searchParams.get("uid");
+    if (uidFromUrl) {
+      fetchTransactionDetail(uidFromUrl);
     }
-  }, [currentPage, itemsPerPage, baseUrl, searchTerm, statusFilter, typeFilter, startDate, endDate, sortField, sortDirection])
+  }, [currentPage, itemsPerPage, baseUrl, searchTerm, statusFilter, typeFilter, startDate, endDate, sortField, sortDirection, searchParams])
 
   // Remove client-side filtering and sorting since it's now handled by the API
   const filteredAndSortedTransactions = transactions
@@ -203,10 +240,11 @@ export default function TransactionsPage() {
   const paginatedTransactions = filteredAndSortedTransactions
 
   const handleSort = (field: "amount" | "date") => {
-    setCurrentPage(1)
-    // Toggle direction if clicking the same field, else reset to desc
-    setSortDirection((prevDir) => (sortField === field ? (prevDir === "desc" ? "asc" : "desc") : "desc"))
+    const newDir = sortField === field ? (sortDirection === "desc" ? "asc" : "desc") : "desc"
     setSortField(field)
+    setSortDirection(newDir)
+    setCurrentPage(1)
+    updateUrl({ sort_field: field, sort_dir: newDir, page: 1 })
   }
 
 
@@ -694,14 +732,11 @@ export default function TransactionsPage() {
               <Input
                 placeholder={t("common.search")}
                 value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value)
-                  setCurrentPage(1)
-                }}
+                onChange={(e) => handleSearchChange(e.target.value)}
                 className="pl-10"
               />
             </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <Select value={statusFilter} onValueChange={handleStatusChange}>
               <SelectTrigger className="w-full lg:w-48">
                 <SelectValue placeholder={t("transactions.allStatuses")} />
               </SelectTrigger>
@@ -714,7 +749,7 @@ export default function TransactionsPage() {
                 <SelectItem value="sent_to_user">{t("transactions.sentToUser")}</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
+            <Select value={typeFilter} onValueChange={handleTypeChange}>
               <SelectTrigger className="w-full lg:w-48">
                 <SelectValue placeholder={t("transactions.allTypes")} />
               </SelectTrigger>
@@ -737,10 +772,7 @@ export default function TransactionsPage() {
                 <Input
                   type="date"
                   value={startDate}
-                  onChange={(e) => {
-                    setStartDate(e.target.value)
-                    setCurrentPage(1)
-                  }}
+                  onChange={(e) => handleDateChange(e.target.value, endDate)}
                   className="w-full lg:w-48"
                 />
               </div>
@@ -751,10 +783,7 @@ export default function TransactionsPage() {
                 <Input
                   type="date"
                   value={endDate}
-                  onChange={(e) => {
-                    setEndDate(e.target.value)
-                    setCurrentPage(1)
-                  }}
+                  onChange={(e) => handleDateChange(startDate, e.target.value)}
                   className="w-full lg:w-48"
                 />
               </div>
@@ -765,7 +794,18 @@ export default function TransactionsPage() {
                 onClick={() => {
                   setStartDate("")
                   setEndDate("")
+                  setStatusFilter("all")
+                  setTypeFilter("all")
+                  setSearchTerm("")
                   setCurrentPage(1)
+                  updateUrl({
+                    start_date: "",
+                    end_date: "",
+                    status: "all",
+                    type: "all",
+                    search: "",
+                    page: 1
+                  })
                 }}
                 className="h-10"
               >
@@ -918,7 +958,7 @@ export default function TransactionsPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
                 disabled={currentPage === 1 || loading}
               >
                 <ChevronLeft className="h-4 w-4 mr-1" />
@@ -930,7 +970,7 @@ export default function TransactionsPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))}
                 disabled={currentPage === totalPages || loading}
               >
                 {t("common.next")}

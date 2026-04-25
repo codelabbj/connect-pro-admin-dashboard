@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
+import { useSearchParams, usePathname, useRouter } from "next/navigation"
 import { useApi } from "@/lib/useApi"
 import { useLanguage } from "@/components/providers/language-provider"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
@@ -17,22 +18,37 @@ import { useRouter } from "next/navigation"
 
 import { formatApiDateTime } from "@/lib/utils";
 export default function AggregatorTransactionsPage() {
+    const searchParams = useSearchParams()
+    const pathname = usePathname()
+    const router = useRouter()
+
     const [transactions, setTransactions] = useState<AggregatorTransaction[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
     const [filters, setFilters] = useState({
-        status: "",
-        type: "",
-        user: "",
-        date_from: "",
-        date_to: ""
+        status: searchParams.get("status") || "",
+        type: searchParams.get("type") || "",
+        user: searchParams.get("user") || "",
+        date_from: searchParams.get("date_from") || "",
+        date_to: searchParams.get("date_to") || ""
     })
     const [selectedTx, setSelectedTx] = useState<AggregatorTransaction | null>(null)
     const [showDetail, setShowDetail] = useState(false)
 
     const apiFetch = useApi()
     const { t } = useLanguage()
-    const router = useRouter()
+
+    const updateUrl = useCallback((updates: Record<string, string | null>) => {
+        const params = new URLSearchParams(searchParams.toString())
+        Object.entries(updates).forEach(([key, value]) => {
+            if (value === null || value === "all" || value === "") {
+                params.delete(key)
+            } else {
+                params.set(key, value)
+            }
+        })
+        router.push(`${pathname}?${params.toString()}`)
+    }, [searchParams, pathname, router])
     const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
     const fetchTransactions = async () => {
@@ -56,8 +72,17 @@ export default function AggregatorTransactionsPage() {
     }
 
     useEffect(() => {
+        // Sync state from URL
+        setFilters({
+            status: searchParams.get("status") || "",
+            type: searchParams.get("type") || "",
+            user: searchParams.get("user") || "",
+            date_from: searchParams.get("date_from") || "",
+            date_to: searchParams.get("date_to") || ""
+        })
+
         fetchTransactions()
-    }, [apiFetch, filters])
+    }, [searchParams, apiFetch])
 
     const getStatusVariant = (status: string) => {
         switch (status.toLowerCase()) {
@@ -129,7 +154,7 @@ export default function AggregatorTransactionsPage() {
                     <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-slate-500">{t("common.status")}</label>
-                            <Select onValueChange={(v) => setFilters({ ...filters, status: v === "all" ? "" : v })}>
+                            <Select value={filters.status || "all"} onValueChange={(v) => updateUrl({ status: v === "all" ? null : v })}>
                                 <SelectTrigger>
                                     <SelectValue placeholder={t("common.allStatuses")} />
                                 </SelectTrigger>
@@ -145,7 +170,7 @@ export default function AggregatorTransactionsPage() {
                         </div>
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-slate-500">{t("common.type")}</label>
-                            <Select onValueChange={(v) => setFilters({ ...filters, type: v === "all" ? "" : v })}>
+                            <Select value={filters.type || "all"} onValueChange={(v) => updateUrl({ type: v === "all" ? null : v })}>
                                 <SelectTrigger>
                                     <SelectValue placeholder={t("common.allTypes")} />
                                 </SelectTrigger>
@@ -158,15 +183,15 @@ export default function AggregatorTransactionsPage() {
                         </div>
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-slate-500">{t("common.fromDate")}</label>
-                            <Input type="date" onChange={(e) => setFilters({ ...filters, date_from: e.target.value })} />
+                            <Input type="date" value={filters.date_from} onChange={(e) => updateUrl({ date_from: e.target.value })} />
                         </div>
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-slate-500">{t("common.toDate")}</label>
-                            <Input type="date" onChange={(e) => setFilters({ ...filters, date_to: e.target.value })} />
+                            <Input type="date" value={filters.date_to} onChange={(e) => updateUrl({ date_to: e.target.value })} />
                         </div>
                         <div className="flex items-end">
-                            <Button variant="outline" className="w-full flex gap-2" onClick={fetchTransactions}>
-                                <Filter size={18} /> {t("common.applyFilters")}
+                            <Button variant="outline" className="w-full flex gap-2" onClick={() => updateUrl({ status: null, type: null, date_from: null, date_to: null, user: null })}>
+                                {t("common.clearFilters") || "Clear Filters"}
                             </Button>
                         </div>
                     </div>

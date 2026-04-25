@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useMemo, useEffect, useCallback } from "react"
+import { useSearchParams, usePathname, useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -20,24 +21,40 @@ import { ErrorDisplay, extractErrorMessages } from "@/components/ui/error-displa
 import { Copy } from "lucide-react"
 
 export default function UsersPage() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [startDate, setStartDate] = useState("")
-  const [endDate, setEndDate] = useState("")
-  const [currentPage, setCurrentPage] = useState(1)
+  const searchParams = useSearchParams()
+  const pathname = usePathname()
+  const router = useRouter()
+
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "")
+  const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "all")
+  const [startDate, setStartDate] = useState(searchParams.get("start_date") || "")
+  const [endDate, setEndDate] = useState(searchParams.get("end_date") || "")
+  const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1)
   const [users, setUsers] = useState<any[]>([])
   const [totalCount, setTotalCount] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-  const [sortField, setSortField] = useState<"display_name" | "email" | "created_at" | null>(null)
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc")
+  const [sortField, setSortField] = useState<"display_name" | "email" | "created_at" | null>((searchParams.get("sort") as any) || null)
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">((searchParams.get("direction") as "asc" | "desc") || "desc")
   const { t } = useLanguage()
   const itemsPerPage = 10
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
   // Set default viewType to 'all' (was 'pending')
-  const [viewType, setViewType] = useState("all") // 'pending' or 'all'
+  const [viewType, setViewType] = useState(searchParams.get("view") || "all") // 'pending' or 'all'
   const { toast } = useToast()
+
+  const updateUrl = useCallback((updates: Record<string, string | null>) => {
+    const params = new URLSearchParams(searchParams.toString())
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value === null || value === "all" || value === "") {
+        params.delete(key)
+      } else {
+        params.set(key, value)
+      }
+    })
+    router.push(`${pathname}?${params.toString()}`)
+  }, [searchParams, pathname, router])
   const [activatingUid, setActivatingUid] = useState<string | null>(null)
   const [deactivatingUid, setDeactivatingUid] = useState<string | null>(null)
   const [selectedUids, setSelectedUids] = useState<string[]>([])
@@ -145,20 +162,30 @@ export default function UsersPage() {
         setLoading(false);
       }
     };
+    // Sync state from URL
+    setSearchTerm(searchParams.get("search") || "")
+    setStatusFilter(searchParams.get("status") || "all")
+    setStartDate(searchParams.get("start_date") || "")
+    setEndDate(searchParams.get("end_date") || "")
+    setCurrentPage(Number(searchParams.get("page")) || 1)
+    setSortField((searchParams.get("sort") as any) || null)
+    setSortDirection((searchParams.get("direction") as "asc" | "desc") || "desc")
+    setViewType(searchParams.get("view") || "all")
+
     fetchUsers();
-  }, [searchTerm, currentPage, itemsPerPage, baseUrl, viewType, statusFilter, startDate, endDate, sortField, sortDirection]);
+  }, [searchParams, itemsPerPage, baseUrl, t, toast, apiFetch]);
 
   const filteredUsers = users // Filtering is now handled by the API
   const startIndex = (currentPage - 1) * itemsPerPage
   const paginatedUsers = filteredUsers // Already paginated by API
 
   const handleSort = (field: "display_name" | "email" | "created_at") => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc")
-    } else {
-      setSortField(field)
-      setSortDirection("desc")
-    }
+    const isAsc = sortField === field && sortDirection === "asc"
+    updateUrl({
+      sort: field,
+      direction: isAsc ? "desc" : "asc",
+      page: "1"
+    })
   }
 
   const getStatusBadge = (status: string) => {
@@ -469,11 +496,14 @@ export default function UsersPage() {
               <Input
                 placeholder={t("users.search")}
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value)
+                  updateUrl({ search: e.target.value, page: "1" })
+                }}
                 className="pl-10"
               />
             </div>
-            <Select value={viewType} onValueChange={setViewType}>
+            <Select value={viewType} onValueChange={(val) => updateUrl({ view: val, page: "1" })}>
               <SelectTrigger className="w-full sm:w-48">
                 <SelectValue placeholder={t("users.viewType")} />
               </SelectTrigger>
@@ -482,7 +512,7 @@ export default function UsersPage() {
                 <SelectItem value="all">{t("users.allUsers")}</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <Select value={statusFilter} onValueChange={(val) => updateUrl({ status: val, page: "1" })}>
               <SelectTrigger className="w-full sm:w-48">
                 <SelectValue placeholder={t("users.allStatuses")} />
               </SelectTrigger>
@@ -502,13 +532,10 @@ export default function UsersPage() {
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   {t("users.startDate") || "Start Date"}
                 </label>
-                <Input
+                 <Input
                   type="date"
                   value={startDate}
-                  onChange={(e) => {
-                    setStartDate(e.target.value)
-                    setCurrentPage(1)
-                  }}
+                  onChange={(e) => updateUrl({ start_date: e.target.value, page: "1" })}
                   className="w-full lg:w-48"
                 />
               </div>
@@ -519,10 +546,7 @@ export default function UsersPage() {
                 <Input
                   type="date"
                   value={endDate}
-                  onChange={(e) => {
-                    setEndDate(e.target.value)
-                    setCurrentPage(1)
-                  }}
+                  onChange={(e) => updateUrl({ end_date: e.target.value, page: "1" })}
                   className="w-full lg:w-48"
                 />
               </div>
@@ -531,9 +555,11 @@ export default function UsersPage() {
               <Button
                 variant="outline"
                 onClick={() => {
-                  setStartDate("")
-                  setEndDate("")
-                  setCurrentPage(1)
+                  updateUrl({
+                    start_date: null,
+                    end_date: null,
+                    page: "1"
+                  })
                 }}
                 className="h-10"
               >
@@ -726,7 +752,7 @@ export default function UsersPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                onClick={() => updateUrl({ page: Math.max(currentPage - 1, 1).toString() })}
                 disabled={currentPage === 1}
               >
                 <ChevronLeft className="h-4 w-4 mr-1" />
@@ -738,7 +764,7 @@ export default function UsersPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                onClick={() => updateUrl({ page: Math.min(currentPage + 1, totalPages).toString() })}
                 disabled={currentPage === totalPages}
               >
                 {t("common.next")}

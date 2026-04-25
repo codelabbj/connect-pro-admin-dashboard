@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect, Suspense } from "react"
-import { useSearchParams } from "next/navigation"
+import { useState, useEffect, Suspense, useCallback } from "react"
+import { useSearchParams, usePathname, useRouter } from "next/navigation"
 import { useApi } from "@/lib/useApi"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -61,24 +61,39 @@ export default function MomoPayTransactionsPage() {
 
 function MomoPayTransactionsContent() {
   const searchParams = useSearchParams()
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [phoneFilter, setPhoneFilter] = useState("")
-  const [paymentTypeFilter, setPaymentTypeFilter] = useState("all")
-  const [startDate, setStartDate] = useState("")
-  const [endDate, setEndDate] = useState("")
-  const [includeExpired, setIncludeExpired] = useState(false)
-  const [currentPage, setCurrentPage] = useState(1)
+  const pathname = usePathname()
+  const router = useRouter()
+
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("reference") || "")
+  const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "all")
+  const [phoneFilter, setPhoneFilter] = useState(searchParams.get("phone") || "")
+  const [paymentTypeFilter, setPaymentTypeFilter] = useState(searchParams.get("payment_type") || "all")
+  const [startDate, setStartDate] = useState(searchParams.get("start_date") || "")
+  const [endDate, setEndDate] = useState(searchParams.get("end_date") || "")
+  const [includeExpired, setIncludeExpired] = useState(searchParams.get("include_expired") === "true")
+  const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1)
   const [transactions, setTransactions] = useState<MomoPayTransaction[]>([])
   const [totalCount, setTotalCount] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-  const [sortField, setSortField] = useState<"amount" | "recipient_phone" | "created_at" | null>(null)
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc")
+  const [sortField, setSortField] = useState<"amount" | "recipient_phone" | "created_at" | null>((searchParams.get("sort") as any) || null)
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">((searchParams.get("direction") as "asc" | "desc") || "desc")
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
   const { toast } = useToast()
   const apiFetch = useApi()
+
+  const updateUrl = useCallback((updates: Record<string, string | null>) => {
+    const params = new URLSearchParams(searchParams.toString())
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value === null || value === "all" || value === "") {
+        params.delete(key)
+      } else {
+        params.set(key, value)
+      }
+    })
+    router.push(`${pathname}?${params.toString()}`)
+  }, [searchParams, pathname, router])
   const [detailModalOpen, setDetailModalOpen] = useState(false)
   const [detailTransaction, setDetailTransaction] = useState<MomoPayTransaction | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
@@ -177,29 +192,39 @@ function MomoPayTransactionsContent() {
         setLoading(false)
       }
     }
+    // Sync state from URL
+    setSearchTerm(searchParams.get("reference") || "")
+    setStatusFilter(searchParams.get("status") || "all")
+    setPhoneFilter(searchParams.get("phone") || "")
+    setPaymentTypeFilter(searchParams.get("payment_type") || "all")
+    setStartDate(searchParams.get("start_date") || "")
+    setEndDate(searchParams.get("end_date") || "")
+    setIncludeExpired(searchParams.get("include_expired") === "true")
+    setCurrentPage(Number(searchParams.get("page")) || 1)
+    setSortField((searchParams.get("sort") as any) || null)
+    setSortDirection((searchParams.get("direction") as "asc" | "desc") || "desc")
+
     fetchTransactions()
-  }, [searchTerm, currentPage, itemsPerPage, baseUrl, statusFilter, phoneFilter, paymentTypeFilter, startDate, endDate, includeExpired, sortField, sortDirection, toast, apiFetch])
+  }, [searchParams, itemsPerPage, baseUrl, toast, apiFetch])
 
   // After mount: initialize from URL params (safe for SSR)
   useEffect(() => {
-    const ref = searchParams.get("reference")
-    if (ref) setSearchTerm(ref)
     const uid = searchParams.get("uid")
     if (uid) {
       handleOpenDetail({ uid } as any)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [searchParams])
 
   const startIndex = (currentPage - 1) * itemsPerPage
 
   const handleSort = (field: "amount" | "recipient_phone" | "created_at") => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc")
-    } else {
-      setSortField(field)
-      setSortDirection("desc")
-    }
+    const isAsc = sortField === field && sortDirection === "asc"
+    updateUrl({
+      sort: field,
+      direction: isAsc ? "desc" : "asc",
+      page: "1"
+    })
   }
 
   const getStatusBadge = (status: string, isExpired: boolean) => {
@@ -407,20 +432,26 @@ function MomoPayTransactionsContent() {
                 <Input
                   placeholder="Rechercher par référence..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value)
+                    updateUrl({ reference: e.target.value, page: "1" })
+                  }}
                   className="pl-10"
                 />
               </div>
               <Input
                 placeholder="Filtrer par téléphone..."
                 value={phoneFilter}
-                onChange={(e) => setPhoneFilter(e.target.value)}
+                onChange={(e) => {
+                  setPhoneFilter(e.target.value)
+                  updateUrl({ phone: e.target.value, page: "1" })
+                }}
                 className="w-full sm:w-48"
               />
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 items-center">
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <Select value={statusFilter} onValueChange={(val) => updateUrl({ status: val, page: "1" })}>
                 <SelectTrigger className="w-full sm:w-48">
                   <SelectValue placeholder="Tous les statuts" />
                 </SelectTrigger>
@@ -433,7 +464,7 @@ function MomoPayTransactionsContent() {
                 </SelectContent>
               </Select>
 
-              <Select value={paymentTypeFilter} onValueChange={setPaymentTypeFilter}>
+              <Select value={paymentTypeFilter} onValueChange={(val) => updateUrl({ payment_type: val, page: "1" })}>
                 <SelectTrigger className="w-full sm:w-48">
                   <SelectValue placeholder="Type de paiement" />
                 </SelectTrigger>
@@ -449,7 +480,7 @@ function MomoPayTransactionsContent() {
                 <Switch
                   id="include-expired"
                   checked={includeExpired}
-                  onCheckedChange={setIncludeExpired}
+                  onCheckedChange={(checked) => updateUrl({ include_expired: checked ? "true" : null, page: "1" })}
                 />
                 <label htmlFor="include-expired" className="text-sm font-medium">
                   Inclure les expirés
@@ -467,10 +498,7 @@ function MomoPayTransactionsContent() {
                   <Input
                     type="date"
                     value={startDate}
-                    onChange={(e) => {
-                      setStartDate(e.target.value)
-                      setCurrentPage(1)
-                    }}
+                    onChange={(e) => updateUrl({ start_date: e.target.value, page: "1" })}
                     className="w-full lg:w-48"
                   />
                 </div>
@@ -481,10 +509,7 @@ function MomoPayTransactionsContent() {
                   <Input
                     type="date"
                     value={endDate}
-                    onChange={(e) => {
-                      setEndDate(e.target.value)
-                      setCurrentPage(1)
-                    }}
+                    onChange={(e) => updateUrl({ end_date: e.target.value, page: "1" })}
                     className="w-full lg:w-48"
                   />
                 </div>
@@ -493,9 +518,11 @@ function MomoPayTransactionsContent() {
                 <Button
                   variant="outline"
                   onClick={() => {
-                    setStartDate("")
-                    setEndDate("")
-                    setCurrentPage(1)
+                    updateUrl({
+                      start_date: null,
+                      end_date: null,
+                      page: "1"
+                    })
                   }}
                   className="h-10"
                 >
@@ -638,7 +665,7 @@ function MomoPayTransactionsContent() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                onClick={() => updateUrl({ page: Math.max(currentPage - 1, 1).toString() })}
                 disabled={currentPage === 1}
               >
                 <ChevronLeft className="h-4 w-4 mr-1" />
@@ -650,7 +677,7 @@ function MomoPayTransactionsContent() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                onClick={() => updateUrl({ page: Math.min(currentPage + 1, totalPages).toString() })}
                 disabled={currentPage === totalPages}
               >
                 Suivant

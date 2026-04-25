@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState, useCallback } from "react"
+import { useSearchParams, usePathname, useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
@@ -18,16 +19,32 @@ export default function TransactionLogsListPage() {
   const { t } = useLanguage()
   const { toast } = useToast()
 
+  const searchParams = useSearchParams()
+  const pathname = usePathname()
+  const router = useRouter()
+
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-  const [searchInput, setSearchInput] = useState("")
-  const [searchTerm, setSearchTerm] = useState("")
-  const [startDate, setStartDate] = useState("")
-  const [endDate, setEndDate] = useState("")
-  const [sortField, setSortField] = useState<string | null>(null)
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc")
-  const [currentPage, setCurrentPage] = useState(1)
+  const [searchInput, setSearchInput] = useState(searchParams.get("search") || "")
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "")
+  const [startDate, setStartDate] = useState(searchParams.get("start_date") || "")
+  const [endDate, setEndDate] = useState(searchParams.get("end_date") || "")
+  const [sortField, setSortField] = useState<string | null>(searchParams.get("sort") || null)
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">((searchParams.get("direction") as "asc" | "desc") || "desc")
+  const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1)
   const [pageSize, setPageSize] = useState(10)
+
+  const updateUrl = useCallback((updates: Record<string, string | null>) => {
+    const params = new URLSearchParams(searchParams.toString())
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value === null || value === "all" || value === "") {
+        params.delete(key)
+      } else {
+        params.set(key, value)
+      }
+    })
+    router.push(`${pathname}?${params.toString()}`)
+  }, [searchParams, pathname, router])
 
   const [logs, setLogs] = useState<any[]>([])
   const [count, setCount] = useState(0)
@@ -35,17 +52,16 @@ export default function TransactionLogsListPage() {
   const totalPages = useMemo(() => Math.max(1, Math.ceil(count / pageSize)), [count, pageSize])
 
   const handleSort = (field: string) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc")
-    } else {
-      setSortField(field)
-      setSortDirection("desc")
-    }
+    const isAsc = sortField === field && sortDirection === "asc"
+    updateUrl({
+      sort: field,
+      direction: isAsc ? "desc" : "asc",
+      page: "1"
+    })
   }
 
   const handleSearchSubmit = () => {
-    setSearchTerm(searchInput.trim())
-    setCurrentPage(1)
+    updateUrl({ search: searchInput.trim(), page: "1" })
   }
 
   useEffect(() => {
@@ -94,8 +110,17 @@ export default function TransactionLogsListPage() {
       }
     }
 
+    // Sync state from URL
+    setSearchInput(searchParams.get("search") || "")
+    setSearchTerm(searchParams.get("search") || "")
+    setStartDate(searchParams.get("start_date") || "")
+    setEndDate(searchParams.get("end_date") || "")
+    setCurrentPage(Number(searchParams.get("page")) || 1)
+    setSortField(searchParams.get("sort") || null)
+    setSortDirection((searchParams.get("direction") as "asc" | "desc") || "desc")
+
     fetchLogs()
-  }, [apiFetch, currentPage, pageSize, searchTerm, startDate, endDate, sortField, sortDirection, t])
+  }, [searchParams, pageSize, baseUrl, t, toast, apiFetch])
 
   if (loading) {
     return (
@@ -146,10 +171,7 @@ export default function TransactionLogsListPage() {
               <Input
                 type="date"
                 value={startDate}
-                onChange={(e) => {
-                  setStartDate(e.target.value)
-                  setCurrentPage(1)
-                }}
+                onChange={(e) => updateUrl({ start_date: e.target.value, page: "1" })}
                 className="w-full lg:w-48"
               />
             </div>
@@ -160,10 +182,7 @@ export default function TransactionLogsListPage() {
               <Input
                 type="date"
                 value={endDate}
-                onChange={(e) => {
-                  setEndDate(e.target.value)
-                  setCurrentPage(1)
-                }}
+                onChange={(e) => updateUrl({ end_date: e.target.value, page: "1" })}
                 className="w-full lg:w-48"
               />
             </div>
@@ -172,9 +191,7 @@ export default function TransactionLogsListPage() {
             <Button
               variant="outline"
               onClick={() => {
-                setStartDate("")
-                setEndDate("")
-                setCurrentPage(1)
+                updateUrl({ start_date: null, end_date: null, page: "1" })
               }}
               className="h-10"
             >
@@ -250,7 +267,7 @@ export default function TransactionLogsListPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  onClick={() => updateUrl({ page: Math.max(1, currentPage - 1).toString() })}
                   disabled={currentPage <= 1}
                 >
                   <ChevronLeft className="h-4 w-4" />
@@ -258,7 +275,7 @@ export default function TransactionLogsListPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  onClick={() => updateUrl({ page: Math.min(totalPages, currentPage + 1).toString() })}
                   disabled={currentPage >= totalPages}
                 >
                   <ChevronRight className="h-4 w-4" />

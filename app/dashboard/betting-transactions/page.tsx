@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
+import { useSearchParams, usePathname, useRouter } from "next/navigation"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -20,14 +21,18 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 
 import { formatApiDateTime } from "@/lib/utils";
 export default function BettingTransactionsPage() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [transactionTypeFilter, setTransactionTypeFilter] = useState("all")
-  const [platformFilter, setPlatformFilter] = useState("all")
-  const [commissionPaidFilter, setCommissionPaidFilter] = useState("all")
-  const [startDate, setStartDate] = useState("")
-  const [endDate, setEndDate] = useState("")
-  const [currentPage, setCurrentPage] = useState(1)
+  const searchParams = useSearchParams()
+  const pathname = usePathname()
+  const router = useRouter()
+
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "")
+  const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "all")
+  const [transactionTypeFilter, setTransactionTypeFilter] = useState(searchParams.get("type") || "all")
+  const [platformFilter, setPlatformFilter] = useState(searchParams.get("platform") || "all")
+  const [commissionPaidFilter, setCommissionPaidFilter] = useState(searchParams.get("commission_paid") || "all")
+  const [startDate, setStartDate] = useState(searchParams.get("start_date") || "")
+  const [endDate, setEndDate] = useState(searchParams.get("end_date") || "")
+  const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1)
   const [transactions, setTransactions] = useState<any[]>([])
   const [platforms, setPlatforms] = useState<any[]>([])
   const [stats, setStats] = useState<any | null>(null)
@@ -37,14 +42,26 @@ export default function BettingTransactionsPage() {
   const [platformsLoading, setPlatformsLoading] = useState(false)
   const [statsLoading, setStatsLoading] = useState(false)
   const [error, setError] = useState("")
-  const [sortField, setSortField] = useState<"created_at" | "amount" | "partner_name" | null>(null)
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc")
+  const [sortField, setSortField] = useState<"created_at" | "amount" | "partner_name" | null>((searchParams.get("sort") as any) || null)
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">((searchParams.get("direction") as "asc" | "desc") || "desc")
   
   const itemsPerPage = 20
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
   const { toast } = useToast()
   const { t } = useLanguage()
   const apiFetch = useApi()
+
+  const updateUrl = useCallback((updates: Record<string, string | null>) => {
+    const params = new URLSearchParams(searchParams.toString())
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value === null || value === "all" || value === "") {
+        params.delete(key)
+      } else {
+        params.set(key, value)
+      }
+    })
+    router.push(`${pathname}?${params.toString()}`)
+  }, [searchParams, pathname, router])
   
   // Modal states
   const [detailModalOpen, setDetailModalOpen] = useState(false)
@@ -165,8 +182,21 @@ export default function BettingTransactionsPage() {
         setLoading(false)
       }
     }
+
+    // Sync state from URL
+    setSearchTerm(searchParams.get("search") || "")
+    setStatusFilter(searchParams.get("status") || "all")
+    setTransactionTypeFilter(searchParams.get("type") || "all")
+    setPlatformFilter(searchParams.get("platform") || "all")
+    setCommissionPaidFilter(searchParams.get("commission_paid") || "all")
+    setStartDate(searchParams.get("start_date") || "")
+    setEndDate(searchParams.get("end_date") || "")
+    setCurrentPage(Number(searchParams.get("page")) || 1)
+    setSortField((searchParams.get("sort") as any) || null)
+    setSortDirection((searchParams.get("direction") as "asc" | "desc") || "desc")
+
     fetchTransactions()
-  }, [searchTerm, statusFilter, transactionTypeFilter, platformFilter, commissionPaidFilter, currentPage, startDate, endDate, sortField, sortDirection])
+  }, [searchParams, itemsPerPage, baseUrl, t, toast, apiFetch])
 
   // Fetch transaction statistics
   useEffect(() => {
@@ -195,12 +225,12 @@ export default function BettingTransactionsPage() {
   }, [startDate, endDate])
 
   const handleSort = (field: "created_at" | "amount" | "partner_name") => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc")
-    } else {
-      setSortField(field)
-      setSortDirection("desc")
-    }
+    const isAsc = sortField === field && sortDirection === "asc"
+    updateUrl({
+      sort: field,
+      direction: isAsc ? "desc" : "asc",
+      page: "1"
+    })
   }
 
   // Fetch transaction details
@@ -433,7 +463,7 @@ export default function BettingTransactionsPage() {
                   value={searchTerm}
                   onChange={(e) => {
                     setSearchTerm(e.target.value)
-                    setCurrentPage(1)
+                    updateUrl({ search: e.target.value, page: "1" })
                   }}
                   className="pl-10"
                 />
@@ -441,7 +471,7 @@ export default function BettingTransactionsPage() {
             </div>
             
             <div className="flex flex-wrap gap-4">
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <Select value={statusFilter} onValueChange={(val) => updateUrl({ status: val, page: "1" })}>
                 <SelectTrigger className="w-full lg:w-48">
                   <SelectValue placeholder={t("bettingTransactions.filterByStatus") || "Status"} />
                 </SelectTrigger>
@@ -456,7 +486,7 @@ export default function BettingTransactionsPage() {
                 </SelectContent>
               </Select>
 
-              <Select value={transactionTypeFilter} onValueChange={setTransactionTypeFilter}>
+              <Select value={transactionTypeFilter} onValueChange={(val) => updateUrl({ type: val, page: "1" })}>
                 <SelectTrigger className="w-full lg:w-48">
                   <SelectValue placeholder={t("bettingTransactions.filterByType") || "Type"} />
                 </SelectTrigger>
@@ -468,7 +498,7 @@ export default function BettingTransactionsPage() {
                 </SelectContent>
               </Select>
 
-              <Select value={platformFilter} onValueChange={setPlatformFilter}>
+              <Select value={platformFilter} onValueChange={(val) => updateUrl({ platform: val, page: "1" })}>
                 <SelectTrigger className="w-full lg:w-48">
                   <SelectValue placeholder={t("bettingTransactions.filterByPlatform") || "Platform"} />
                 </SelectTrigger>
@@ -482,7 +512,7 @@ export default function BettingTransactionsPage() {
                 </SelectContent>
               </Select>
 
-              <Select value={commissionPaidFilter} onValueChange={setCommissionPaidFilter}>
+              <Select value={commissionPaidFilter} onValueChange={(val) => updateUrl({ commission_paid: val, page: "1" })}>
                 <SelectTrigger className="w-full lg:w-48">
                   <SelectValue placeholder={t("bettingTransactions.filterByCommission") || "Commission"} />
                 </SelectTrigger>
@@ -502,10 +532,7 @@ export default function BettingTransactionsPage() {
               <input
                 type="date"
                 value={startDate}
-                onChange={(e) => {
-                  setStartDate(e.target.value)
-                  setCurrentPage(1)
-                }}
+                onChange={(e) => updateUrl({ start_date: e.target.value, page: "1" })}
                 className="w-full p-2 border rounded"
               />
             </div>
@@ -514,10 +541,7 @@ export default function BettingTransactionsPage() {
               <input
                 type="date"
                 value={endDate}
-                onChange={(e) => {
-                  setEndDate(e.target.value)
-                  setCurrentPage(1)
-                }}
+                onChange={(e) => updateUrl({ end_date: e.target.value, page: "1" })}
                 className="w-full p-2 border rounded"
               />
             </div>
@@ -673,7 +697,7 @@ export default function BettingTransactionsPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                onClick={() => updateUrl({ page: Math.max(currentPage - 1, 1).toString() })}
                 disabled={currentPage === 1}
               >
                 <ChevronLeft className="h-4 w-4 mr-1" />
@@ -682,7 +706,7 @@ export default function BettingTransactionsPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                onClick={() => updateUrl({ page: Math.min(currentPage + 1, totalPages).toString() })}
                 disabled={currentPage === totalPages}
               >
                 {t("bettingTransactions.next")}

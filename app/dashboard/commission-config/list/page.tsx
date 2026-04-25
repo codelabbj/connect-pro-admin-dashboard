@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
+import { useSearchParams, usePathname, useRouter } from "next/navigation"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -18,20 +19,36 @@ import Link from "next/link"
 
 import { formatApiDateTime } from "@/lib/utils";
 export default function CommissionConfigListPage() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [currentPage, setCurrentPage] = useState(1)
+  const searchParams = useSearchParams()
+  const pathname = usePathname()
+  const router = useRouter()
+
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "")
+  const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1)
   const [configs, setConfigs] = useState<any[]>([])
   const [totalCount, setTotalCount] = useState(0)
   const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | false>(false)
-  const [sortField, setSortField] = useState<"partner_name" | "updated_at" | null>(null)
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc")
+  const [sortField, setSortField] = useState<"partner_name" | "updated_at" | null>((searchParams.get("sort") as any) || null)
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">((searchParams.get("direction") as "asc" | "desc") || "desc")
   const { t } = useLanguage()
   const itemsPerPage = 20
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
   const { toast } = useToast()
   const apiFetch = useApi()
+
+  const updateUrl = useCallback((updates: Record<string, string | null>) => {
+    const params = new URLSearchParams(searchParams.toString())
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value === null || value === "all" || value === "") {
+        params.delete(key)
+      } else {
+        params.set(key, value)
+      }
+    })
+    router.push(`${pathname}?${params.toString()}`)
+  }, [searchParams, pathname, router])
   
   // Modal states
   const [detailModalOpen, setDetailModalOpen] = useState(false)
@@ -90,16 +107,22 @@ export default function CommissionConfigListPage() {
         setLoading(false)
       }
     }
+    // Sync state from URL
+    setSearchTerm(searchParams.get("search") || "")
+    setCurrentPage(Number(searchParams.get("page")) || 1)
+    setSortField((searchParams.get("sort") as any) || null)
+    setSortDirection((searchParams.get("direction") as "asc" | "desc") || "desc")
+
     fetchConfigs()
-  }, [searchTerm, currentPage, sortField, sortDirection])
+  }, [searchParams, itemsPerPage, baseUrl, apiFetch, toast])
 
   const handleSort = (field: "partner_name" | "updated_at") => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc")
-    } else {
-      setSortField(field)
-      setSortDirection("desc")
-    }
+    const isAsc = sortField === field && sortDirection === "asc"
+    updateUrl({
+      sort: field,
+      direction: isAsc ? "desc" : "asc",
+      page: "1"
+    })
   }
 
   // Fetch config details
@@ -145,7 +168,7 @@ export default function CommissionConfigListPage() {
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value)
-                  setCurrentPage(1)
+                  updateUrl({ search: e.target.value, page: "1" })
                 }}
                 className="pl-10"
               />
@@ -262,7 +285,7 @@ export default function CommissionConfigListPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                onClick={() => updateUrl({ page: Math.max(currentPage - 1, 1).toString() })}
                 disabled={currentPage === 1}
               >
                 <ChevronLeft className="h-4 w-4 mr-1" />
@@ -271,7 +294,7 @@ export default function CommissionConfigListPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                onClick={() => updateUrl({ page: Math.min(currentPage + 1, totalPages).toString() })}
                 disabled={currentPage === totalPages}
               >
                 Next

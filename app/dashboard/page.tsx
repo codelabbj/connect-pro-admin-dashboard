@@ -1424,21 +1424,21 @@ export default function DashboardPage() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800">
                     <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{t("dashboard.totalAggregators")}</p>
-                    <p className="text-3xl font-black text-slate-800 dark:text-slate-100">{aggregatorStats.users.total_aggregators}</p>
+                    <p className="text-3xl font-black text-slate-800 dark:text-slate-100">{aggregatorStats?.users?.total_aggregators || 0}</p>
                   </div>
                   <div className="p-4 bg-green-50 dark:bg-green-950 rounded-xl border border-green-100 dark:border-green-900">
                     <p className="text-xs font-bold text-green-600 uppercase tracking-wider mb-1">{t("dashboard.activeToday")}</p>
-                    <p className="text-3xl font-black text-green-700 dark:text-green-300">{aggregatorStats.users.active_today}</p>
+                    <p className="text-3xl font-black text-green-700 dark:text-green-300">{aggregatorStats?.users?.active_today || 0}</p>
                   </div>
                   <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-xl border border-blue-100 dark:border-blue-900">
                     <p className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-1">{t("dashboard.successRate")}</p>
-                    <p className="text-3xl font-black text-blue-700 dark:text-blue-300">{aggregatorStats.transactions.success_rate}%</p>
+                    <p className="text-3xl font-black text-blue-700 dark:text-blue-300">{aggregatorStats?.transactions?.success_rate || 0}%</p>
                   </div>
                   <div className="p-4 bg-indigo-50 dark:bg-indigo-950 rounded-xl border border-indigo-100 dark:border-indigo-900">
                     <p className="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-1">{t("dashboard.totalProfit")}</p>
                     <div className="flex items-baseline gap-1">
                       <p className="text-2xl font-black text-indigo-700 dark:text-indigo-300">
-                        {((aggregatorStats.payin.total_platform_profit || 0) + (aggregatorStats.payout.total_platform_profit || 0)).toLocaleString()}
+                        {((aggregatorStats?.payin?.total_platform_profit || 0) + (aggregatorStats?.payout?.total_platform_profit || 0)).toLocaleString()}
                       </p>
                       <span className="text-xs font-bold text-indigo-400">XAF</span>
                     </div>
@@ -1456,11 +1456,11 @@ export default function DashboardPage() {
                         <PieChart>
                           <Pie
                             data={[
-                              { name: t("dashboard.success"), value: aggregatorStats.transactions.success_count },
-                              { name: t("dashboard.pending"), value: aggregatorStats.transactions.pending_count },
-                              { name: t("transactions.failed"), value: aggregatorStats.transactions.failed_count },
-                              { name: t("dashboard.cancelled"), value: aggregatorStats.transactions.cancelled_count },
-                              { name: t("dashboard.processingTransactions"), value: aggregatorStats.transactions.processing_count },
+                              { name: t("dashboard.success"), value: aggregatorStats?.transactions?.success_count || 0 },
+                              { name: t("dashboard.pending"), value: aggregatorStats?.transactions?.pending_count || 0 },
+                              { name: t("transactions.failed"), value: aggregatorStats?.transactions?.failed_count || 0 },
+                              { name: t("dashboard.cancelled"), value: aggregatorStats?.transactions?.cancelled_count || 0 },
+                              { name: t("dashboard.processingTransactions"), value: aggregatorStats?.transactions?.processing_count || 0 },
                             ].filter(d => d.value > 0)}
                             cx="50%"
                             cy="50%"
@@ -1492,10 +1492,10 @@ export default function DashboardPage() {
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart
                           data={[
-                            { name: t("common.active"), value: aggregatorStats.users.active_aggregators },
-                            { name: t("common.inactive"), value: aggregatorStats.users.inactive_aggregators },
-                            { name: t("dashboard.activeToday"), value: aggregatorStats.users.active_today },
-                            { name: t("dashboard.active7D"), value: aggregatorStats.users.active_last_7_days },
+                            { name: t("common.active"), value: aggregatorStats?.users?.active_aggregators || 0 },
+                            { name: t("common.inactive"), value: aggregatorStats?.users?.inactive_aggregators || 0 },
+                            { name: t("dashboard.activeToday"), value: aggregatorStats?.users?.active_today || 0 },
+                            { name: t("dashboard.active7D"), value: aggregatorStats?.users?.active_last_7_days || 0 },
                           ]}
                           margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
                         >

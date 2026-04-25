@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table"
 import { Input } from "@/components/ui/input"
@@ -17,22 +17,26 @@ import { PartnerSelectionModal } from "@/components/ui/partner-selection-modal"
 import { DeviceSelectionModal } from "@/components/ui/device-selection-modal"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { useRouter } from "next/navigation"
+import { useSearchParams, usePathname, useRouter } from "next/navigation"
 
 import { formatApiDateTime } from "@/lib/utils";
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
 export default function DeviceAuthorizationsPage() {
+  const searchParams = useSearchParams()
+  const pathname = usePathname()
+  const router = useRouter()
+
   const [authorizations, setAuthorizations] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [startDate, setStartDate] = useState("")
-  const [endDate, setEndDate] = useState("")
-  const [sortField, setSortField] = useState<"created_at" | "partner_name" | null>(null)
-  const [sortDirection, setSortDirection] = useState<"+" | "-">("-")
-  const [currentPage, setCurrentPage] = useState(1)
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("search") || "")
+  const [statusFilter, setStatusFilter] = useState(searchParams.get("status") || "all")
+  const [startDate, setStartDate] = useState(searchParams.get("start_date") || "")
+  const [endDate, setEndDate] = useState(searchParams.get("end_date") || "")
+  const [sortField, setSortField] = useState<"created_at" | "partner_name" | null>((searchParams.get("sort") as any) || null)
+  const [sortDirection, setSortDirection] = useState<"+" | "-">((searchParams.get("direction") as "+" | "-") || "-")
+  const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1)
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [selectedAuthorization, setSelectedAuthorization] = useState<any>(null)
@@ -54,11 +58,28 @@ export default function DeviceAuthorizationsPage() {
   const apiFetch = useApi()
   const { t } = useLanguage()
   const { toast } = useToast()
-  const router = useRouter()
+
+  const updateUrl = useCallback((updates: Record<string, string | null>) => {
+    const params = new URLSearchParams(searchParams.toString())
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value === null || value === "all" || value === "") {
+        params.delete(key)
+      } else {
+        params.set(key, value)
+      }
+    })
+    router.push(`${pathname}?${params.toString()}`)
+  }, [searchParams, pathname, router])
 
   useEffect(() => {
+    setSearchTerm(searchParams.get("search") || "")
+    setStatusFilter(searchParams.get("status") || "all")
+    setStartDate(searchParams.get("start_date") || "")
+    setEndDate(searchParams.get("end_date") || "")
+    setSortField((searchParams.get("sort") as any) || null)
+    setSortDirection((searchParams.get("direction") as "+" | "-") || "-")
     fetchAuthorizations()
-  }, [searchTerm, statusFilter, startDate, endDate, sortField, sortDirection])
+  }, [searchParams])
 
   const fetchAuthorizations = async () => {
     setLoading(true)
@@ -120,13 +141,11 @@ export default function DeviceAuthorizationsPage() {
   }
 
   const handleSort = (field: "created_at" | "partner_name") => {
-    if (sortField === field) {
-      setSortDirection(prev => prev === "+" ? "-" : "+")
-      setSortField(field)
-    } else {
-      setSortField(field)
-      setSortDirection("-")
-    }
+    const isAsc = sortField === field && sortDirection === "+"
+    updateUrl({
+      sort: field,
+      direction: isAsc ? "-" : "+"
+    })
   }
 
   const handleCreate = async () => {
@@ -383,12 +402,12 @@ export default function DeviceAuthorizationsPage() {
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value)
-                setCurrentPage(1)
+                updateUrl({ search: e.target.value })
               }}
               className="pl-10"
             />
           </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <Select value={statusFilter} onValueChange={(val) => updateUrl({ status: val })}>
             <SelectTrigger className="w-full sm:w-48">
               <SelectValue placeholder={t("deviceAuthorizations.status") || "Status"} />
             </SelectTrigger>
@@ -410,10 +429,7 @@ export default function DeviceAuthorizationsPage() {
               <Input
                 type="date"
                 value={startDate}
-                onChange={(e) => {
-                  setStartDate(e.target.value)
-                  setCurrentPage(1)
-                }}
+                onChange={(e) => updateUrl({ start_date: e.target.value })}
                 className="w-full lg:w-48"
               />
             </div>
@@ -424,10 +440,7 @@ export default function DeviceAuthorizationsPage() {
               <Input
                 type="date"
                 value={endDate}
-                onChange={(e) => {
-                  setEndDate(e.target.value)
-                  setCurrentPage(1)
-                }}
+                onChange={(e) => updateUrl({ end_date: e.target.value })}
                 className="w-full lg:w-48"
               />
             </div>
@@ -436,9 +449,10 @@ export default function DeviceAuthorizationsPage() {
             <Button
               variant="outline"
               onClick={() => {
-                setStartDate("")
-                setEndDate("")
-                setCurrentPage(1)
+                updateUrl({
+                  start_date: null,
+                  end_date: null
+                })
               }}
               className="h-10"
             >
